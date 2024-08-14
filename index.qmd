@@ -1,11 +1,23 @@
 ---
-title: "IS415-GAA"
+title: "IS415: Geospatial Analytics and Application"
+about:
+  template: jolla
+  id: about-block
+  image: images/profile.JFIF
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/SamanthaxFoo
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/samantha-foo-30bab114/
+    - icon: envelope
+      text: Email
+      href: "sammi.fjy@gmail.com"  
 ---
 
-This is a Quarto website.
+::: {#hero-heading}
+Hey there! 👋 I'm **Samantha Foo**, a Year 3 SMU student pursuing a Bachelor in Information Systems (Business Analytics) with a 2nd Major in Data Science & Analytics. I'm a huge data enthusiast, a FOOdie and I enjoy exploring new places/cities!
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-```{r}
-1 + 1
-```
+Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
+:::
