@@ -1,0 +1,384 @@
+---
+title: "Hands-on Exercise 1"
+author: "Foo Jia Yi Samantha"
+date-modified: 15/08/2024
+published: 15/08/2024
+---
+
+## 1. Getting Started
+
+In this hands-on exercise, I will be performing geospatial data science tasks in R by using the **sf** and **tidyverse** R packages. By the end of this hands-on exercise, I would have acquired the following competencies:
+
+-   installing and loading sf and tidyverse packages into R environment,
+-   importing geospatial data by using appropriate functions of sf package,
+-   importing aspatial data by using appropriate function of readr package,
+-   exploring the content of simple feature data frame by using appropriate Base R and sf functions,
+-   assigning or transforming coordinate systems by using using appropriate sf functions,
+-   converting an aspatial data into a sf data frame by using appropriate function of sf package,
+-   performing geoprocessing tasks by using appropriate functions of sf package,
+-   performing data wrangling tasks by using appropriate functions of dplyr package and
+-   performing Exploratory Data Analysis (EDA) by using appropriate functions from ggplot2 package.
+
+## 2. Let's Set Up!
+
+### 2.1 Data Acquisition
+
+Data are key to data analytics including geospatial analytics. Hence, before analysing, we need to assemble the necessary data. With that said, I have extracted the data sets from the following four sources:
+
+-   Master Plan 2014 Subzone Boundary (Web) from [data.gov.sg](https://data.gov.sg/)
+-   Pre-Schools Location from [data.gov.sg](https://data.gov.sg/)
+-   Cycling Path from [LTADataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html)
+-   Latest version of Singapore Airbnb listing data from [Inside Airbnb](http://insideairbnb.com/get-the-data.html)
+
+> I will be tapping on these vastly available, public data from the government and private sectors for future exercises ahead!
+
+### 2.2 Set Up the Folders
+
+This is the file structure for containing the data files that I have extracted in the previous step. The `Hands-on_Ex1` folder consists of a `data` sub-folder, and is further separated by the `geospatial` and `aspatial` folders.
+
+![](/_site/images/Hands-on_Ex1_Data.JPG){fig-align="center" width="700"}
+
+### 2.3 Installing R Packages
+
+In this exercise, I will be using these two R packages
+
+-   **sf** for importing, managing, and processing geospatial data, and
+-   **tidyverse** for performing data science tasks such as importing, wrangling and visualising data.
+
+Tidyverse consists of a family of R packages. In this hands-on exercise, the following packages will be used:
+
+-   **readr** for importing csv data,
+-   **readxl** for importing Excel worksheet,
+-   **tidyr** for manipulating data,
+-   **dplyr** for transforming data, and
+-   **ggplot2** for visualising data
+
+With that said, I installed the required packages using the code chunk below.
+
+```{r}
+pacman::p_load(sf, tidyverse)
+```
+
+> **`p_load`** is a function of the [**pacman**](https://github.com/trinker/pacman) package that is used to install and load sf and tidyverse packages into our R environment.
+
+## **3. Importing Geospatial Data into R**
+
+In this section, I will import the following geospatial data into R by using [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of the **sf** package:
+
+-   `MP14_SUBZONE_WEB_PL`: a polygon feature layer in ESRI shapefile format,
+-   `CyclingPath`: a line feature layer in ESRI shapefile format, and
+-   `PreSchool`: a point feature layer in kml file format.
+
+### 3.1 **Importing [Polygon]{.underline} Feature Data in .shp Format**
+
+The code chunk below uses *st_read()* function of **sf** package to import `MP14_SUBZONE_WEB_PL` shapefile (.shp) into R as a polygon feature data frame.
+
+```{r}
+mpsz = st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_WEB_PL")
+```
+
+> 🔎 **Observations:** the **`mpsz`** simple feature data frame contains **323** multipolygon features, **15** fields and is in the **SVY21** projected coordinates system.
+
+> 💡 **Note:** **`dsn`** defines folder path and **`layer`** defines file name (AKA a shapefile, no need any extension like .shp)
+
+### 3.2 **Importing [Polyline]{.underline} Feature Data in .shp Format**
+
+The code chunk below imports `CyclingPath` shapefile (.shp) into R as a polyline feature data frame.
+
+```{r}
+cyclingpath = st_read(dsn = "data/geospatial", 
+                         layer = "CyclingPathGazette")
+```
+
+> 🔎 **Observations:** the **`cyclingpath`** linestring feature data frame contains **3138** features and **2** fields and it is in the **SVY21** projected coordinates system.
+
+### 3.3 **Importing GIS [Point]{.underline} Feature Data in .kml format**
+
+The code chunk below imports `PreSchoolsLocation.kml` kml format into R as a point feature data frame.
+
+```{r}
+preschool = st_read("data/geospatial/PreSchoolsLocation.kml")
+```
+
+> 🔎 **Observations:** the `PreSchoolsLocation.kml` point feature data frame contains **2290** point features, **2** fields and is in the **WGS84** projected coordinates
+
+## 4. Importing Aspatial Data into R
+
+### 4.1 Importing Aspatial Data
+
+Notice that the `listings` data set is in **csv** file format. Instead of **`st_read()`**, we'll use **`read_csv()`** from the **readr** package to import `listings.csv`.
+
+```{r}
+listings <- read_csv("data/aspatial/listings.csv")
+```
+
+> This outputs an R object called `listings` which is a [tibble data frame](https://tibble.tidyverse.org/).
+
+Let's take a peak into our `listings` tibble data frame.
+
+```{r}
+glimpse(listings)
+```
+
+> 🔎 **Observations:** there are 3540 rows and 18 columns (not features and fields like in our simple data feature frame!)
+
+> 💡 **Note:** we'll be using the `latitude` and `longitude` fields in the next phase. These fields appear to be adopting the **WGS84 geographic** coordinate system.
+
+### 4.2 Converting Aspatial Data
+
+Next, we'll convert `listing` (a non-geospatial tabular data frame) into a **simple feature** data frame by using **`st_as_sf()`** from the **sf** package.
+
+> 💡 **Note:** a non-simple feature data frame will simply not have a "geometry" column. Use **`class(listings)`** as a simple test - if it outputs data.frame, tbl_df, tbl, etc and no `sf`, then it's not a simple feature data frame!
+
+```{r}
+listings_sf <- st_as_sf(listings, coords = c("longitude", "latitude"), crs=4326) %>% st_transform(crs = 3414)
+```
+
+::: panel-tabset
+## coords
+
+Indicates the column name of the x-coordinates, followed by that of the y-coordinates.
+
+## crs
+
+Indicates the coordinates system in epsg format (more info: [epsg.io](https://epsg.io/))
+
+-   [EPSG: 4326](https://epsg.io/4326) is **WGS84** Geographic Coordinate System
+-   [EPSG: 3414](https://epsg.io/3414) is Singapore **SVY21** Projected Coordinate System
+
+## %\>%
+
+To nest *st_transform()* and transform the newly created simple feature data frame into SVY21 Projected Coordinate System
+:::
+
+This gives us the new simple feature data frame, `listings_sf`:
+
+```{r}
+glimpse(listings_sf)
+```
+
+> 🔎 **Observations:**
+>
+> Notice that a new column called `geometry` has been added into the data frame. On the other hand, the `longitude` and `latitude` columns have been removed from the data frame.
+
+## 5. Exploring Contents of a Simple Feature Data Frame
+
+There are **3 ways** to explore the contents of a simple feature data frame like **`mpsz`**!
+
+### 5.1 Using *st_geometry()*
+
+The sf data.frame contains a **geometry** column, that is a list of class `sfc`. We can retrieve the geometry list-column in this case by `mpsz$geom` or `mpsz[[1]]`, but the more general way uses **`st_geometry()`**.
+
+```{r}
+# Retrieve geometry column
+st_geometry(mpsz)
+```
+
+### 5.2 Using *glimpse()*
+
+We use **`glimpse()`** from the **dplyr** package to understand the data type of each fields.
+
+E.g. `FMEL-UPD_D` field is in **date** data type and `X_ADDR`, `Y_ADDR`, `SHAPE_L` and `SHAPE_AREA` fields are in **double-precision values**.
+
+```{r}
+# Get data types
+glimpse(mpsz)
+```
+
+### 5.3 Using *head()*
+
+We use **`head()`** from the **base R** package to get the full information of the feature object **`mpsz`**. The `n` value indicates the no. of rows.
+
+```{r}
+# Display top 5 rows of the feature object
+head(mpsz, n=5)  
+```
+
+## 6. Plotting the Geospatial Data
+
+In geospatial data science, looking at feature information is not sufficient. We are also interested in visualising the geospatial features of the sf object, in which **`plot()`** will help with that.
+
+```{r}
+# Plot multi-plot of all attributes
+plot(mpsz)
+```
+
+> The default plot of an sf object is a **multi-plot** of all attributes, up to a reasonable maximum as shown above.
+
+We can, however, choose to plot the geometry only as such:
+
+```{r}
+# Plot the geometry only
+plot(st_geometry(mpsz))
+```
+
+Or, plot the sf object using a specific attribute
+
+```{r}
+# Plot a specific attribute
+plot(mpsz["PLN_AREA_N"])
+```
+
+> 💡 **Note:** **`plot()`** is meant for plotting the geospatial object at a high level. For high cartographic quality plot, other R package such as `tmap` should be used.
+
+## 7. Working with Projection
+
+**What is "map projection"?:** it is an important property of geospatial data. In order to perform **geoprocessing** using two geospatial data, we need to ensure that both geospatial data are **projected using similar coordinate system.**
+
+In this section, I project a simple feature data frame from one coordinate system to another coordinate system. The technical term of this process is called **projection transformation**.
+
+### **7.1 Assigning EPSG code to a simple feature data frame**
+
+**Define "ESPG code":** a unique identifier to represent coordinate systems.
+
+Common issues when importing geospatial data into R : the coordinate system of the source data are either...
+
+1.  Missing (such as due to missing .proj for ESRI shapefile)
+2.  Wrongly assigned
+
+To check the coordinate system of `mpsz` simple feature data frame, I'll use **`st_crs()`** from the **sf** package.
+
+*\* crs = Coordinate Reference System*
+
+```{r}
+# Check coordinate system
+st_crs(mpsz)
+```
+
+Notice the last few lines, the ESPG code is wrongly indicated as **9001**. The correct ESPG code for SVY21 should be **3114**. Thus, we'll assign the correct code as such.
+
+```{r}
+# Assign new ESPG code
+mpsz3414 <- st_set_crs(mpsz, 3414)
+
+# Check that crs has been updated to 3414
+st_crs(mpsz3414)
+```
+
+### 7.2 Converting Data from Geographic to Projected Coordinate System
+
+Recall that the **geographic coordinate system (e.g., WGS84)** is not appropriate for analyses that involve distance/area. Hence, it's common for us to **transform the original data** to a **projected coordinate system**.
+
+Let's take a look at the **`preschool`** simple feature data frame. It shows that it is in the WGS84 coordinate system, i.e., geographic coordinate system.
+
+```{r}
+# Transform projection
+st_geometry(preschool)
+```
+
+Now, we'll transform **`preschool`**'s coordinate system from geographic (WGS84) to projected (SVY21).
+
+```{r}
+preschool3414 <- st_transform(preschool, crs = 3414)
+```
+
+> 🔎 **Observations:** Notice that the last row shows "Projected CRS" now
+
+## **8. Geoprocessing with sf Package**
+
+Besides providing functions to handling geospatial data (i.e. importing, exporting, assigning projection, transforming projection etc), **sf** package also offers a wide range of **geoprocessing (also known as GIS analysis) functions**.
+
+In this section, I perform two commonly-used geoprocessing functions, namely [buffering](https://www.gislounge.com/buffers-in-gis/) and point in polygon count.
+
+### **8.1 Buffering**
+
+📝**The scenario:** The authority is planning to upgrade the exiting cycling path. To do so, they need to acquire 5 metres of reserved land on both sides of the current cycling path. You are tasked to determine the extend of the land needed to be acquired and their total area.
+
+**💡The solution:**
+
+Firstly, **`st_buffer()`** of the **sf** package is used to compute the 5-meter buffers around cycling paths
+
+```{r}
+buffer_cycling <- st_buffer(cyclingpath, dist = 5, nQuadSegs = 30)
+```
+
+> A higher **`nQuadSegs`** value results in a smoother and more accurate circular buffer. The default is `30.`
+
+This is followed by calculating the area of the buffers
+
+```{r}
+buffer_cycling$AREA <- st_area(buffer_cycling)
+```
+
+Lastly, **`sum()`** of Base R will be used to derive the total land involved
+
+```{r}
+sum(buffer_cycling$AREA)
+```
+
+### **8.2 Point-in-polygon count**
+
+📝**The scenario:** A pre-school service group want to find out the numbers of pre-schools in each Planning Subzone.
+
+**💡The solution:**
+
+Firstly, identify pre-schools located inside each Planning Subzone by using **`st_intersects()`**. Next, **`length()`** of Base R is used to calculate the no. of pre-schools that fall inside each planning subzone.
+
+```{r}
+mpsz3414$`PreSch Count`<- lengths(st_intersects(mpsz3414, preschool3414))
+```
+
+You can check the summary statistics of the newly derived ***PreSch Count*** field by using **`summary()`** as shown below.
+
+```{r}
+summary(mpsz3414$`PreSch Count`)
+```
+
+To list the planning subzone with the most number of pre-school, **`top_n()`** of the **dplyr** package is used.
+
+```{r}
+top_n(mpsz3414, 1, `PreSch Count`)
+```
+
+Next, I calculate the density of pre-school by planning subzone. I used **`st_area()`** of the **sf** package to derive the area of each planning subzone.
+
+```{r}
+mpsz3414$Area <- mpsz3414 %>%   st_area()
+```
+
+Next, I used **`mutate()`**of the **dplyr** package to compute the density by using the code chunk below.
+
+```{r}
+mpsz3414 <- mpsz3414 %>% mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
+```
+
+## **9. Exploratory Data Analysis (EDA)**
+
+In practice, many geospatial analytics start with Exploratory Data Analysis. In this section, I will tap on **`ggplot2()`** functions to create functional yet transparent statistical graphs for EDA purposes.
+
+Firstly, we will plot a histogram to reveal the distribution of `PreSch Density`. Conventionally, **`hist()`** of R Graphics will be used as shown.
+
+```{r}
+hist(mpsz3414$`PreSch Density`)
+```
+
+Although the syntax is very easy to use, the output is currently far from meeting publication quality. Furthermore, **`hist()`** function has limited room for further customisation.
+
+In the code chunk below, appropriate **`ggplot2()`** functions will be used.
+
+```{r}
+ggplot(data=mpsz3414, 
+       aes(x= as.numeric(`PreSch Density`)))+
+  geom_histogram(bins=20, 
+                 color="black", 
+                 fill="light blue") +
+  labs(title = "Are pre-school even distributed in Singapore?",
+       subtitle= "There are many planning sub-zones with a single pre-school, on the other hand, \nthere are two planning sub-zones with at least 20 pre-schools",
+      x = "Pre-school density (per km sq)",
+      y = "Frequency")
+```
+
+Using ggplot2 method, I plot a scatterplot showing the relationship between Pre-school Density and Pre-school Count.
+
+```{r}
+ggplot(data=mpsz3414, 
+       aes(y = `PreSch Count`, 
+           x= as.numeric(`PreSch Density`)))+
+  geom_point(color="black", 
+             fill="light blue") +
+  xlim(0, 40) +
+  ylim(0, 40) +
+  labs(title = "",
+      x = "Pre-school density (per km sq)",
+      y = "Pre-school count")
+```

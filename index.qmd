@@ -10,7 +10,7 @@ about:
       href: https://github.com/SamanthaxFoo
     - icon: linkedin
       text: LinkedIn
-      href: https://www.linkedin.com/in/samantha-foo-30bab114/
+      href: https://www.linkedin.com/in/samantha-foo-30bab1148
     - icon: envelope
       text: Email
       href: "sammi.fjy@gmail.com"  
@@ -21,3 +21,11 @@ Hey there! 👋 I'm **Samantha Foo**, a Year 3 SMU student pursuing a Bachelor i
 
 Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 :::
+
++:--------------------+:---------------------------------------+:-------------------------------------------------+
+| \                   | ## **Hands-on Exercise 1**             | \                                                |
+|                     |                                        |                                                  |
+| Aug 15, 2024        | Geospatial Wrangling with R            | ![](images/clipboard-195378010.png){width="200"} |
+|                     |                                        |                                                  |
+| Foo Jia Yi Samantha |                                        |                                                  |
++---------------------+----------------------------------------+--------------------------------------------------+

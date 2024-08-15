@@ -62,7 +62,7 @@ website:
 
 format:
   html:
-    theme: cerulean
+    theme: flatly
     css: styles.css
     toc: true
 
