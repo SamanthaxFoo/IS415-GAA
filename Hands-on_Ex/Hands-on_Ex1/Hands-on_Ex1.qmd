@@ -1,10 +1,14 @@
 ---
 title: "Hands-on Exercise 1"
+subtitle: "Geospatial Data Wrangling with R!"
 author: "Foo Jia Yi Samantha"
 date-modified: 08/16/2024
 date: 08/16/2024
 ---
 
+```{=html}
+<button>Hands-on Exercise</button> <button>R</button> <button>sf</button> <button>ggplot2</button>
+```
 ## 1. Getting Started
 
 In this hands-on exercise, I will be performing geospatial data science tasks in R by using the **sf** and **tidyverse** R packages. By the end of this hands-on exercise, I would have acquired the following competencies:

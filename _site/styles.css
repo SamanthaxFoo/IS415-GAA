@@ -1,1 +1,7 @@
 /* css styles */
+button {
+    border: 1px solid blue; /* Change the outline (border) to blue */
+    color: blue;
+    margin-right: 5px;
+    margin-bottom: 20px;
+}

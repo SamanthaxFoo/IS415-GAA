@@ -9,9 +9,9 @@
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "IS415: Geospatial Analytics and Application",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "Hey there! 👋 I’m Samantha Foo, a Year 3 SMU student pursuing a Bachelor in Information Systems (Business Analytics) with a 2nd Major in Data Science & Analytics. I’m a huge data enthusiast, a FOOdie and I enjoy exploring new places/cities!\nJoin me on this data odyssey as I conquer Geospatial Analytics! 🌱"
   },
   {
     "objectID": "index.html#education",
@@ -32,14 +32,14 @@
     "href": "Hands-on_Ex/Hands-on_Ex1/Hands-on_Ex1.html",
     "title": "Hands-on Exercise 1",
     "section": "",
-    "text": "In this hands-on exercise, I will be performing geospatial data science tasks in R by using the sf and tidyverse R packages. By the end of this hands-on exercise, I would have acquired the following competencies:\n\ninstalling and loading sf and tidyverse packages into R environment,\nimporting geospatial data by using appropriate functions of sf package,\nimporting aspatial data by using appropriate function of readr package,\nexploring the content of simple feature data frame by using appropriate Base R and sf functions,\nassigning or transforming coordinate systems by using using appropriate sf functions,\nconverting an aspatial data into a sf data frame by using appropriate function of sf package,\nperforming geoprocessing tasks by using appropriate functions of sf package,\nperforming data wrangling tasks by using appropriate functions of dplyr package and\nperforming Exploratory Data Analysis (EDA) by using appropriate functions from ggplot2 package."
+    "text": "Hands-on Exercise"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex1/Hands-on_Ex1.html#getting-started",
     "href": "Hands-on_Ex/Hands-on_Ex1/Hands-on_Ex1.html#getting-started",
     "title": "Hands-on Exercise 1",
-    "section": "",
-    "text": "In this hands-on exercise, I will be performing geospatial data science tasks in R by using the sf and tidyverse R packages. By the end of this hands-on exercise, I would have acquired the following competencies:\n\ninstalling and loading sf and tidyverse packages into R environment,\nimporting geospatial data by using appropriate functions of sf package,\nimporting aspatial data by using appropriate function of readr package,\nexploring the content of simple feature data frame by using appropriate Base R and sf functions,\nassigning or transforming coordinate systems by using using appropriate sf functions,\nconverting an aspatial data into a sf data frame by using appropriate function of sf package,\nperforming geoprocessing tasks by using appropriate functions of sf package,\nperforming data wrangling tasks by using appropriate functions of dplyr package and\nperforming Exploratory Data Analysis (EDA) by using appropriate functions from ggplot2 package."
+    "section": "1. Getting Started",
+    "text": "1. Getting Started\nIn this hands-on exercise, I will be performing geospatial data science tasks in R by using the sf and tidyverse R packages. By the end of this hands-on exercise, I would have acquired the following competencies:\n\ninstalling and loading sf and tidyverse packages into R environment,\nimporting geospatial data by using appropriate functions of sf package,\nimporting aspatial data by using appropriate function of readr package,\nexploring the content of simple feature data frame by using appropriate Base R and sf functions,\nassigning or transforming coordinate systems by using using appropriate sf functions,\nconverting an aspatial data into a sf data frame by using appropriate function of sf package,\nperforming geoprocessing tasks by using appropriate functions of sf package,\nperforming data wrangling tasks by using appropriate functions of dplyr package and\nperforming Exploratory Data Analysis (EDA) by using appropriate functions from ggplot2 package."
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex1/Hands-on_Ex1.html#lets-set-up",

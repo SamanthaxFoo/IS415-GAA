@@ -1,9 +1,23 @@
 ---
-title: "About"
+title: "IS415: Geospatial Analytics and Application"
+about:
+  template: jolla
+  id: about-block
+  image: images/profile.JFIF
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/SamanthaxFoo
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/samantha-foo-30bab1148
+    - icon: envelope
+      text: Email
+      href: "sammi.fjy@gmail.com"  
 ---
 
-About this site
+::: {#hero-heading}
+Hey there! 👋 I'm **Samantha Foo**, a Year 3 SMU student pursuing a Bachelor in Information Systems (Business Analytics) with a 2nd Major in Data Science & Analytics. I'm a huge data enthusiast, a FOOdie and I enjoy exploring new places/cities!
 
-```{r}
-1 + 1
-```
+Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
+:::
