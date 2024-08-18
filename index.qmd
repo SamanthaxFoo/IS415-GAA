@@ -25,7 +25,7 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 +:--------------------+:----------------------------------------------------------------------------------------------------------+:-------------------------------------------------+
 | \                   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1) | \                                                |
 |                     |                                                                                                           |                                                  |
-| Aug 15, 2024        | Geospatial Wrangling with R                                                                               | ![](images/clipboard-195378010.png){width="200"} |
+| Aug 16, 2024        | Geospatial Wrangling with R                                                                               | ![](images/clipboard-195378010.png){width="200"} |
 |                     |                                                                                                           |                                                  |
 | Foo Jia Yi Samantha |                                                                                                           |                                                  |
 +---------------------+-----------------------------------------------------------------------------------------------------------+--------------------------------------------------+

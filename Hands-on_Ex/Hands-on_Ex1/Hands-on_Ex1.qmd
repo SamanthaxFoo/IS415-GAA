@@ -96,7 +96,7 @@ cyclingpath = st_read(dsn = "data/geospatial",
 
 > 🔎 **Observations:** the **`cyclingpath`** linestring feature data frame contains **3138** features and **2** fields and it is in the **SVY21** projected coordinates system.
 
-### 3.3 **Importing GIS [Point]{.underline} Feature Data in .kml format**
+### 3.3 **Importing GIS [Point]{.underline} Feature Data in .kml Format**
 
 The code chunk below imports `PreSchoolsLocation.kml` kml format into R as a point feature data frame.
 
