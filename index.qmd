@@ -23,9 +23,19 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 :::
 
 +:--------------------+:----------------------------------------------------------------------------------------------------------+:-------------------------------------------------+
-| \                   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1) | \                                                |
+| <p id="contents">   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1) | \                                                |
 |                     |                                                                                                           |                                                  |
 | Aug 16, 2024        | Geospatial Wrangling with R                                                                               | ![](images/clipboard-195378010.png){width="200"} |
 |                     |                                                                                                           |                                                  |
 | Foo Jia Yi Samantha |                                                                                                           |                                                  |
+|                     |                                                                                                           |                                                  |
+| </p>                |                                                                                                           |                                                  |
++---------------------+-----------------------------------------------------------------------------------------------------------+--------------------------------------------------+
+| <p id="contents">   | ## [**Hands-on Exercise 2**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex2/hands-on_ex2) | ![](images/clipboard-239491185.png){width="200"} |
+|                     |                                                                                                           |                                                  |
+| Aug 18, 2024        | Thematic Mapping and GeoVisualisation with R                                                              |                                                  |
+|                     |                                                                                                           |                                                  |
+| Foo Jia Yi Samantha |                                                                                                           |                                                  |
+|                     |                                                                                                           |                                                  |
+| </p>                |                                                                                                           |                                                  |
 +---------------------+-----------------------------------------------------------------------------------------------------------+--------------------------------------------------+
