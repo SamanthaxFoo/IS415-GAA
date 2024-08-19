@@ -1,9 +1,9 @@
 ---
 title: "Hands-on Exercise 2"
-subtitle: "Thematic Mapping and GeoVisualisation with R"
+subtitle: "hematic Mapping and GeoVisualisation with R"
 author: "Foo Jia Yi Samantha"
-date-modified: 08/18/2024
-date: 08/18/2024
+date-modified: 19/16/2024
+date: 19/16/2024
 ---
 
 ```{=html}
@@ -60,7 +60,7 @@ We will be using two data sets to create the choropleth maps
 
 This is the file structure for containing the data files that I have extracted in the previous step.
 
-![](images/clipboard-1736839685.png){width="700"}
+![](images/clipboard-838106070.png){width="873"}
 
 ### 2.3 Importing Data into R
 
@@ -70,11 +70,13 @@ Now, we'll use the **`st_read()`** function of **sf** package to import `MP14_SU
 
 ```{r}
 # Import shapefile
-mpsz <- st_read(dsn = "data/geospatial",                  layer = "MP14_SUBZONE_WEB_PL")
+mpsz <- st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_WEB_PL")
 
 # Inspect shapefile
 mpsz
 ```
+
+> 🔎 **Observations:** The `MP14_SUBZONE_WEB_PL` data set consists of **323 features** and **15 fields** made up of multipolygon features.
 
 #### **2.3.2 Importing Aspatial (Attribute) Data into R**
 
@@ -83,6 +85,8 @@ For aspatial datasets like *`respopagsex2011to2020.csv`,* we will import into Rs
 ```{r}
 popdata <- read_csv("data/aspatial/respopagesextod2011to2020.csv")
 ```
+
+> 🔎 **Observations:** The *`respopagsex2011to2020.csv`* data follows the **SVY21 projected coordinate** which contains 984656 rows and 7 columns
 
 ## 3. Data Preparation and Wrangling
 
@@ -121,6 +125,8 @@ mutate(`DEPENDENCY` = (`YOUNG` + `AGED`)
        `ECONOMY ACTIVE`, `AGED`, 
        `TOTAL`, `DEPENDENCY`)
 ```
+
+> 🔎 **Observations:** Notice that we have filtered our population data from 2020 and successfully grouped them by PA, SZ and AG which sums up the population within each category. I've also summed up the rows for **`ECONOMY ACTIVE`**, `AGED` and **`TOTAL`**, and created a new **`DEPENDENCY`** column which takes the sum of `YOUNG` and `AGED`, and then divide that sum by the value of `ECONOMY ACTIVE`.
 
 ### **3.2 Joining Geospatial Data and Attribute Data**
 

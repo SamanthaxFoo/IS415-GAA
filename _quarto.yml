@@ -7,6 +7,8 @@ website:
     left:
     - text: "In-class Exercises"
       menu:
+        - text: "In-class Exercise 1"
+          href: "In-class_Ex/In-class_Ex1/In-class_Ex1.html"
         - text: "In-class Exercise 2"
           href: "In-class_Ex/In-class_Ex2/In-class_Ex2.html"
         - text: "In-class Exercise 3"

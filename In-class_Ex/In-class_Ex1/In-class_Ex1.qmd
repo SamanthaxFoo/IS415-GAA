@@ -1,0 +1,10 @@
+---
+title: "In-class Exercise 1"
+author: "Foo Jia Yi Samantha"
+date-modified: 08/19/2024
+date: 08/19/2024
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---

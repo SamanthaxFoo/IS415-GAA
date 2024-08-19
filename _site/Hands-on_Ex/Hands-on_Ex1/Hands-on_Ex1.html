@@ -130,6 +130,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-in-class-exercises">    
         <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex1/In-class_Ex1.html">
+ <span class="dropdown-text">In-class Exercise 1</span></a>
+  </li>  
+        <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex2/In-class_Ex2.html">
  <span class="dropdown-text">In-class Exercise 2</span></a>
   </li>  
@@ -241,7 +245,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../about.html"> 
-<span class="menu-text">IS415: Geospatial Analytics and Application</span></a>
+<span class="menu-text">About</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -623,6 +627,9 @@ First 5 geometries:</code></pre>
 <pre><code>MULTIPOLYGON (((26451.03 30396.46, 26440.47 303...</code></pre>
 </div>
 </div>
+<blockquote class="blockquote">
+<p>🔎 <strong>Observations:</strong> This <code>MP14_SUBZONE_WEB_PL</code> file consists of <strong>323 features,</strong> consisting of multipolygon features.</p>
+</blockquote>
 </section>
 <section id="using-glimpse" class="level3">
 <h3 class="anchored" data-anchor-id="using-glimpse">5.2 Using <em>glimpse()</em></h3>
@@ -652,6 +659,9 @@ $ SHAPE_Area &lt;dbl&gt; 1630379.27, 559816.25, 160807.50, 595428.89, 387429.44,
 $ geometry   &lt;MULTIPOLYGON [m]&gt; MULTIPOLYGON (((31495.56 30..., MULTIPOLYGON (…</code></pre>
 </div>
 </div>
+<blockquote class="blockquote">
+<p>🔎 <strong>Observations:</strong> This <code>MP14_SUBZONE_WEB_PL</code> file consists of <strong>323 rows</strong> and <strong>16 columns</strong> with datatypes ranging from integers, characters, date and doubles.</p>
+</blockquote>
 </section>
 <section id="using-head" class="level3">
 <h3 class="anchored" data-anchor-id="using-head">5.3 Using <em>head()</em></h3>
@@ -685,6 +695,9 @@ Projected CRS: SVY21
 5 30005.70   2825.594   387429.4 MULTIPOLYGON (((26451.03 30...</code></pre>
 </div>
 </div>
+<blockquote class="blockquote">
+<p>🔎 <strong>Observations:</strong> We can notice that the <code>MP14_SUBZONE_WEB_PL</code> file consists of <strong>5 features</strong> and <strong>15 fields,</strong> with the top 5 rows per column.</p>
+</blockquote>
 </section>
 </section>
 <section id="plotting-the-geospatial-data" class="level2">
@@ -794,7 +807,9 @@ PROJCRS["SVY21",
                 ID["EPSG",9001]]]]</code></pre>
 </div>
 </div>
-<p>Notice the last few lines, the ESPG code is wrongly indicated as <strong>9001</strong>. The correct ESPG code for SVY21 should be <strong>3114</strong>. Thus, we’ll assign the correct code as such.</p>
+<blockquote class="blockquote">
+<p>🔎 <strong>Observations</strong> Notice the <code>mpsz</code> data is a <strong>SVY21</strong> projected coordinate system. However, the ESPG code is wrongly indicated as <strong>9001</strong> in the last few lines. The correct ESPG code for SVY21 should be <strong>3114</strong>. Thus, we’ll assign the correct code as such.</p>
+</blockquote>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign new ESPG code</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>mpsz3414 <span class="ot">&lt;-</span> <span class="fu">st_set_crs</span>(mpsz, <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
