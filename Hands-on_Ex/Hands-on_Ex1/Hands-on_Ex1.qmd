@@ -178,6 +178,8 @@ The sf data.frame contains a **geometry** column, that is a list of class `sfc`.
 st_geometry(mpsz)
 ```
 
+> 🔎 **Observations:** This `MP14_SUBZONE_WEB_PL` file consists of **323 features,** consisting of multipolygon features.
+
 ### 5.2 Using *glimpse()*
 
 We use **`glimpse()`** from the **dplyr** package to understand the data type of each fields.
@@ -189,6 +191,8 @@ E.g. `FMEL-UPD_D` field is in **date** data type and `X_ADDR`, `Y_ADDR`, 
 glimpse(mpsz)
 ```
 
+> 🔎 **Observations:** This `MP14_SUBZONE_WEB_PL` file consists of **323 rows** and **16 columns** with datatypes ranging from integers, characters, date and doubles.
+
 ### 5.3 Using *head()*
 
 We use **`head()`** from the **base R** package to get the full information of the feature object **`mpsz`**. The `n` value indicates the no. of rows.
@@ -197,6 +201,8 @@ We use **`head()`** from the **base R** package to get the full information of t
 # Display top 5 rows of the feature object
 head(mpsz, n=5)  
 ```
+
+> 🔎 **Observations:** We can notice that the `MP14_SUBZONE_WEB_PL` file consists of **5 features** and **15 fields,** with the top 5 rows per column.
 
 ## 6. Plotting the Geospatial Data
 
@@ -249,7 +255,7 @@ To check the coordinate system of `mpsz` simple feature data frame, I'll use **`
 st_crs(mpsz)
 ```
 
-Notice the last few lines, the ESPG code is wrongly indicated as **9001**. The correct ESPG code for SVY21 should be **3114**. Thus, we'll assign the correct code as such.
+> 🔎 **Observations** Notice the `mpsz` data is a **SVY21** projected coordinate system. However, the ESPG code is wrongly indicated as **9001** in the last few lines. The correct ESPG code for SVY21 should be **3114**. Thus, we'll assign the correct code as such.
 
 ```{r}
 # Assign new ESPG code
