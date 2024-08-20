@@ -4,6 +4,10 @@ subtitle: "hematic Mapping and GeoVisualisation with R"
 author: "Foo Jia Yi Samantha"
 date-modified: 19/16/2024
 date: 19/16/2024
+execute: 
+  eval: true
+  echo: true
+  freeze: trues
 ---
 
 ```{=html}
@@ -157,14 +161,15 @@ Choropleth mapping involves the symbolisation of **enumeration units**, such as 
 
 [**Two approaches**]{.underline} can be used to prepare thematic map using *tmap*, they are:
 
--   Plotting a thematic map quickly by using **`qtm()`**.
--   Plotting highly customisable thematic map by using **`tmap`** elements.
+1.  Plotting a thematic map quickly by using **`qtm()`**.
+2.  Plotting highly customisable thematic map by using **`tmap`** elements, i.e. **`tm_shape()`**
 
 ### **4.1 Method 1: Plotting a Choropleth Map quickly using *qtm()***
 
 The easiest and quickest to draw a choropleth map using **tmap** is using *qtm()*. It is concise and provides a good default visualisation in many cases.
 
 ```{r}
+# Plot choropleth map using qtm()
 tmap_mode("plot")
 qtm(mpsz_pop2020, 
     fill = "DEPENDENCY")
@@ -175,9 +180,10 @@ qtm(mpsz_pop2020,
 > -   *tmap_mode()* with “plot” option is used to produce a static map. For interactive mode, “view” option should be used.
 > -   ***fill*** argument is used to map the attribute (i.e. DEPENDENCY)
 
-### **4.2 Method 2: Plotting a Choropleth Map quickly using *tmap's elements***
+### **4.2 Method 2: Plotting a Choropleth Map quickly using *tm_shape()***
 
 ```{r}
+# Plot choropleth map using tmap's elements
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
           style = "quantile", 
@@ -197,7 +203,7 @@ tm_shape(mpsz_pop2020)+
              position = c("left", "bottom"))
 ```
 
-### 4.3 **Drawing a Base Map Using *tm_shape()***
+#### Step 1: **Drawing a Base Map Using *tm_shape()***
 
 The basic building block of **tmap** is `tm_shape()` followed by one or more layer elemments such as `tm_fill()` and `tm_polygons()`.
 
@@ -207,7 +213,7 @@ tm_shape(mpsz_pop2020) + tm_polygons()
 
 > 💡 **Note:** `tm_shape()` is used to define the input data (i.e *mpsz_pop2020*) and `tm_polygons()` is used to draw the planning subzone polygons.
 
-### 4.4 **Drawing a Choropleth Map Using *tm_polygons()***
+#### Step 2: **Drawing a Choropleth Map Using *tm_polygons()***
 
 To draw a choropleth map showing the geographical distribution of a selected variable by planning subzone, we just need to assign the target variable such as *Dependency* to `tm_polygons()`.
 
@@ -215,7 +221,7 @@ To draw a choropleth map showing the geographical distribution of a selected var
 tm_shape(mpsz_pop2020) + tm_polygons("DEPENDENCY")
 ```
 
-### **4.5 Drawing a Choropleth Map Using *tm_fill()* and *tm_border()***
+#### **Step 3: Drawing a Choropleth Map Using *tm_fill()* and *tm_border()***
 
 Firstly, we will try to draw a choropleth map by using `tm_fill()` alone.
 
@@ -275,7 +281,7 @@ To define a data classification method, the ***style*** argument of `tm_fill()` 
 
 #### 1) jenks
 
-Firstly, we'll use the **jenks** style method. It is known as natural breaks and is based on natural groupings inherent in the data. Data is clustered into groups that minimise the within-group variance and maximises the between-group variance.
+Firstly, we'll use the **jenks** style method. It is known as natural breaks and is based on natural groupings inherent in the data. Data is clustered into groups that minimise the within-group variance and maximise the between-group variance.
 
 ```{r}
 tm_shape(mpsz_pop2020)+
@@ -299,6 +305,8 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5)
 ```
 
+> 💡 **Note:** not compatible for data that are highly-skewed or with one or two large outliers
+
 #### 3) sd
 
 ```{r}
@@ -308,6 +316,8 @@ tm_shape(mpsz_pop2020)+
           style="sd") +
   tm_borders(alpha=0.5)
 ```
+
+> 💡 **Note:** Should only use if the distribution resembles a normal distribution (bell-curve)!
 
 #### 4) kmeans
 
@@ -331,7 +341,7 @@ tm_shape(mpsz_pop2020)+
 
 > 💡 **Note**: At a glance, using Fisher and KMeans lead to similar visualisations.
 
-#### 4) **hclust**
+#### 4) hclust
 
 **hclust** is hierarchical clustering used to create a hierarchy of clusters based on their similarity. Each data point starts as an individual cluster and then progressively merges or splits clusters until a stopping criterion is met.
 
@@ -343,7 +353,7 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha=0.5)
 ```
 
-#### 5) **bclust**
+#### 5) bclust
 
 **bclust** is bagged clustering which creates multiple subsets of the original dataset through resampling. Each subset is then used to train an individual clustering model, and the final cluster assignments are obtained by combining the results from all models.
 
@@ -357,7 +367,9 @@ tm_shape(mpsz_pop2020)+
 
 ### 5.2 **Plotting Choropleth Maps with Custom Breaks**
 
-For all the built-in styles, the category breaks are computed internally. In order to override these defaults, the breakpoints can be set explicitly by means of the breaks argument to the `tm_fill()`. It is important to note that, in **tmap** the breaks include a minimum and maximum. As a result, in order to end up with n categories, n+1 elements must be specified in the breaks option (the values must be in increasing order).
+For all the built-in styles, the category breaks are computed internally. In order to override these defaults, the breakpoints can be set explicitly by means of the breaks argument in `tm_fill()`.
+
+> 💡 **Note:** in **tmap**, the breaks include a minimum and maximum. As a result, in order to end up with n categories, **n+1** elements must be specified in the breaks option (the values must be in increasing order).
 
 Before we get started, it is always a good practice to get some descriptive statistics on the variable before setting the break points.
 
@@ -365,7 +377,7 @@ Before we get started, it is always a good practice to get some descriptive stat
 summary(mpsz_pop2020$DEPENDENCY)
 ```
 
-Looking at the summary statistics, the break point can be set to 0.60, 0.70, 0.80, and 0.90. The minimum and maximum breaks must also be included, which are 0 adn 100 respectively. These would translate to the *breaks* vector, `c(0, 0.60, 0.70, 0.80, 0.90, 1.00)`.
+Looking at the summary statistics, the break point can be set to 0.60, 0.70, 0.80, and 0.90. The minimum and maximum breaks must also be included, which are 0 and 100 respectively.
 
 ```{r}
 # Using this information, we will now proceed to plot the choropleth map.
@@ -375,6 +387,8 @@ tm_shape(mpsz_pop2020)+
           breaks = c(0, 0.60, 0.70, 0.80, 0.90, 1.00)) +
   tm_borders(alpha = 0.5)
 ```
+
+> 💡 **Observations:** the legend has now been categorised according to the *breaks* vector, `c(0, 0.60, 0.70, 0.80, 0.90, 1.00)`.
 
 ### 5.3 Customising Colour Schemes
 
@@ -439,6 +453,8 @@ tm_shape(mpsz_pop2020)+
   tmap_style("classic")
 ```
 
+> 💡 **Observations:** the classic tmap style creates a border with double lines, the colours used are more muted and neutral, and the font has been changed to something more elegant
+
 ### **6.3 Cartographic Furniture**
 
 **tmap** also provides arguments to draw other important map elements like compass, scale bar and grid lines.
@@ -489,6 +505,8 @@ tm_shape(mpsz_pop2020)+
   tmap_style("white")
 ```
 
+> 💡 **Observations:** two choropleth maps been generated to represent the **Young** and **Aged** demographics respectively.
+
 Additionally, the **style** and **palette** arguments can be adjusted accordingly.
 
 ```{r}
@@ -518,6 +536,8 @@ tm_shape(mpsz_pop2020) +
   tm_borders(alpha = 0.5)
 ```
 
+> 💡 **Observations:** we have generated 5 different choropleth maps that represent the 5 unique regions found in the **`REGION_N`** data variable!
+
 #### **Method 3: By creating multiple stand-alone maps with *tmap_arrange()***
 
 In this example, multiple small choropleth maps are created by creating multiple stand-alone maps with **`tmap_arrange()`**.
@@ -536,6 +556,8 @@ agedmap <- tm_shape(mpsz_pop2020)+
 tmap_arrange(youngmap, agedmap, asp=1, ncol=2)
 ```
 
+> 💡 **Observations:** as compared to the charts generated in Method 1, writing two **`tm_shape()`** functions allows us to create two separate choropleth maps produced as seen above.
+
 ## **7. Mappping Spatial Object Meeting a Selection Criterion**
 
 Map outputs can also be targeted by using selection functions to meet the selection criterion. For example, we have selected the **central** region and ***DEPENDENCY*** column to plot.
@@ -553,3 +575,5 @@ tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
             frame = FALSE) +
   tm_borders(alpha = 0.5)
 ```
+
+> 💡 **Note:** In order to only display data from the **Central Region**, we need to filter the **`mpsz_pop2020`** data frame via **`mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ]`**
