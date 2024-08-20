@@ -7,7 +7,7 @@ date: 19/16/2024
 execute: 
   eval: true
   echo: true
-  freeze: trues
+  freeze: true
 ---
 
 ```{=html}
@@ -203,7 +203,7 @@ tm_shape(mpsz_pop2020)+
              position = c("left", "bottom"))
 ```
 
-#### Step 1: **Drawing a Base Map Using *tm_shape()***
+#### **Step 1: Drawing a Base Map Using *tm_shape()***
 
 The basic building block of **tmap** is `tm_shape()` followed by one or more layer elemments such as `tm_fill()` and `tm_polygons()`.
 
@@ -213,7 +213,7 @@ tm_shape(mpsz_pop2020) + tm_polygons()
 
 > 💡 **Note:** `tm_shape()` is used to define the input data (i.e *mpsz_pop2020*) and `tm_polygons()` is used to draw the planning subzone polygons.
 
-#### Step 2: **Drawing a Choropleth Map Using *tm_polygons()***
+#### **Step 2: Drawing a Choropleth Map Using *tm_polygons()***
 
 To draw a choropleth map showing the geographical distribution of a selected variable by planning subzone, we just need to assign the target variable such as *Dependency* to `tm_polygons()`.
 

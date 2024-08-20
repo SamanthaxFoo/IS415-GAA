@@ -4,6 +4,10 @@ subtitle: "Geospatial Data Wrangling with R!"
 author: "Foo Jia Yi Samantha"
 date-modified: 08/16/2024
 date: 08/16/2024
+execute: 
+  eval: true
+  echo: true
+  freeze: true
 ---
 
 ```{=html}
