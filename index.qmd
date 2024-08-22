@@ -33,7 +33,7 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 +---------------------+-----------------------------------------------------------------------------------------------------------+--------------------------------------------------+
 | <p id="contents">   | ## [**Hands-on Exercise 2**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex2/hands-on_ex2) | ![](images/clipboard-239491185.png){width="201"} |
 |                     |                                                                                                           |                                                  |
-| Aug 18, 2024        | Thematic Mapping and GeoVisualisation with R                                                              |                                                  |
+| Aug 22, 2024        | Choropleth Mapping and GeoVisualisation with R                                                            |                                                  |
 |                     |                                                                                                           |                                                  |
 | Foo Jia Yi Samantha |                                                                                                           |                                                  |
 |                     |                                                                                                           |                                                  |

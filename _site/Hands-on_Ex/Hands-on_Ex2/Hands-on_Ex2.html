@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Foo Jia Yi Samantha">
-<meta name="dcterms.date" content="2025-07-16">
+<meta name="dcterms.date" content="2024-08-22">
 
 <title>IS415-GAA - Hands-on Exercise 2</title>
 <style>
@@ -303,7 +303,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Hands-on Exercise 2</h1>
-<p class="subtitle lead">hematic Mapping and GeoVisualisation with R</p>
+<p class="subtitle lead">Choropleth Mapping and GeoVisualisation with R</p>
 </div>
 
 
@@ -320,14 +320,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 16, 2025</p>
+      <p class="date">August 22, 2024</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">July 16, 2025</p>
+      <p class="date-modified">August 22, 2024</p>
     </div>
   </div>
     
@@ -596,7 +596,7 @@ dbl (2): Pop, Time
 </div>
 </div>
 <section id="step-1-drawing-a-base-map-using-tm_shape" class="level4">
-<h4 class="anchored" data-anchor-id="step-1-drawing-a-base-map-using-tm_shape">Step 1: <strong>Drawing a Base Map Using <em>tm_shape()</em></strong></h4>
+<h4 class="anchored" data-anchor-id="step-1-drawing-a-base-map-using-tm_shape"><strong>Step 1: Drawing a Base Map Using <em>tm_shape()</em></strong></h4>
 <p>The basic building block of <strong>tmap</strong> is <code>tm_shape()</code> followed by one or more layer elemments such as <code>tm_fill()</code> and <code>tm_polygons()</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020) <span class="sc">+</span> <span class="fu">tm_polygons</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -613,7 +613,7 @@ dbl (2): Pop, Time
 </blockquote>
 </section>
 <section id="step-2-drawing-a-choropleth-map-using-tm_polygons" class="level4">
-<h4 class="anchored" data-anchor-id="step-2-drawing-a-choropleth-map-using-tm_polygons">Step 2: <strong>Drawing a Choropleth Map Using <em>tm_polygons()</em></strong></h4>
+<h4 class="anchored" data-anchor-id="step-2-drawing-a-choropleth-map-using-tm_polygons"><strong>Step 2: Drawing a Choropleth Map Using <em>tm_polygons()</em></strong></h4>
 <p>To draw a choropleth map showing the geographical distribution of a selected variable by planning subzone, we just need to assign the target variable such as <em>Dependency</em> to <code>tm_polygons()</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz_pop2020) <span class="sc">+</span> <span class="fu">tm_polygons</span>(<span class="st">"DEPENDENCY"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

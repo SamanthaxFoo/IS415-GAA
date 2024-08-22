@@ -1,9 +1,9 @@
 ---
 title: "Hands-on Exercise 2"
-subtitle: "hematic Mapping and GeoVisualisation with R"
+subtitle: "Choropleth Mapping and GeoVisualisation with R"
 author: "Foo Jia Yi Samantha"
-date-modified: 19/16/2024
-date: 19/16/2024
+date-modified: "August 22, 2024"
+date: "August 22, 2024"
 execute: 
   eval: true
   echo: true
