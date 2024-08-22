@@ -62,9 +62,9 @@ We will be using two data sets to create the choropleth maps
 
 🔗 Can be downloaded at [Department of Statistics, Singapore](https://www.singstat.gov.sg/)
 
-This is the file structure for containing the data files that I have extracted in the previous step.
+This is the file structure for containing the data files that I have extracted.
 
-![](images/clipboard-838106070.png){width="873"}
+![](images/clipboard-2865890800.png){width="930"}
 
 ### 2.3 Importing Data into R
 
