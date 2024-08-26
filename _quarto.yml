@@ -59,9 +59,9 @@ website:
           href: "Take-home_Ex/Take-home_Ex3/Take-home_Ex3.html"
     right: 
       - href: index.qmd
-        text: Home
+        text: "Home"
       - href: about.qmd
-        text: About
+        text: "About"
 
 format:
   html:
