@@ -1,0 +1,195 @@
+---
+title: "In-class Exercise 2"
+author: "Foo Jia Yi Samantha"
+date-modified: "August 29, 2024"
+date: "August 29, 2024"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{=html}
+<button>In-class Exercise</button> <button>R</button> <button>sf</button>
+```
+# 1. Importing Libraries into R
+
+In this exercise, we will use the following R packages:
+
+-   **sf**, a relatively new R package specially designed to import, manage and process vector-based geospatial data in R.
+-   **tidyverse** for tidying data (<https://tidyr.tidyverse.org/>)
+-   **tmap** which provides functions for plotting cartographic quality static point patterns maps or interactive maps by using leaflet API.
+
+```{r}
+pacman::p_load(sf, tmap, tidyverse)
+```
+
+# 2. Importing Data Sets into R
+
+We will first import the three geospatial data sets into R using [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of the **sf** package.
+
+## 2.1 I**mporting** MP14_SUBZONE_WEB_PL (Web) **.shp Data**
+
+```{r}
+# Import shapefile
+mpsz14_shp <- st_read(dsn = "data", layer = "MP14_SUBZONE_WEB_PL")
+```
+
+There are **3 ways** to explore the contents of a simple feature data frame like **`mpsz`**!
+
+### 1) Using *st_geometry()*
+
+The sf data.frame contains a **geometry** column, that is a list of class `sfc`. We can retrieve the geometry list-column in this case by `mpsz$geom` or `mpsz[[1]]`, but the more general way uses **`st_geometry()`**.
+
+```{r}
+# Retrieve geometry column 
+st_geometry(mpsz14_shp)
+```
+
+> 🔎 **Observations:** This `MP14_SUBZONE_WEB_PL` file consists of **323 features,** consisting of multipolygon features.
+
+### 2) Using *glimpse()*
+
+We use **`glimpse()`** from the **dplyr** package to understand the data type of each fields.
+
+E.g. `FMEL-UPD_D` field is in **date** data type and `X_ADDR`, `Y_ADDR`, `SHAPE_L` and `SHAPE_AREA` fields are in **double-precision values**.
+
+```{r}
+# Get data types 
+glimpse(mpsz14_shp)
+```
+
+> 🔎 **Observations:** This `MP14_SUBZONE_WEB_PL` file consists of **323 rows** and **16 columns** with datatypes ranging from integers, characters, date and doubles.
+
+### 3) Using *head()*
+
+We use **`head()`** from the **base R** package to get the full information of the feature object **`mpsz`**. The `n` value indicates the no. of rows. I will use thiis method for this in-class exercise.
+
+```{r}
+# Display top 5 rows of the feature object 
+head(mpsz14_shp, n=5)  
+```
+
+> 🔎 **Observations:** We can notice that the `MP14_SUBZONE_WEB_PL` file consists of **5 features** and **15 fields,** with the top 5 rows per column.
+
+## 2.2 I**mporting** MP14_SUBZONE_WEB_PL (Web) **.kml Data** 
+
+We use the below code chunk to export **`mpsz14_shp`** sf data.frame into **kml** file which saves the file into our data folder.
+
+```{r}
+# Convert .shp file into .kml
+st_write(mpsz14_shp, 
+         "data/MP14_SUBZONE_WEB_PL.kml",
+         delete_dsn = TRUE)
+
+# Import KML file
+mpsz14_kml = st_read("data/MP14_SUBZONE_WEB_PL.kml")
+
+# Display top 5 rows of the feature object 
+head(mpsz14_kml, n=5)  
+```
+
+> 💡 **Note:** **`delete_dsn = TRUE`** will help delete the original data before rendering it
+
+## 2.3 Importing MP19_SUBZONE_WEB_PL (No Sea) .shp Data
+
+```{r}
+# Import shapefile
+mpsz19_shp <- st_read(dsn = "data", layer = "MPSZ-2019")
+```
+
+> 🔎 **Observations:** We can notice that the data file consists of **332 features** and **6 fields,** and follows the WGS64 coordinate system. Here we can notice it uses the \`ESRI Shapefile' driver.
+
+## 2.4 Importing MP19_SUBZONE_WEB_PL (No Sea) .kml Data
+
+```{r}
+# Convert .shp file into .kml
+st_write(mpsz19_shp, 
+         "data/MP19_SUBZONE_WEB_PL.kml",
+         delete_dsn = TRUE)
+
+# Import KML file
+mpsz19_kml = st_read("data/MP19_SUBZONE_WEB_PL.kml")
+
+# Display top 5 rows of the feature object 
+head(mpsz19_kml, n=5)  
+```
+
+> 🔎 **Observations:** We can notice that the `data`file also consists of **332 features** and **6 fields,** and follows the WGS64 coordinate system, but it uses the **kml driver** accordingly.
+
+# 3. Handling Coordinate Systems
+
+Recall that the **geographic coordinate system (e.g., WGS84)** is not appropriate for analyses that involve distance/area. Hence, it's common for us to **transform the original data** to a **projected coordinate system**.
+
+Let's take a look at the `mpsz19_shp` simple feature data frame. It shows that it is in the WGS84 coordinate system, i.e., geographic coordinate system.
+
+```{r}
+st_geometry(mpsz19_shp)
+```
+
+Now, we'll transform `mpsz19_shp`'s coordinate system from geographic (WGS84) to projected (SVY21).
+
+```{r}
+mpsz19_shp <- st_transform(mpsz19_shp, crs = 3414)
+
+# Display top 5 rows of the feature object 
+head(mpsz19_shp, n=5)  
+```
+
+> 🔎 **Observations:** Notice that the `mpsz19_shp` object has been updated to the **SVY21** **projected CRS**
+
+# 4. Working with Population Data
+
+For aspatial datasets like *`respopagsex2011to2020.csv`,* we will import into Rstudio using `read_csv()` function of **readr** package.
+
+```{r}
+popdata <- read_csv("data/respopagesextod2023.csv")
+```
+
+> 🔎 **Observations:** The *`respopagsex2023.csv`* data contains **100928 rows** and **7 columns**
+
+Aggregate the data to prepare a data.frame showing population by Planning Area and Planning Subzone.
+
+```{r}
+popdata2023 <- popdata %>%
+  group_by(PA, SZ, AG) %>%
+  summarise(`POP` = sum(`Pop`)) %>%
+  ungroup() %>%
+  pivot_wider(names_from=AG,
+              values_from=POP)
+
+colnames(popdata2023)
+```
+
+```{r}
+popdata2023 <- popdata2023%>%
+  mutate_at(.vars = vars(PA, SZ),
+            .funs = list(toupper))
+```
+
+> **💡 Note:** we use **`muttate()`** to convert all values to a common **UPPERCASE** before we do a left-join since R requires data of similar datatype when matching the data.
+
+```{r}
+# Check column names
+colnames(mpsz19_shp)
+colnames(popdata2023)
+
+```
+
+```{r}
+# Join 'popdata2023' with 'mpsz19_shp'
+mpsz_pop2023 <- left_join(mpsz19_shp, popdata2023,
+                          by = c("SUBZONE_N" = "SZ"))
+```
+
+> **💡 Note:** The merge is done using a `left_join`, meaning that all rows from `mpsz19_shp` will be kept, even if there is no corresponding row in `popdata2023`.
+>
+> 🔎 **Observations**: The resulting data frame, `mpsz_pop2023`, will contain all the columns from `mpsz19_shp` plus any additional columns from `popdata2023` that match the `SUBZONE_N` column.
+
+```{r}
+# Join 'mpsz19_shp' with 'popdata2023'
+pop2023_mpsz <- left_join(popdata2023, mpsz19_shp,
+                          by = c("SZ" = "SUBZONE_N"))
+```
+
+> 🔎 **Observations**: The resulting data frame, `pop2023_mpsz`, will contain all the columns from `popdata2023` plus any additional columns from `mpsz19_shp` that match the `sz` column.

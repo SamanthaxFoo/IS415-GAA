@@ -8,3 +8,22 @@ execute:
   echo: true
   freeze: true
 ---
+
+```{=html}
+<button>In-class Exercise</button> <button>RStudio</button> <button>R</button>
+```
+## In-class Exercise Objectives
+
+In this week's in-class Exercise 1, I explored the setting up of our RStudio and installed all R tools required for this IS314 Geospatial Analytics and Application module.
+
+## Steps Taken in this Exercise
+
+To create this exercise file, I first created a sub-folder under the **`In-class_Ex`** folder and named it **`In-class_Ex1`** and created this Quarto document by executing the following steps:
+
+1.  Click "File" tab
+2.  Click "New File"
+3.  Under "New File", select "Quarto Document"
+
+> 🔎 **Observations:** A new file is added in File Explorer with a **`.qmd` file format**. You will need to save the file and label it a name for the file to render and load.
+
+Next, I created the header of this document by adding YAML code that can be indicated using back-ticks ```` ``` <add code here> ``` ````. Within the YAML code, I indicated the document title, writer, publishing date and modifcation date as displayed accordingly in this webpage.
