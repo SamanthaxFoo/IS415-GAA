@@ -1,8 +1,8 @@
 ---
 title: "In-class Exercise 2"
 author: "Foo Jia Yi Samantha"
-date-modified: "August 29, 2024"
-date: "August 29, 2024"
+date-modified: "August 26, 2024"
+date: "August 26, 2024"
 execute: 
   eval: true
   echo: true
@@ -18,10 +18,9 @@ In this exercise, we will use the following R packages:
 
 -   **sf**, a relatively new R package specially designed to import, manage and process vector-based geospatial data in R.
 -   **tidyverse** for tidying data (<https://tidyr.tidyverse.org/>)
--   **tmap** which provides functions for plotting cartographic quality static point patterns maps or interactive maps by using leaflet API.
 
 ```{r}
-pacman::p_load(sf, tmap, tidyverse)
+pacman::p_load(sf, tidyverse)
 ```
 
 # 2. Importing Data Sets into R
@@ -72,7 +71,7 @@ head(mpsz14_shp, n=5)
 
 > 🔎 **Observations:** We can notice that the `MP14_SUBZONE_WEB_PL` file consists of **5 features** and **15 fields,** with the top 5 rows per column.
 
-## 2.2 I**mporting** MP14_SUBZONE_WEB_PL (Web) **.kml Data** 
+## 2.2 I**mporting** MP14_SUBZONE_WEB_PL (Web) **.kml Data**
 
 We use the below code chunk to export **`mpsz14_shp`** sf data.frame into **kml** file which saves the file into our data folder.
 
