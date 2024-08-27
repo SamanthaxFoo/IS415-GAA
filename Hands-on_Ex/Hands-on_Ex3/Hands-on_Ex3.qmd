@@ -2,8 +2,8 @@
 title: "Hands-on Exercise 3"
 subtitle: "1st and 2nd Order Spatial Point Patterns Analysis Methods"
 author: "Foo Jia Yi Samantha"
-date-modified: 26/08/2024
-date: 26/08/2024
+date-modified: 08/27/2024
+date: 08/27/2024
 execute: 
   eval: true
   echo: true
