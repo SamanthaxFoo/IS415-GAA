@@ -77,14 +77,14 @@ network
 
 ## 4. Visualise the Geospatial Data
 
-Before we jump into the analysis, it is a good practice to visualise the geospatial data. There are at least two ways to visualise the geospatial data. One way is by using ***plot()*** of Base R as shown in the code chunk below.
+Before we jump into the analysis, it is a good practice to visualise the geospatial data. There are at least two ways to visualise the geospatial data. One way is by using **`plot()`** of Base R as shown in the code chunk below.
 
 ```{r}
 plot(st_geometry(network))
 plot(childcare,add=T,col='red',pch = 19)
 ```
 
-To visualise the geospatial data with higher cartographic quality and in a more interactive manner, the mapping function of **tmap** package can be used as shown below.
+To visualise the geospatial data with higher cartographic quality and in a more interactive manner, the mapping function of **tmap** package can be used as shown below.
 
 ```{r}
 # View interactive and higher quality version of map
