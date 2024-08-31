@@ -118,6 +118,65 @@ tmap_mode('plot')
 
 ### 4.3 **Converting the Simple Features to sp's Spatial\* Class**
 
+When we convert **`childcare_sf`** geojson data to a Spatial class, we can observe below that the **`childcare_sf`** data is still stored in the `Description` attribute and has not been fully utilised. In particular, it is in a HTML format
+
+```{r}
+childcare <- as_Spatial(childcare_sf)
+childcare
+```
+
+As such, let us transform this data to make it more meaningful and easier for us to read.
+
+```{r}
+library(xml2)
+library(rvest)
+childcare_validity <- st_is_valid(childcare_sf)
+childcare_invalid <- which(!childcare_validity)
+if (length(childcare_invalid) > 0) {
+  print("ChildCare Invalid!")
+  print(childcare_sf[childcare_invalid, ])
+} else {
+  print("it's valid!")
+}
+
+# Ensure the geometry column is preserved
+geometry_column <- st_geometry(childcare_sf)
+parse_description <- function(html_string) {
+  html <- read_html(html_string)
+  html <- html %>% html_nodes("tr") %>% .[!grepl("Attributes", .)]
+  headers <- html %>% html_nodes("th") %>% html_text(trim = TRUE)
+  values <- html %>% html_nodes("td") %>% html_text(trim = TRUE)
+  
+  # Handle cases where the number of headers and values don't match
+  if (length(headers) != length(values)) {
+    max_length <- max(length(headers), length(values))
+    headers <- c(headers, rep("ExtraHeader", max_length - length(headers)))
+    values <- c(values, rep("NULL", max_length - length(values)))
+  }
+  
+  setNames(values, headers)
+}
+
+# Apply parsing function, unnest the description fields, and remove the original 'Description' column
+childcare_sf <- childcare_sf %>% 
+  mutate(Description_parsed = map(Description, parse_description)) %>%
+  unnest_wider(Description_parsed) %>%
+  select(-Description)  # Remove the original 'Description' column
+
+# Overwrite the 'Name' column with the 'LANDYADDRESSPOINT' column values
+childcare_sf <- childcare_sf %>%
+  mutate(Name = NAME)  # Overwrite 'Name' with 'LANDYADDRESSPOINT'
+
+# Replace empty strings or NA across all columns with "NULL"
+childcare_sf <- childcare_sf %>%
+  mutate(across(!geometry, ~ ifelse(is.na(.) | . == "", "NULL", .)))
+
+# Reassign the geometry to the dataframe
+st_geometry(childcare_sf) <- geometry_column
+# Ensure it's still an sf object
+class(childcare_sf)
+```
+
 We will now convert the `sf` geospatial data frames to `sp` Spatial\* class and display the information of these three Spatial\* classes.
 
 ```{r}
