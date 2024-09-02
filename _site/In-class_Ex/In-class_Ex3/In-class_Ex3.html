@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Foo Jia Yi Samantha">
-<meta name="dcterms.date" content="2024-08-26">
+<meta name="dcterms.date" content="2024-09-01">
 
 <title>IS415-GAA - In-class Exercise 3</title>
 <style>
@@ -270,6 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#issue-2-creating-coastal-outline-data" id="toc-issue-2-creating-coastal-outline-data" class="nav-link" data-scroll-target="#issue-2-creating-coastal-outline-data">Issue #2: Creating Coastal Outline Data</a></li>
   <li><a href="#issue-3-converting-data-to-spatialgriddataframe" id="toc-issue-3-converting-data-to-spatialgriddataframe" class="nav-link" data-scroll-target="#issue-3-converting-data-to-spatialgriddataframe">Issue #3: Converting Data to SpatialGridDataFrame</a></li>
   </ul></li>
+  <li><a href="#reading-acled-myanmar-data" id="toc-reading-acled-myanmar-data" class="nav-link" data-scroll-target="#reading-acled-myanmar-data">Reading ACLED Myanmar Data</a></li>
   </ul>
 </nav>
     </div>
@@ -295,14 +296,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">August 26, 2024</p>
+      <p class="date">September 1, 2024</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">August 26, 2024</p>
+      <p class="date-modified">September 1, 2024</p>
     </div>
   </div>
     
@@ -369,9 +370,46 @@ Projected CRS: SVY21</code></pre>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># kde_raster &lt;- raster(kde_childcareSG.bw)</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># gridded_kde_childcareSG_bw &lt;- as(kde_raster, "SpatialGridDataFrame")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-
-
 </section>
+</section>
+<section id="reading-acled-myanmar-data" class="level1">
+<h1>Reading ACLED Myanmar Data</h1>
+<p>Here, I practised reading from the ACLED Myanmar dataset which will be used for the Take-home exercise 1.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>acled_sf <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/ACLED_Myanmar.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 55574 Columns: 31
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (20): event_id_cnty, event_date, disorder_type, event_type, sub_event_ty...
+dbl (11): year, time_precision, inter1, inter2, interaction, iso, latitude, ...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<p>Convert “character” format of our Date column to “date” format.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>acled_sf <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/ACLED_Myanmar.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>,<span class="st">"latitude"</span>),<span class="at">crs=</span><span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>             <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">32647</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mutate</span>(<span class="at">event_date =</span> <span class="fu">dmy</span>(event_date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 55574 Columns: 31
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (20): event_id_cnty, event_date, disorder_type, event_type, sub_event_ty...
+dbl (11): year, time_precision, inter1, inter2, interaction, iso, latitude, ...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> Myanmar’s EPSG code is 32647 (one of the two EPSG codes that Myanmar has since the country cuts through two regions)</p>
+</blockquote>
+
+
 </section>
 
 </main> <!-- /main -->

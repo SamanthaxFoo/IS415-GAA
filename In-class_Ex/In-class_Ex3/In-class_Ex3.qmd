@@ -72,7 +72,7 @@ Here, I practised reading from the ACLED Myanmar dataset which will be used for 
 acled_sf <- read_csv("data/aspatial/ACLED_Myanmar.csv")
 ```
 
-Convert "character" format of our Date column to "date" format
+Convert "character" format of our Date column to "date" format.
 
 ```{r}
 acled_sf <- read_csv("data/aspatial/ACLED_Myanmar.csv") %>%
