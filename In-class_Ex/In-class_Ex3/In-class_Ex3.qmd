@@ -66,6 +66,8 @@ Since maptools isn't installed in the Hands-on Exercise 3, we will need to use a
 
 # Reading ACLED Myanmar Data
 
+Here, I practised reading from the ACLED Myanmar dataset which will be used for the Take-home exercise 1.
+
 ```{r}
 acled_sf <- read_csv("data/aspatial/ACLED_Myanmar.csv")
 ```
