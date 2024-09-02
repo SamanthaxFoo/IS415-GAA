@@ -63,3 +63,11 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                           |                                                   |
 | </p>                |                                                                                                           |                                                   |
 +---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 3**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex3/in-class_ex3) | ![](images/clipboard-2135937930.png){width="201"} |
+|                     |                                                                                                           |                                                   |
+| Sep 2, 2024         | Covering Errors in Hands-on Exercise 3 and Importing ACLED Datasets                                       |                                                   |
+|                     |                                                                                                           |                                                   |
+| Foo Jia Yi Samantha |                                                                                                           |                                                   |
+|                     |                                                                                                           |                                                   |
+| </p>                |                                                                                                           |                                                   |
++---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+

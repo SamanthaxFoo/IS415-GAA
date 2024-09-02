@@ -1,8 +1,8 @@
 ---
 title: "In-class Exercise 3"
 author: "Foo Jia Yi Samantha"
-date-modified: "September 1, 2024"
-date: "September 1, 2024"
+date-modified: "September 2, 2024"
+date: "September 2, 2024"
 execute: 
   eval: true
   echo: true
