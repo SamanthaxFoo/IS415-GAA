@@ -1,0 +1,82 @@
+---
+title: "In-class Exercise 3"
+author: "Foo Jia Yi Samantha"
+date-modified: "September 1, 2024"
+date: "September 1, 2024"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{=html}
+<button>In-class Exercise</button> <button>R</button> <button>sf</button>
+```
+# Overview
+
+In this in-class exercise 3, I will explore some of the common issues encountered by students during the Hands-on Exercise 3 work, facilitated by Prof Kam Tin Seong.
+
+# Common Code Issues
+
+Install required packages
+
+```{r}
+pacman::p_load(sf, raster, spatstat, tmap, tidyverse)
+```
+
+## Issue #1: Installing maptools
+
+**`maptools`** have been retired and **`binary`** have been removed from CRAN. However, we can download from **Posit Public Package Manager** snapshots by using this code chunk below.
+
+```{r}
+#| eval: false
+# You can use this but it's not encouraged since maptools has depreciated!
+install.packages("maptools",
+                 repos = "https://packagemanager.posit.co/cran/2023-10-13")
+```
+
+## Issue #2: Creating Coastal Outline Data
+
+In `sf` package, there are two functions that allow us to combine multiple simple features into one simple features. They are **st\_ combine()** and **st_union().**
+
+-   **st_combine()** returns a single, combined geometry, with no resolved boundaries; returned geometries may well be invalid.
+-   If y is missing, **st_union(x)** returns a single geometry with resolved boundaries, else the geometries for all unioned pairs of xi\] and yfil.
+
+```{r}
+# Impmort dataset into R
+mpsz_sf <- st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_WEB_PL")
+
+# Derive costal outline sf tibble data.frame
+sg_sf <- mpsz_sf %>%
+  st_union()
+```
+
+## Issue #3: Converting Data to SpatialGridDataFrame
+
+Since maptools isn't installed in the Hands-on Exercise 3, we will need to use another method for converting the results of kde_childcareSG.bw to a Spatial Grid Data Frame.
+
+```{r}
+## This code won't work anymore
+# gridded_kde_childcareSG_bw <- as.SpatialGridDataFrame.im(kde_childcareSG.bw)
+
+## This code should work instead
+# kde_raster <- raster(kde_childcareSG.bw)
+# gridded_kde_childcareSG_bw <- as(kde_raster, "SpatialGridDataFrame")
+```
+
+# Reading ACLED Myanmar Data
+
+```{r}
+acled_sf <- read_csv("data/aspatial/ACLED_Myanmar.csv")
+```
+
+Convert "character" format of our Date column to "date" format
+
+```{r}
+acled_sf <- read_csv("data/aspatial/ACLED_Myanmar.csv") %>%
+  st_as_sf(coords = c("longitude","latitude"),crs=4326) %>%
+             st_transform(crs = 32647) %>%
+             mutate(event_date = dmy(event_date))
+```
+
+> **Note:** Myanmar's EPSG code is 32647 (one of the two EPSG codes that Myanmar has since the country cuts through two regions)
