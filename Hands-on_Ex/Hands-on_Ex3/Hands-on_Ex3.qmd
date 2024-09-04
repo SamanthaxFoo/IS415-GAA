@@ -463,9 +463,9 @@ plot(density(childcareSG_ppp.km,
      main="Disc")
 ```
 
-## 5.5. Fixed and Adaptive KDE
+### 5.5. Fixed and Adaptive KDE
 
-### 5.5.1 Computing KDE by using fixed bandwidth
+#### 5.5.1 Computing KDE by using fixed bandwidth
 
 Next, you will compute a KDE layer by defining a bandwidth of 600 meter. Notice that in the code chunk below, the sigma value used is 0.6. This is because the unit of measurement of **`childcareSG_ppp.km`** object is in kilometer, hence the 600m is 0.6km.
 
@@ -474,7 +474,7 @@ kde_childcareSG_600 <- density(childcareSG_ppp.km, sigma=0.6, edge=TRUE, kernel=
 plot(kde_childcareSG_600)
 ```
 
-### 5.5.2 Computing KDE by using adaptive bandwidth
+#### 5.5.2 Computing KDE by using adaptive bandwidth
 
 Fixed bandwidth method is very sensitive to highly skew distribution of spatial point patterns over geographical units for example urban versus rural. One way to overcome this problem is by using adaptive bandwidth instead.
 
@@ -493,7 +493,7 @@ plot(kde_childcareSG.bw, main = "Fixed bandwidth")
 plot(kde_childcareSG_adaptive, main = "Adaptive bandwidth")
 ```
 
-### 5.5.3 Converting KDE output into grid object
+#### 5.5.3 Converting KDE output into grid object
 
 The result is the same, we just convert it so that it is suitable for mapping purposes
 
@@ -504,7 +504,7 @@ gridded_kde_childcareSG_bw <- as(kde_raster, "SpatialGridDataFrame")
 spplot(gridded_kde_childcareSG_bw)
 ```
 
-#### Step 1) Converting gridded output into raster
+##### Step 1) Converting gridded output into raster
 
 Next, we will convert the gridded kernal density objects into RasterLayer object by using raster() of raster package.
 
@@ -520,7 +520,7 @@ kde_childcareSG_bw_raster
 
 > 💡 **Observations:** Notice that the CRS property is NA.
 
-#### Step 2) Assigning projection systems
+##### Step 2) Assigning projection systems
 
 The code chunk below will be used to include the CRS information on **`kde_childcareSG_bw_raster`** RasterLayer.
 
@@ -531,7 +531,7 @@ kde_childcareSG_bw_raster
 
 > 💡 **Observations:** Notice that the CRS property is now completed.
 
-### 5.5.4 Visualising KDE Layer output in tmap
+#### 5.5.4 Visualising KDE Layer output in tmap
 
 Finally, we will display the KDE raster layer in cartographic quality map using tmap package.
 
@@ -543,11 +543,11 @@ tm_shape(kde_childcareSG_bw_raster) +
 
 > 💡 **Observations:** Notice that the raster values are encoded explicitly onto the raster pixel using the values in “layer” field.
 
-### 5.5.5 Comparing Spatial Point Patterns using KDE
+#### 5.5.5 Comparing Spatial Point Patterns using KDE
 
 Next, I will compare the KDE of childcare at Ponggol, Tampines, Chua Chu Kang and Jurong West planning areas.
 
-#### Step 1) Extracting Study Area
+##### Step 1) Extracting Study Area
 
 The code chunk below will be used to extract the target planning areas.
 
@@ -573,7 +573,7 @@ plot(ck, main = "Choa Chu Kang")
 plot(jw, main = "Jurong West")
 ```
 
-#### Step 2) Creating *owin* Object
+##### Step 2) Creating *owin* Object
 
 Now, we will convert these sf objects into owin objects that is required by **`spatstat`**.
 
@@ -584,7 +584,7 @@ ck_owin = as.owin(ck)
 jw_owin = as.owin(jw)
 ```
 
-#### Step 3) Combining Childcare Points and Study Area
+##### Step 3) Combining Childcare Points and Study Area
 
 Next, we run these codes to extract childcare that is within the specific region to do our analysis later on.
 
@@ -614,7 +614,7 @@ plot(childcare_ck_ppp.km, main="Choa Chu Kang")
 plot(childcare_jw_ppp.km, main="Jurong West")
 ```
 
-#### Step 4) Computing KDE
+##### Step 4) Computing KDE
 
 The code chunk below will be used to compute the KDE of these four planning area. The **`bw.diggle()`** method is used to derive the bandwidth of each planning area.
 
@@ -644,7 +644,7 @@ plot(density(childcare_jw_ppp.km,
      main="Jurong West")
 ```
 
-#### Step 5) Computing Fixed Bandwidth KDE
+##### Step 5) Computing Fixed Bandwidth KDE
 
 For comparison purposes with fixed bandwidth KDE, we will use 250m as the bandwidth.
 
