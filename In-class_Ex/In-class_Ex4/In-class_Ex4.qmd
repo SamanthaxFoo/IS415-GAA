@@ -1,0 +1,265 @@
+---
+title: "In-class Exercise 4"
+---
+
+```{=html}
+<button>In-class Exercise</button> <button>R</button> <button>sf</button><button>STKDE</button>
+```
+## **1. Overall**
+
+### **1.1 The research questions**
+
+The specific question we would like to answer is:
+
+-   are the locations of forest fire in Kepulauan Bangka Belitung spatial and spatio-temporally independent?
+-   if the answer is NO, where and when the observed forest fire locations tend to cluster?
+
+### **1.2 The data**
+
+For the purpose of this exercise, two data sets are used, they are:
+
+-   forestfires, a csv file provides locations of forest fire detected from the Moderate Resolution Imaging Spectroradiometer (MODIS) sensor data. The data are downloaded from [Fire Information for Resource Management System](https://firms.modaps.eosdis.nasa.gov/download/). For the purpose of this exercise, only forest fires within Kepulauan Bangka Belitung will be used.
+-   Kepulauan_Bangka_Belitung, an ESRI shapefile showing the sub-district (i.e. [kelurahan](https://en.wikipedia.org/wiki/Villages_of_Indonesia)) boundary of Kepulauan Bangka Belitung. The data set was downloaded from [Indonesia Geospatial](https://www.indonesia-geospasial.com/2023/05/download-shapefile-batas-administrasi.html) portal. The original data covers the whole Indonesia. For the purpose of this exercise, only sub-districts within Kepulauan Bangka Belitung are extracted.
+
+## **2. Installing and Loading the R packages**
+
+For the purpose of this study, I will be using these five R packages. They are:
+
+-   rgdal for importing geospatial data in GIS file format such as shapefile into R and save them as Spatial\*DataFrame,
+-   maptools for converting Spatial\* object into ppp object,
+-   raster for handling raster data in R,
+-   spatstat for performing Spatial Point Patterns Analysis such as kcross, Lcross, etc., and
+-   tmap for producing cartographic quality thematic maps.
+
+```{r}
+pacman::p_load(sf, raster, spatstat, sparr, tmap, tidyverse)
+```
+
+## 3. Importing and Preparing Study Area
+
+#### 3.1 Importing Study Area
+
+Let us first import the data using the **`st_read()`** function.
+
+```{r}
+kbb <- st_read(dsn="data/rawdata",
+               layer = "Kepulauan_Bangka_Belitung") 
+kbb
+```
+
+We will need to drop the 'z' dimension value from the dataset as we are only working with x,y dimensions, not with height data. Hence, let's re-read the data and perform some wrangling.
+
+```{r}
+kbb_sf <- st_read(dsn="data/rawdata", layer="Kepulauan_Bangka_Belitung") %>%
+  st_union() %>%
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 32748)
+```
+
+::: callout-note
+-   `st_read()` reads the spatial data from the specified file.
+-   `st_union()` performs a spatial union, combining all separate geometries (e.g., polygons) into one single geometry object. This is useful if you want to treat the entire area as a single entity, rather than as individual geometries (e.g., islands or districts).
+-   `st_zm(drop = TRUE, what = "ZM")` removes the Z (elevation) and M (measure) dimensions, simplifying the geometry to 2D.
+-   `st_transform(crs = 32748)` reprojects the geometry to the specified coordinate reference system (CRS), EPSG:32748 (UTM zone 48S, often used for areas around Southeast Asia).
+:::
+
+Let's inspect the newly created dataframe.
+
+```{r}
+kbb_sf
+```
+
+### 3.2 Converting to OWIN Layer
+
+Next, **`as.owin()`** is used to convert the kbb data into an **own** object.
+
+```{r}
+kbb_owin <- as.owin(kbb_sf)
+kbb_owin
+```
+
+Next, **`class()`** is used to confirm if the output is indeed an owin object.
+
+```{r}
+class(kbb_owin)
+```
+
+## 4. Importing and Preparing Forest Fire Data.
+
+Next, we will import the forest fire data (i.e. forestfires.csv) into the R environment.
+
+```{r}
+fire_sf <- read_csv("data/rawdata/forestfires.csv") %>%
+  st_as_sf(coords = c("longitude","latitude"),
+           crs = 4326) %>%
+  st_transform(crs = 32748)
+```
+
+Since **ppp object** only acce\[ts a numerical or character as mark, we will use the codes below to convert the data type of acq_dae to numeric.
+
+```{r}
+fire_sf <- fire_sf %>%
+  mutate(DayofYear = yday(acq_date)) %>%
+  mutate(Month_num = month(acq_date)) %>%
+  mutate(Month_fac = month(acq_date, 
+                         label = TRUE,
+                         abbr = FALSE))
+
+fire_sf
+```
+
+## 5. Visualise the Plot
+
+### 5.1 Overall Plot
+
+Now, I will prepare a point symbol map showing the distribution of fire points.
+
+```{r}
+tm_shape(kbb_sf)+
+  tm_polygons() +
+tm_shape(fire_sf)+
+  tm_dots()
+```
+
+### 5.2 **Visuaising geographic distribution of forest fires by month**
+
+Next, I will prepare a point symbol map showing the monthly geographic distribution of forest fires in 2023.
+
+```{r}
+tm_shape(kbb_sf)+
+  tm_polygons() +
+tm_shape(fire_sf)+
+  tm_dots(size = 0.1) +
+  tm_facets(by = "Month_fac",
+            free.coords = FALSE,
+            drop.units = TRUE)
+```
+
+## 6. Computing STKDE by Month
+
+In this section, I will learn how to compute STKDE by using [`spattemp.density()`](https://tilmandavies.github.io/sparr/reference/spattemp.density.html) of **sparr** package.
+
+### 6.1 Extracting Forest Fires by Month
+
+The code below is used to remove the unwanted fields from the **`fire_sf`** simple feature data frame. This is because **as.ppp()** only needs the mark field and geometry field from the input of the data frame.
+
+```{r}
+fire_month <- fire_sf %>%
+  select(Month_num)
+
+head(fire_month)
+```
+
+### 6.2 Creating ppp objects
+
+The code below is used to derive a **ppp** object called the **fire_month** from **fire_month** of data.frame.
+
+```{r}
+fire_month_ppp <- as.ppp(fire_month)
+fire_month_ppp
+```
+
+The code below is used to check the output is in the correct object class
+
+```{r}
+summary(fire_month_ppp)
+```
+
+We can check the duplication in a **`ppp`** object by using the code chunk below.
+
+```{r}
+any(duplicated(fire_month_ppp))
+```
+
+### 6.3 Including Owin object
+
+Here we combine **`fire_month_ppp`** object with the **`kkb_owin`** object into one.
+
+```{r}
+fire_month_owin <- fire_month_ppp[kbb_owin]
+summary(fire_month_owin)
+```
+
+As a good practice, `plot()` is used to plot *ff_owin* so that we can examine the correctness of the output object.
+
+```{r}
+plot(fire_month_owin)
+```
+
+### 6.4 Computing Spatio-temporal KDE
+
+Next, `spattemp.density()` of sparr package is used to compute the STKDE.
+
+```{r}
+st_kde <- spattemp.density(fire_month_owin)
+summary(st_kde)
+```
+
+### 6.5 Plotting the spatio-temporal KDE object
+
+We'll use the `plot()` function of R base to plot the KDE between July 2023 to December 2023.
+
+```{r}
+tims <- c(7,8,9,10,11,12)
+par(mfcol=c(1,2))
+for(i in tims){ 
+  plot(st_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at month",i))
+}
+```
+
+## **7. Computing STKDE by Day of Year**
+
+Now, I will compute the STKDE of forest fires by day of year.
+
+### 7.1 **Creating ppp object**
+
+In the code chunk below, **DayofYear** from the **fire_sf** data frame is selected and is included in the output ppp object.
+
+```{r}
+fire_yday_ppp <- fire_sf %>% 
+  select(DayofYear) %>%
+  as.ppp()
+```
+
+```{r}
+fire_sf %>% 
+  select(DayofYear)
+```
+
+### 7.2 **Including Owin object**
+
+Next, code chunk below is used to combine the ppp object and the owin object.
+
+```{r}
+fire_yday_owin <- fire_yday_ppp[kbb_owin]
+summary(fire_yday_owin)
+```
+
+### 7.3 Performing Spatio-Temporal KDE
+
+Now, I will perform a **spatio-temporal kernel density estimate** on the `fire_yday_owin` object which gives us insights into where and when fire occurrences are concentrated within the specified observation window.
+
+```{r}
+kde_yday <- spattemp.density(
+  fire_yday_owin)
+summary(kde_yday)
+```
+
+Plotting the graph by days of the year will produce 365/366 charts.
+
+```{r}
+#plot(kde_yday)
+```
+
+Instead, let us plot an animated plot to show the change in KDE across each day of the year.
+
+```{r}
+length(kde_yday[[1]])
+```
+
+```{r}
+head(kde_yday[[1]])
+```
