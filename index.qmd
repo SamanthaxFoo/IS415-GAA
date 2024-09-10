@@ -22,52 +22,68 @@ Hey there! 👋 I'm **Samantha Foo**, a Year 3 SMU student pursuing a Bachelor i
 Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 :::
 
-+:--------------------+:----------------------------------------------------------------------------------------------------------+:--------------------------------------------------+
-| <p id="contents">   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1) | \                                                 |
-|                     |                                                                                                           |                                                   |
-| Aug 16, 2024        | Geospatial Wrangling with R                                                                               | ![](images/clipboard-195378010.png){width="200"}  |
-|                     |                                                                                                           |                                                   |
-| Foo Jia Yi Samantha |                                                                                                           |                                                   |
-|                     |                                                                                                           |                                                   |
-| </p>                |                                                                                                           |                                                   |
-+---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**Hands-on Exercise 2**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex2/hands-on_ex2) | ![](images/clipboard-239491185.png){width="201"}  |
-|                     |                                                                                                           |                                                   |
-| Aug 22, 2024        | Choropleth Mapping and GeoVisualisation with R                                                            |                                                   |
-|                     |                                                                                                           |                                                   |
-| Foo Jia Yi Samantha |                                                                                                           |                                                   |
-|                     |                                                                                                           |                                                   |
-| </p>                |                                                                                                           |                                                   |
-+---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**Hands-on Exercise 3**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex3/hands-on_ex3) | ![](images/clipboard-2822875005.png){width="201"} |
-|                     |                                                                                                           |                                                   |
-| Aug 27, 2024        | 1st and 2nd Order Spatial Point Patterns Analysis Methods                                                 |                                                   |
-|                     |                                                                                                           |                                                   |
-| Foo Jia Yi Samantha |                                                                                                           |                                                   |
-|                     |                                                                                                           |                                                   |
-| </p>                |                                                                                                           |                                                   |
-+---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**In-class Exercise 1**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex1/in-class_ex1) | ![](images/clipboard-3012753143.png){width="201"} |
-|                     |                                                                                                           |                                                   |
-| Aug 19, 2024        | Set up RStudio and Create a Quarto Document                                                               |                                                   |
-|                     |                                                                                                           |                                                   |
-| Foo Jia Yi Samantha |                                                                                                           |                                                   |
-|                     |                                                                                                           |                                                   |
-| </p>                |                                                                                                           |                                                   |
-+---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**In-class Exercise 2**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex2/in-class_ex2) | ![](images/clipboard-4072077642.png){width="201"} |
-|                     |                                                                                                           |                                                   |
-| Aug 26, 2024        | Importing Libraries and Data into R, and Performing Data Wrangling                                        |                                                   |
-|                     |                                                                                                           |                                                   |
-| Foo Jia Yi Samantha |                                                                                                           |                                                   |
-|                     |                                                                                                           |                                                   |
-| </p>                |                                                                                                           |                                                   |
-+---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**In-class Exercise 3**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex3/in-class_ex3) | ![](images/clipboard-2135937930.png){width="201"} |
-|                     |                                                                                                           |                                                   |
-| Sep 2, 2024         | Covering Errors in Hands-on Exercise 3 and Importing ACLED Datasets                                       |                                                   |
-|                     |                                                                                                           |                                                   |
-| Foo Jia Yi Samantha |                                                                                                           |                                                   |
-|                     |                                                                                                           |                                                   |
-| </p>                |                                                                                                           |                                                   |
-+---------------------+-----------------------------------------------------------------------------------------------------------+---------------------------------------------------+
++:--------------------+:---------------------------------------------------------------------------------------------------------------+:--------------------------------------------------+
+| <p id="contents">   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1)      | \                                                 |
+|                     |                                                                                                                |                                                   |
+| Aug 16, 2024        | Geospatial Wrangling with R                                                                                    | ![](images/clipboard-195378010.png){width="200"}  |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Hands-on Exercise 2**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex2/hands-on_ex2)      | ![](images/clipboard-239491185.png){width="201"}  |
+|                     |                                                                                                                |                                                   |
+| Aug 22, 2024        | Choropleth Mapping and GeoVisualisation with R                                                                 |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Hands-on Exercise 3**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex3/hands-on_ex3)      | ![](images/clipboard-2822875005.png){width="201"} |
+|                     |                                                                                                                |                                                   |
+| Aug 27, 2024        | 1st and 2nd Order Spatial Point Patterns Analysis Methods                                                      |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Hands-on Exercise 5**](https://is415-samanthafoo.netlify.app/Hands-on_Ex/Hands-on_Ex5/Hands-on_Ex5.html) | ![](images/clipboard-1944791811.png){width="201"} |
+|                     |                                                                                                                |                                                   |
+| Sep 10, 2024        | Spatial Weights and Applications                                                                               |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 1**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex1/in-class_ex1)      | ![](images/clipboard-3012753143.png){width="201"} |
+|                     |                                                                                                                |                                                   |
+| Aug 19, 2024        | Set up RStudio and Create a Quarto Document                                                                    |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 2**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex2/in-class_ex2)      | ![](images/clipboard-4072077642.png){width="201"} |
+|                     |                                                                                                                |                                                   |
+| Aug 26, 2024        | Importing Libraries and Data into R, and Performing Data Wrangling                                             |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 3**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex3/in-class_ex3)      | ![](images/clipboard-2135937930.png){width="201"} |
+|                     |                                                                                                                |                                                   |
+| Sep 2, 2024         | Covering Errors in Hands-on Exercise 3 and Importing ACLED Datasets                                            |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 4**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex4/In-class_Ex4.html) | ![](images/clipboard-1763732466.png){width="201"} |
+|                     |                                                                                                                |                                                   |
+| Sep 10, 2024        | Exploring Spatio-Temporal Kernel Density Estimation                                                            |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
