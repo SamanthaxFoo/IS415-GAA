@@ -1,5 +1,12 @@
 ---
 title: "In-class Exercise 4"
+author: "Foo Jia Yi Samantha"
+date-modified: "September 12, 2024"
+date: "September 12, 2024"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
 ---
 
 ```{=html}
