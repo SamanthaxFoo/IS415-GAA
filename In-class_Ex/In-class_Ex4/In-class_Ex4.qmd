@@ -224,9 +224,7 @@ fire_yday_ppp <- fire_sf %>%
   as.ppp()
 ```
 
-```{r}
-fire_sf %>% 
-  select(DayofYear)
+```{fire_yday_ppp}
 ```
 
 ### 7.2 **Including Owin object**
@@ -257,9 +255,54 @@ Plotting the graph by days of the year will produce 365/366 charts.
 Instead, let us plot an animated plot to show the change in KDE across each day of the year.
 
 ```{r}
-length(kde_yday[[1]])
+kde_yday$z$'10'
 ```
 
 ```{r}
-head(kde_yday[[1]])
+plot(kde_yday$z$'10')
+```
+
+```{r}
+# Load necessary libraries
+library(spatstat)
+library(magick)
+library(viridis)  # For color mapping
+
+# Create a directory to store PNG frames
+if (!dir.exists("frames")) {
+  dir.create("frames")
+}
+
+# Get the unique day values from kde_yday
+days <- names(kde_yday$z)  # Assuming 'kde_yday$z' contains KDE results for each day
+
+# Loop through each day and save the plot
+for (day in days) {
+  kde_result <- kde_yday$z[[day]]  # Access KDE result for the day
+  
+  # Create PNG filename
+  png_filename <- file.path("frames", sprintf("frame_%s.png", day))
+  
+  # Save the plot as PNG
+  png(filename = png_filename, width = 800, height = 800)
+  plot(kde_result, main = paste("Day", day), col = viridis::viridis(100))
+  dev.off()
+}
+
+# Load magick library
+library(magick)
+
+# Read all PNG files from the frames directory
+frames <- image_read(list.files("frames", full.names = TRUE, pattern = "*.png"))
+
+# Create animated GIF
+animation <- image_animate(image_join(frames), fps = 10)  # Adjust fps as needed
+
+# Save the animation
+output_path <- "animated_kde_yday.gif"
+image_write(animation, path = output_path)
+
+# Display the GIF (optional)
+print(animation)
+
 ```
