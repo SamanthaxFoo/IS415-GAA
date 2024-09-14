@@ -1,5 +1,6 @@
 ---
 title: "In-class Exercise 4"
+subtitle: "Spatial Temporal KDE"
 author: "Foo Jia Yi Samantha"
 date-modified: "September 12, 2024"
 date: "September 12, 2024"
@@ -229,9 +230,6 @@ In the code chunk below, **DayofYear** from the **fire_sf** data frame is select
 fire_yday_ppp <- fire_sf %>% 
   select(DayofYear) %>%
   as.ppp()
-```
-
-```{fire_yday_ppp}
 ```
 
 ### 7.2 **Including Owin object**
