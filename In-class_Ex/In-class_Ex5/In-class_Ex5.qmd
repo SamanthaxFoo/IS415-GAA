@@ -12,7 +12,7 @@ execute:
 ```{=html}
 <button>In-class Exercise</button> <button>R</button> <button>GWModel</button>
 ```
-# 1. Let's Set Up!
+# 1. Let's Set Up! 
 
 ## 1.1 Install Required Libraries
 
