@@ -1,0 +1,223 @@
+---
+title: "In-class Exercise 5"
+author: "Foo Jia Yi Samantha"
+date-modified: "September 18, 2024"
+date: "September 18, 2024"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{=html}
+<button>In-class Exercise</button> <button>R</button> <button>GWModel</button>
+```
+# 1. Let's Set Up!
+
+## 1.1 Install Required Libraries
+
+We will first want to install the GWModel package from CRAN
+
+```{r}
+#| eval: false
+install.packages("GWmodel")
+```
+
+## 1.2 Importing Libraries into R
+
+In this in-class exercise, sf, spdep, tmap, tidyverse, knitr and GWmodel will be used.
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr, GWmodel)
+```
+
+## 1.3 Preparing the Datasets
+
+I will be using the Hunan dataset used in the Hands-on Exercise 5 spatial weights and applications.
+
+### 1.3.1 Importing Geospatial Data
+
+Firstly, we will import the Hunan county boundary layer. This is a geospatial data set in ESRI shapefile format. The code chunk below uses `st_read()` of **sf** package.
+
+```{r}
+#| code-summary: Import the geospatial data
+hunan_sf <- st_read(dsn = "data/geospatial", 
+                 layer = "Hunan")
+```
+
+### 1.3.2 Importing Aspatial Data
+
+Next, I will import the aspatial data set. This data is a csv file containing selected Hunan’s local development indicators in 2012.
+
+```{r}
+#| code-summary: Import the aspatial data
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+
+### 1.3.3 Performing relational join
+
+The code chunk below will be used to update the attribute table of hunan’s SpatialPolygonsDataFrame with the attribute fields of hunan2012 dataframe. This is performed by using left_join() of dplyr package.
+
+```{r}
+hunan_sf <- left_join(hunan_sf, hunan2012) %>%
+  select(1:3, 7, 15, 16, 31, 32)
+```
+
+## 2. Mapping GDPPC
+
+Now, we will use `qtm()` function of **tmap** package to create a basemap and a choropleth map showing the distribution of GDPPC 2012.
+
+```{r}
+basemap <- tm_shape(hunan_sf) +
+  tm_polygons() +
+  tm_text("NAME_3", size=0.5)
+
+gdppc <- qtm(hunan_sf, "GDPPC")
+tmap_arrange(basemap, gdppc, asp=1, ncol=2)
+```
+
+# 3. Converting to SpatialPolygonDataFrame
+
+GWmodel presently is built around the older sp and not sf formats for handling spatial data in R.
+
+```{r}
+hunan_sp <- hunan_sf %>%
+  as_Spatial()
+```
+
+# 4. Geographically Weighted Summary Statistics with *adaptive* bandwidth
+
+## 4.1 Determine adaptive bandwidth
+
+### 1) Using Cross-Validation
+
+```{r}
+bw_CV <- bw.gwr(GDPPC ~ 1, 
+             data = hunan_sp,
+             approach = "CV",
+             adaptive = TRUE, 
+             kernel = "bisquare", 
+             longlat = T)
+```
+
+### 2) Using AIC
+
+```{r}
+bw_AIC <- bw.gwr(GDPPC ~ 1, 
+             data = hunan_sp,
+             approach ="AIC",
+             adaptive = TRUE, 
+             kernel = "bisquare", 
+             longlat = T)
+```
+
+## 4.2 Computing geographically weightted summary statistics
+
+```{r}
+gwstat <- gwss(data = hunan_sp,
+               vars = "GDPPC",
+               bw = bw_AIC,
+               kernel = "bisquare",
+               adaptive = TRUE,
+               longlat = T)
+```
+
+## 4.3 Preparing the output data
+
+Code chunk below is used to extract **SDF** data table from **gwss** object output from `gwss()`. It will be converted into data.frame by using `as.data.frame()`.
+
+```{r}
+gwstat_df <- as.data.frame(gwstat$SDF)
+```
+
+Next, `cbind()` is used to append the newly derived data.frame onto *hunan_sf* sf data.frame.
+
+```{r}
+hunan_gstat <- cbind(hunan_sf, gwstat_df)
+```
+
+## 4.4 Visualising geographically weighted summary statistics
+
+```{r}
+
+tm_shape(hunan_gstat) +
+  tm_fill("GDPPC_LM",
+          n = 5,
+          style = "quantile") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Distribution of geographically weightted mean",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.text.size = 1,
+            legend.height = 1.50, 
+            legend.width = 1.50,
+            frame = TRUE)
+```
+
+# 5. Geographically Weighted Summary Statistics with *fixed* bandwidth
+
+## 5.1 Determine fixed bandwidth
+
+### 5.1.1 Cross-Validation
+
+```{r}
+bw_CV <- bw.gwr(GDPPC ~ 1, 
+             data = hunan_sp,
+             approach = "CV",
+             adaptive = FALSE, 
+             kernel = "bisquare", 
+             longlat = T)
+```
+
+### 5.1.2 AIC
+
+```{r}
+bw_AIC <- bw.gwr(GDPPC ~ 1, 
+             data = hunan_sp,
+             approach ="AIC",
+             adaptive = FALSE, 
+             kernel = "bisquare", 
+             longlat = T)
+```
+
+## 5.2 Computing Fixed Bandwidth
+
+```{r}
+gwstat <- gwss(data = hunan_sp,
+               vars = "GDPPC",
+               bw = bw_AIC,
+               kernel = "bisquare",
+               adaptive = FALSE,
+               longlat = T)
+```
+
+## 5.3 Preparing the output data
+
+Code chunk below is used to extract **SDF** data table from **gwss** object output from `gwss()`. It will be converted into data.frame by using `as.data.frame()`.
+
+```{r}
+gwstat_df <- as.data.frame(gwstat$SDF)
+```
+
+Next, `cbind()` is used to append the newly derived data.frame onto *hunan_sf* sf data.frame.
+
+```{r}
+hunan_gstat <- cbind(hunan_sf, gwstat_df)
+```
+
+## 5.4 Visualising geographically weighted summary statistics
+
+```{r}
+tm_shape(hunan_gstat) +
+  tm_fill("GDPPC_LM",
+          n = 5,
+          style = "quantile") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Distribution of geographically weightted mean",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.text.size = 1,
+            legend.height = 1.50, 
+            legend.width = 1.50,
+            frame = TRUE)
+```
