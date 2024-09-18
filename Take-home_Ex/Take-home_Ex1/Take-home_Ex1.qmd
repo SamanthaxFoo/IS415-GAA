@@ -52,69 +52,59 @@ As the dataset is rather extensive, I will be performing my analysis on armed co
 
 ACLED categorises events into various types. I will mainly be focusing on these four event types: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.
 
-+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Data Category                                                                                                                                                                                 | Data Columns                                                                                                                                                    |
-+===============================================================================================================================================================================================+=================================================================================================================================================================+
-| **Event Type**                                                                                                                                                                                | **event_id_cnty:** unique ID for each conflict                                                                                                                  |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-| ACLED categorises events into various types. I will mainly be focusing on these four event types: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians. | **event_type:** category of event e.g. Battle, Violence Against Civilians, Protests, Explosions/Remote Violence, Strategic Developments                         |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **sub_event_type:** a more detailed classification within event type                                                                                            |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **disorder_type:** classifies the event based on the nature of the disorder e.g. political violence, demonstrations, strategic developments[\[A1\]](#_msocom_1) |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **civilian_targeting:** yes/no value, whether event involves specifically targeting civilians                                                                   |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | Note: when “strategic developments” are used in Event Type, it is also used in the disorder type (vice-versa)                                                   |
-+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Location and Geospatial Data**                                                                                                                                                              | **iso:** the country code for Myanmar which uses 104 in this case                                                                                               |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-| The database provides detailed geographic information, pinpointing the exact or approximate locations of conflict events across Myanmar. This includes cities, towns, and rural areas.        | **region:** region of conflict within Myanmar                                                                                                                   |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **country:** indicates Myanmar                                                                                                                                  |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **admin1, admin2, admin3:** 1st, 2nd and 3rd level administration division within Myanmar e.g. states, division, sub-division                                   |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **location:** specific geographic location or name of the place where the conflict event occurred                                                               |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **latitude:** latitude of the conflict event                                                                                                                    |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **longitude:** longitude of the conflict event                                                                                                                  |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **geo_precision:** indicates the level of precision for the geographic coordinates provided                                                                     |
-+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Date and Time**                                                                                                                                                                             | **event_date:** date of conflict                                                                                                                                |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-| ACLED records the specific dates and, where possible, times of conflict events.                                                                                                               | **year:** year of conflict                                                                                                                                      |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **time_precision:** accuracy of the date and time information provided                                                                                          |
-+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Actors**                                                                                                                                                                                    | **actor1:** primary actor involved in the conflict event. E.g. a government force, rebel group, militia, or any organised entity                                |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-| Indicate the actors involved in the conflict, such as the Tatmadaw (Myanmar's military), ethnic armed organizations, local militias, civilian protestors, and other groups.                   | **assoc_actor_1:** a secondary group that is aligned with or supports the primary actor (Actor1) in the event                                                   |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **inter1:** an interaction code that categorises actor1, could be a government force, rebel group, military force, rioter, civilian, or other entities          |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **actor2 (NEW):** second primary actor (i.e. secondary actor), could be a group opposing actor1                                                                 |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **assoc_actor_2 (NEW):** a secondary group that supports actor2                                                                                                 |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **inter2 (NEW):** an interaction code that categorises actor2                                                                                                   |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **interaction:** combined description of actor1 and actor2                                                                                                      |
-+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Fatalities**                                                                                                                                                                                | **fatalities:** tracks the number of reported fatalities associated with each conflict event.                                                                   |
-+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Others**                                                                                                                                                                                    | **source:** source of information for the conflict event                                                                                                        |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **source_scale:** scale of the source e.g. local, national, international                                                                                       |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **notes :** additional comments                                                                                                                                 |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **tags:** keywords associated with the conflict event                                                                                                           |
-|                                                                                                                                                                                               |                                                                                                                                                                 |
-|                                                                                                                                                                                               | **timestamp:** date and time when conflict event was entered/updated in the database                                                                            |
-+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Event Type**                                                                                                                                                                                                                                    |
+|                                                                                                                                                                                                                                                   |
+| ACLED categorises events into various types. I will mainly be focusing on these four event types: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.                                                     |
+|                                                                                                                                                                                                                                                   |
+| -   **event_id_cnty:** unique ID for each conflict                                                                                                                                                                                                |
+| -   **event_type:** category of event e.g. Battle, Violence Against Civilians, Protests, Explosions/Remote Violence, Strategic Developments                                                                                                       |
+| -   **sub_event_type:** a more detailed classification within event type                                                                                                                                                                          |
+| -   **disorder_type:** classifies the event based on the nature of the disorder e.g. political violence, demonstrations, strategic developments[\[A1\]](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex1/take-home_ex1#_msocom_1) |
+| -   **civilian_targeting:** yes/no value, whether event involves specifically targeting civilians                                                                                                                                                 |
+| -   Note: when “strategic developments” are used in Event Type, it is also used in the disorder type (vice-versa)                                                                                                                                 |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Location and Geospatial Data**                                                                                                                                                                                                                  |
+|                                                                                                                                                                                                                                                   |
+| The database provides detailed geographic information, pinpointing the exact or approximate locations of conflict events across Myanmar. This includes cities, towns, and rural areas.                                                            |
+|                                                                                                                                                                                                                                                   |
+| -   **iso:** the country code for Myanmar which uses 104 in this case                                                                                                                                                                             |
+| -   **region:** region of conflict within Myanmar                                                                                                                                                                                                 |
+| -   **country:** indicates Myanmar                                                                                                                                                                                                                |
+| -   **admin1, admin2, admin3:** 1st, 2nd and 3rd level administration division within Myanmar e.g. states, division, sub-division                                                                                                                 |
+| -   **location:** specific geographic location or name of the place where the conflict event occurred                                                                                                                                             |
+| -   **latitude:** latitude of the conflict event                                                                                                                                                                                                  |
+| -   **longitude:** longitude of the conflict event                                                                                                                                                                                                |
+| -   **geo_precision:** indicates the level of precision for the geographic coordinates provided                                                                                                                                                   |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Date and Time**                                                                                                                                                                                                                                 |
+|                                                                                                                                                                                                                                                   |
+| ACLED records the specific dates and, where possible, times of conflict events.                                                                                                                                                                   |
+|                                                                                                                                                                                                                                                   |
+| -   **event_date:** date of conflict                                                                                                                                                                                                              |
+| -   **year:** year of conflict                                                                                                                                                                                                                    |
+| -   **time_precision:** accuracy of the date and time information provided                                                                                                                                                                        |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Actors**                                                                                                                                                                                                                                        |
+|                                                                                                                                                                                                                                                   |
+| -   Indicate the actors involved in the conflict, such as the Tatmadaw (Myanmar’s military), ethnic armed organizations, local militias, civilian protestors, and other groups.                                                                   |
+| -   **actor1:** primary actor involved in the conflict event. E.g. a government force, rebel group, militia, or any organised entity                                                                                                              |
+| -   **assoc_actor_1:** a secondary group that is aligned with or supports the primary actor (Actor1) in the event                                                                                                                                 |
+| -   **inter1:** an interaction code that categorises actor1, could be a government force, rebel group, military force, rioter, civilian, or other entities                                                                                        |
+| -   **interaction:** combined description of actor1 and actor2 (no particular order of aggression)                                                                                                                                                |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Fatalities**                                                                                                                                                                                                                                    |
+|                                                                                                                                                                                                                                                   |
+| -   **fatalities:** tracks the number of reported fatalities associated with each conflict event                                                                                                                                                  |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Others**                                                                                                                                                                                                                                        |
+|                                                                                                                                                                                                                                                   |
+| -   **source:** source of information for the conflict event                                                                                                                                                                                      |
+| -   **source_scale:** scale of the source e.g. local, national, international                                                                                                                                                                     |
+| -   **notes :** additional comments                                                                                                                                                                                                               |
+| -   **tags:** keywords associated with the conflict event                                                                                                                                                                                         |
+| -   **timestamp:** date and time when conflict event was entered/updated in the database                                                                                                                                                          |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 #### **2) Geospatial Data** (**From Myanmar Information Management Unit)**
 
@@ -126,13 +116,10 @@ I will also be using a geospatial dataset from the Myanmar Information Managemen
 
 My reasoning for choosing the **district boundary** dataset is that we do not want to select a boundary dataset that is too broad when analysing conflict events since it **might not provide sufficient insights to trends** where conflict events happen. Neither do we want to analyse a geography that is too divided (e.g. Admin 3) since it can be **computationally inefficient** as seen in the types of boundary data below.
 
-+--------------------------------------+-------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------+
-| Admin 0                              | Admin 1                             | Admin 1                              | Admin 2 - To Use                     | Admin 3                             |
-+:====================================:+:===================================:+:====================================:+:====================================:+:===================================:+
-| National boundary                    | Myanmar region                      | Region and sub-region                | District boundary                    | Myanmar township                    |
-+--------------------------------------+-------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------+
+|               Admin 0                |               Admin 1               |               Admin 1                |           Admin 2 - To Use           |               Admin 3               |
+|:------------------------------------:|:-----------------------------------:|:------------------------------------:|:------------------------------------:|:-----------------------------------:|
+|          National boundary           |           Myanmar region            |        Region and sub-region         |          District boundary           |          Myanmar township           |
 | ![](images/clipboard-4062665913.png) | ![](images/clipboard-799910136.png) | ![](images/clipboard-3525847239.png) | ![](images/clipboard-1135072014.png) | ![](images/clipboard-204520723.png) |
-+--------------------------------------+-------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------+
 
 I have donwloaded the two data sets and organised them into my folder as follows.
 
@@ -147,16 +134,19 @@ To carry out this exercise, I will be using the following R packages:
 -   **sf**: a relatively new R package specially designed to import, manage and process vector-based geospatial data in R.
 -   **spatstat**: has a wide range of useful functions for point pattern analysis. In this take-home exercise, it will be used to perform 1st- and 2nd-order spatial point patterns analysis and derive kernel density estimation (KDE) layer.
 -   **raster**: reads, writes, manipulates, analyses and model of gridded spatial data (i.e. raster). In this take-home exercise, it will be used to convert image output generate by spatstat into raster format.
--   **maptools**: provides a set of tools for manipulating geographic data. We mainly use it to convert Spatial objects into ppp format of spatstat.
 -   **tmap**: provides functions for plotting cartographic quality static point patterns maps or interactive maps by using leaflet API.
+-   **tidyverse:** for transforming and organising data for analysis
+-   **magick:** used for plotting animated map plots into GIFs for the spatio-temporal point pattern analysis
 
 Now, let’s install and load these packages in RStudio.
 
 ```{r}
-pacman::p_load(sf, raster, spatstat, tmap, tidyverse)
+pacman::p_load(sf, raster, spatstat, tmap, tidyverse, magick)
 ```
 
 ### **2.2 Importing Data Sets into R**
+
+#### 1) Armed Conflicts Data
 
 Next, I will import the downloaded armed conflict data. For aspatial datasets like this*,* we will import into Rstudio using `read_csv()` function of the **readr** package.
 
@@ -165,7 +155,9 @@ Next, I will import the downloaded armed conflict data. For aspatial datasets li
 conflict_data <- read_csv("data/aspatial/2021-01-01-2024-06-30-Myanmar.csv")
 ```
 
-> 🔎 **Observations:** The `2021-01-01-2024-06-30-Myanmar.csv` dataset contains 87746 rows and 28 columns which indicates the presence of 87746 unique armed conflict events in Myanmar.
+::: {.callout-tip title="Observations"}
+The `2021-01-01-2024-06-30-Myanmar.csv` dataset contains 87746 rows and 28 columns which indicates the presence of 87746 unique armed conflict events in Myanmar.
+:::
 
 After importing the dataset, we can inspect the dataset using the **`glimpse()`** function.
 
@@ -174,18 +166,44 @@ After importing the dataset, we can inspect the dataset using the **`glimpse()`*
 glimpse(conflict_data)
 ```
 
-> 🔎 **Observations:** The event_date field shows that it uses a character datatype instead of date - we will fix this later. Also, we can observe that the**`longitude`** and **`langitude`** fields appear to be adopting the **WGS84 geographic** coordinate system since they are in the -180/180 and -90/90 range respectively.
+::: {.callout-tip title="Observations"}
+The event_date field shows that it uses a character datatype instead of date - we will fix this later. Also, we can observe that the**`longitude`** and **`langitude`** fields appear to be adopting the **WGS84 geographic** coordinate system since they are in the -180/180 and -90/90 range respectively.
+:::
 
-I will also import the administrative boundary data into a simple features tibble data.frame using [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of the **sf** package. This function reads the shapefile data and returns an **`sf`** object that can be used for further analysis.
+#### 2) Myanmar Boundary Data
+
+::: {.callout-tip title="Observations"}
+When working with Myanmar's boundary, we need to assign the appropriate coordinate reference system. However, since Myanmar is split into **two UTM** - West Myanmar (crs: 32646) and East Myanmar (crs: 32647).
+:::
+
+Hence, I will also import the administrative boundary data into a simple features tibble data.frame using [*st_read()*](https://r-spatial.github.io/sf/reference/st_read.html) of the **sf** package and **check the number of rows returned for both CRS 32646 and 32647**. This function reads the shapefile data and returns an **`sf`** object that can be used for further analysis.
+
+```{r}
+#| code-fold: true
+#| code-summary: Find out conflicts count by CRS
+conflict_crs <- st_as_sf(conflict_data, coords = c("longitude", "latitude"), crs = 4326) 
+
+# Count number of conflicts for CRS 32646
+conflict_data_32646 <- st_transform(conflict_crs, crs = 32646)
+count_32646 <- nrow(conflict_data_32646)
+# Count number of conflicts for CRS 32647
+conflict_data_32647 <- st_transform(conflict_crs, crs = 32647)
+count_32647 <- nrow(conflict_data_32647)
+
+crs_counts <- data.frame(
+  CRS = c("EPSG: 32646", "EPSG: 32647"),
+  Conflicts_Count = c(count_32646, count_32647)
+)
+
+print(crs_counts)
+```
+
+Since there is no difference in the count, I will decide to focus on **UTM zone 47N (EPSG:32647),** east of Myanmar, for the purpose of this exercise**.** The **`st_transform()`** function below converts the CRS of the **`sf`** object to EPSG:32647.
 
 ```{r}
 # Import boundary data
 boundary_sf <- st_read(dsn = "data/geospatial",layer = "mmr_polbnda_adm2_250k_mimu") %>% st_transform(crs = 32647)
 ```
-
-::: callout-note
-In the code above, the **`%>%`** operator is used to pass the output of `st_read()` directly to the **`st_transform()`** function. Since the dataset represents the Myanmar boundary, we need to assign the appropriate coordinate reference system, which is UTM zone 47N **(EPSG:32647),** east of Myanmar**.** The **`st_transform()`** function then converts the CRS of the **`sf`** object to EPSG:32647.
-:::
 
 In the code below, we can notice that the ESPG code has been updated to **32647**.
 
@@ -207,11 +225,6 @@ plot(st_geometry(boundary_sf))
 
 Recall that the earlier inspection of the `conflict_data` tibble data frame revealed that the datatype indicated for event date is wrongly labelled as a character instead of a date format.
 
-```{r}
-# Inspect the conflict data
-head(conflict_data)
-```
-
 As such, let's convert the datatype to the correct 'date' format as shown below.
 
 ```{r}
@@ -222,12 +235,13 @@ conflict_data$event_date <- as.Date(conflict_data$event_date, format = "%d %B %Y
 head(conflict_data)
 ```
 
-### 3.2 Add new year_quarter column
+### 3.2 Adding new year_quarter column
 
 We will want to create a new column to indicate the specific year and quarter for each conflict event since the spatial analysis will be done later in a quarterly manner.
 
 ```{r}
-# Extract year and quarter
+#| code-fold: true
+#| code-summary: Extract year and quarter
 conflict_data$year_quarter <- paste0(
   year(conflict_data$event_date), 
   " Q", 
@@ -238,99 +252,97 @@ conflict_data$year_quarter <- paste0(
 unique(conflict_data$year_quarter)
 ```
 
-### 3.3 Fixing Duplicates in *conflict_data* Dataframe
+### 3.3 Fixing Duplicated Event ID in *conflict_data* Dataframe
 
-Let's first check the presence of duplicates in our dataframe using the **`duplicated()`** function.
+As shown, there are presence of duplicates in our dataframe returned by the **`duplicated()`** function.
 
 ```{r}
 # Check for duplicates
 any(duplicated(conflict_data))
 ```
 
-::: callout-note
-**Reflection: Should duplicated data be removed in this analysis?**
-
-Considering that there might be different armed conflict events repeatedly occurring in certain districts more than others,
-
-Additionally, we can see from the code below that there can be **a** **single event** (e.g. MMR64313) **with different actor1 values**, typically due to counterattacks from opposing sides, leading to different data entries into the **`conflict_data`** dataset.
-:::
-
-Let's inspect this **duplicated event ID: MMR64313** for instance. We can observe this is a political violence event with battles between **two** **actors**, namely the People's Defense Force and Military Forces of Myanmar, which are **two opposing political parties** of Myanmar's ongoing conflict.
+Based on the duplicated **event ID: MMR64313** for instance. We can observe the two records are of the **same** political violence event happening between **two** **actors** on 30/6/2024, between the People's Defense Force and Military Forces of Myanmar. Upon further research, these two actors are **opposing political parties** of Myanmar's ongoing conflict.
 
 ```{r}
 # Inspect an instance of the duplciated event IDs
 head(conflict_data,2)
 ```
 
-> **💡** Hence, I will **remove duplicated events** found in the **`conflict_data`** dataframe as long as the rows have the same event ID indicated. However, I will create new columns to store the secondary actors, associated actors and interaction code. This will ensure we don't lose sight of important data for the analysis later.
+::: {.callout-tip title="Reflection"}
+**Should duplicated data be removed in this analysis?**
 
-Here, I did another check to ensure that there is a maximum of one other actor involved for the first 50 rows of **`conflict_data`**.
+A **single event** (e.g. MMR64313) can have duplicated rows **with different actor1 values**, typically due to counterattacks from opposing sides, leading to different data entries into the **`conflict_data`** dataset.
+
+Hence, I will **remove duplicated events** found in the **`conflict_data`** dataframe as long as the rows have the same event ID indicated.
+:::
+
+Here, I did another check to ensure there is **not more than 2 possible repeated event IDs** in the first 20 rows of **conflict_data**.
 
 ```{r}
-# Check duplicated events first 50 rows
-duplicate_counts_first_50 <- conflict_data %>%
-  slice(1:50) %>%            
+#| code-fold: true
+#| code-summary: Check duplicated events for first 20 rows
+duplicate_counts_first_20 <- conflict_data %>%
+  slice(1:20) %>%            
   group_by(event_id_cnty) %>% 
   summarize(count = n()) %>%  
   filter(count > 1)         
 
 # View the result
-print(duplicate_counts_first_50)
+print(duplicate_counts_first_20)
 ```
 
-Next, I add the actor1, assoc_actor_1 and inter1 values of the duplicated rows to the new actor2, assoc_actor_2 and inter2 columns for the repeated rows.
+With that checked, I'll remove the duplicated rows with a repeated Event ID but will retain the **actor1** value and append it to a new **actor2** column, assuming two actors are involved in every conflict.
 
 ```{r}
+#| code-fold: true
+#| code-summary: Remove duplicated rows
 # Load necessary library
 library(dplyr)
 
-# Retrieve data of duplicated rows
+# Retrieve data of duplicated rows and summarize actor2, assoc_actor_2, and inter2
 merged_duplicates <- conflict_data %>%
   filter(duplicated(event_id_cnty) | duplicated(event_id_cnty, fromLast = TRUE)) %>%
   arrange(event_id_cnty) %>%
   group_by(event_id_cnty) %>%
   summarize(
-    actor2 = last(actor1),
-    assoc_actor_2 = last(assoc_actor_1),
-    inter2 = last(inter1)
+    actor2 = last(actor1)
   )
 
+# Keep rows without duplicates
 conflict_data_no_duplicates <- conflict_data %>%
   filter(!duplicated(event_id_cnty))
 
-# Update conflict_data dataframe with new columns
+# Update conflict_data dataframe with new columns from merged_duplicates
 conflict_data <- conflict_data_no_duplicates %>%
   left_join(merged_duplicates, by = "event_id_cnty") %>%
   mutate(
-    actor1 = coalesce(actor2, actor1),
-    assoc_actor_1 = coalesce(assoc_actor_2, assoc_actor_1),
-    inter1 = coalesce(inter2, inter1)
+    # Ensure actor2 exists after the join, if not fill with actor1
+    actor2 = coalesce(actor2, actor1)
   )
 
 # View dataframe
-print(head(conflict_data))
+head(conflict_data[c('event_id_cnty','actor1','actor2')])
 ```
 
 We can observe that there are no longer any duplicated event IDs in our **`conflict_data`** data frame.
 
 ```{r}
-# Check for duplicates again
 any(duplicated(conflict_data))
 ```
 
 ### 3.4 Converting Aspatial Data to Simple Feature Format
 
-For the purpose of this exercise, we will want to integrate and analyse aspatial data in a geographic context.
-
-As such, I will use the **`class()`** function as a simple test to check if **`conflict_data`** (a non-geospatial tabular data frame) needs to be converted to a **sf data frame** - if it outputs anything else but `sf`, then it’s not a simple feature data frame!
+For the purpose of this exercise, we will want to integrate and analyse aspatial data in a geographic context. I'll do a check if **`conflict_data`** needs to be converted to a **sf data frame** - if it outputs anything else but `sf`, then it’s not a simple feature data frame!
 
 ```{r}
 class(conflict_data)
 ```
 
-> 🔎 **Observations**: we can see that **`conflict_data`** is **not** a sf data frame based on what is returned. Since a non-simple feature data frame does not have a “geometry” column, we’ll need to convert **`conflict_data`** into a **simple feature** data frame
+::: {.callout-tip title="Observations"}
+We can see that **`conflict_data`** is **not** a sf data frame. Since a non-simple feature data frame does not have a “geometry” column, we’ll need to convert **`conflict_data`** into a **simple feature** data frame
+:::
 
-We can convert **`conflict_data`** into a **simple feature** data frame by using **`st_as_sf()`** from the **sf** package. Addiitionally, recall that the **geographic coordinate system (e.g., WGS 84)** is not appropriate for analyses that involve distance/area. Hence, we will also need to transform coordinate system from geographic **(ESPG: 4326)** to projected **(ESPG: 32647)** using **`st_transform()`**.
+We can convert **`conflict_data`** into a **simple feature** data frame by using **`st_as_sf()`** from the **sf** package. Addiitionally, we will also need to transform coordinate system from geographic **(ESPG: 4326)** to projected **(ESPG: 32647)** using **`st_transform()`**.
 
 ```{r}
 # Convert to simple feature format
@@ -340,7 +352,9 @@ conflict_data_sf <- st_as_sf(conflict_data, coords = c("longitude", "latitude"),
 glimpse(conflict_data_sf)
 ```
 
-> 🔎 **Observations**: Notice that a new column called `geometry` has been added into the data frame. On the other hand, the `longitude` and `latitude` columns have been removed from the data frame.
+::: {.callout-tip title="Observations"}
+Notice that a new column called `geometry` has been added into the data frame. On the other hand, the `longitude` and `latitude` columns have been removed from the data frame.
+:::
 
 We can further inspect the newly created 'geometry' column of **`conflict_data_sf`**
 
@@ -349,9 +363,11 @@ We can further inspect the newly created 'geometry' column of **`conflict_data_s
 st_geometry(conflict_data_sf)
 ```
 
-> 🔎 **Observations**: consists of **51,533 features** consisting of **point** **geometric features** where the underlying datum is in WGS 84 format.
+::: {.callout-tip title="Observations"}
+It consists of **51,533 features** consisting of **point** **geometric features** where the underlying datum is in WGS 84 format.
+:::
 
-To ensure that the coordinate system is correctly updated, we can use the **`st_crs()`** function as shown. We can observe that the ESPG code is correctly indicated as 32647.
+To ensure that the coordinate system is correctly updated, we can use the **`st_crs()`** function where we observe that the ESPG code is correctly indicated as **32647**.
 
 ```{r}
 # Check CRS format
@@ -362,73 +378,61 @@ st_crs(conflict_data_sf)
 
 In this section, I will reduce the current Myanmar armed conflict dataset as the time taken for computing the kernel density estimates can take up to 30 minutes long which is not computationally efficient.
 
-#### **1) Remove unused columns in boundary_sf**
+#### **1) Remove 'Protests' and 'Riots' Event Types**
 
-As seen, there are **8 columns** in the simple feature data frame of **`bouondary_sf`**.
+I will remove rows in the **`conflicts_data_sf`** dataset that don't focus on the four main event types (Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians), as mentioned in the exercise brief.
+
+```{r}
+conflict_data_sf <- conflict_data_sf %>%
+  filter(!(event_type %in% c("Protests", "Riots")))
+
+unique(conflict_data_sf$event_type)
+```
+
+#### **2) Remove unused columns in boundary_sf**
+
+As seen, there are **8 columns** in the simple feature data frame of **`boundary_sf`**.
 
 ```{r}
 # Inspect first rows of data in boundary_sf
 head(boundary_sf)
 ```
 
-I will remove **'DT_MMR"** column as we already have the District Name in English as indicated under **`DT`** and would hence not require the district names in Myanmar Language. Additionally, we will remove the coded versions of **ST (state/region)** and **DT (district)** columns, namely **`ST_PCODE`** and **`DT_PCODE`**. Additionally, we won't need the **`PCode_V`** column which indicates the version of the P-code system since we will be dropping the PCODE columns.
+I will remove **'DT_MMR"** column as we already have the District Name in English in **`DT`** and won't require the district names in Myanmar Language. Next, we will remove the coded versions of **ST (state/region)** and **DT (district)** columns, namely **`ST_PCODE`** and **`DT_PCODE`**. Additionally, we won't need the **`PCode_V`** column since we will be dropping the PCODE column too.
 
 ```{r}
 boundary_sf <- boundary_sf %>% dplyr::select('OBJECTID', 'ST', 'DT','geometry')
-
 summary(boundary_sf)
 ```
 
-#### **2) Remove unused columns in conflict_data**
+#### **3) Remove unused columns in conflict_data**
 
-I will also remove unnecessary columns of the **`conflict_data`** data frame that won't be used in our spatial analysis later.
+I will also remove unnecessary columns of the **`conflict_data`** data frame that won't be used in our spatial analysis later. I'll rename **admin1** to ST (states) and **admin2** to DT (districts) for easier reference.
 
 ```{r}
-# Remove time_precision, iso, region (i.e SEA), country (I.e. Myanmar), geo_precision, source, notes
-
-
+#| code-fold: true
+#| code-summary: Remove unnecessary columns
 conflict_data_sf <- conflict_data_sf %>%
-  select(-time_precision, -iso, -region, -country, -geo_precision, -source, -tags, -notes, -timestamp)
+  select(event_id_cnty, event_date, year_quarter, disorder_type, 
+         event_type, location, admin1, admin2, geometry, actor1, actor2,
+         interaction, fatalities) %>%
+  rename(
+    ST = admin1,
+    DT = admin2
+  )
 
 summary(conflict_data_sf)
 ```
 
-#### 3) Categorise conflict data by district (DELETE)
-
-Next, I categorised the Myanmar conflict data by districts to reduce the **`conflict_data`** data set. and this requires the CRS for the conflict and boudnary data to be the same format.
-
-First, we'll assign the district category for each conflict data as demonstrated and explained below.
-
--   **`conflict_data_sf`** (the conflict events) is joined with **`boundary_sf`** (the district boundaries).
--   The join happens based on the `st_intersects()` function, meaning the join operation checks whether each conflict event (point) is located inside a district (polygon).
--   If a conflict point intersects a district polygon, the district's attributes are added to that conflict event in the resulting dataset.
-
-```{r}
-library(sf)
-library(dplyr)
-
-# Perform a spatial join - linking each conflict event to its district region
-conflict_data_with_district <- st_join(conflict_data_sf, boundary_sf, join = st_intersects)
-
-# Check update
-head(conflict_data_with_district[c('event_id_cnty','location','ST','DT','geometry')])
-```
-
-Secondly, we can select specific districts for the conflict events...
-
-```{r}
-unique(conflict_data_with_district$ST)
-```
-
-```{r}
-sum(is.na(conflict_data_with_district$ST))
-```
+`{# Inspect} head(conflict_data_sf)`
 
 ### 3.6 Converting Simple Features Data Frame into ppp Object
 
 It is important that we convert **`conflict_data_sf`** (a simple feature data frame) into a **planer point pattern (ppp)** object format, since the **`spatstat`** package that we'll be using for the Spatial Point Pattern Analysis later is specifically designed for working with **ppp-formated** data. Additionally, I will begin with **categorising the ppp objects** into their **unique `year_quarter`** **category**.
 
 ```{r}
+#| code-fold: true
+#| code-summary: Create ppp objects based on year_quarter category
 # Create an empty list to store the ppp objects
 ppp_list <- list()
 
@@ -451,10 +455,8 @@ ppp_list
 We can visualise the spread of conflict events across each quarter from January 2021 to June 2024 using the **`plot()`** function as shown below.
 
 ```{r}
-# Load necessary libraries
-library(spatstat.geom)
-library(ggplot2)
-
+#| code-fold: true
+#| code-summary: Visualise the spread of conflicts by year_quarter
 # Ensure 'year_quarter' is a factor
 conflict_data_sf$year_quarter <- as.factor(conflict_data_sf$year_quarter)
 
@@ -475,21 +477,9 @@ for (yq in year_quarters) {
 }
 ```
 
-> **💡 Observations:** It is noticeable that there **conflict events have occured more frequently** since 2021 as points plotted on the graph have gotten darker across 2021 to 2024. We can also observe the **possibility of duplicated events** occurring from the darker spots in the plot, in which it appears more intense in Myanmar's central and west regions.
-
-We can also take a quick look at the **`ppp`** object properties using the **`summary()`** function which gives us insights into the number of points the object contains, number of duplicates and window size, etc.
-
-```{r}
-# Get summary of each ppp object
-for (name in names(ppp_list)) {
-  ppp_obj <- ppp_list[[name]]
-  cat("Summary for", name, ":\n")
-  print(summary(ppp_obj))
-  cat("\n")
-}
-```
-
-> 🔎 **Observations:** It can be observed that there are **duplicated locations found** in all the ppp objects as seen from the summary outputs above. This could be caused by the occurrence of multiple conflicts in the same locations across each quarter.
+::: {.callout-tip title="Observations"}
+It is noticeable that there **conflict events have occured more frequently** since 2021 as points plotted on the graph have gotten darker across 2021 to 2024. We can also observe the **possibility of duplicated events** occurring from the darker spots in the plot, in which it appears more intense in Myanmar's central and west regions.
+:::
 
 ### 3.7 Creating *owin* object
 
@@ -505,7 +495,7 @@ myanmar_owin <- as.owin(boundary_sf)
 plot(myanmar_owin)
 ```
 
-::: callout-note
+::: {.callout-tip title="Observations"}
 From my observations, the **`as.owin()`** function converts the **`boundary_data_sf`** spatial boundary into a window object that represents the outer boundary of the spatial region and does not handle internal structures or districts we previously saw from the plot of **`boundary_data_sf`**`.`
 :::
 
@@ -521,30 +511,32 @@ print(head(owin_df))
 
 In this last step of geospatial data wrangling, I will **mask all ppp object with the owin object** I created earlier to put in place all conflict events within the boundary of Myanmar. Doing so can also optimise the memory usage for large datasets.
 
-```{r}
+::: panel-tabset
+**Combine ppp and owin object**
 
+```{r}
 # Initialize an empty list to store masked ppp objects
 masked_ppp_list <- list()
 
 # Iterate over each ppp object in the list
-for (name in names(ppp_list)) {
-  ppp_obj <- ppp_list[[name]]
+for (quarter in names(ppp_list)) {
+  ppp_obj <- ppp_list[[quarter]]
   # Mask the ppp object with the owin object
   masked_ppp <- ppp_obj[myanmar_owin]
   # Store the masked ppp object in the new list
-  masked_ppp_list[[name]] <- masked_ppp
+  masked_ppp_list[[quarter]] <- masked_ppp
 }
-
 ```
 
-We can take a peak into one of the **`ppp`** object outputted. Let us take the **2024 Q2** as reference here. We can observe that there are 1,083 points that make up the 2024 Q2 masked ppp object.
+**Check results of (E.g. 2024 Q2)**
 
 ```{r}
 # Inspect 2024 Q2 masked ppp object
 summary(masked_ppp_list$`2024 Q2`)
 ```
+:::
 
-The **`ppp`** object outputted from combining both the point and polygon feature can be visualised as shown below. We can observe the boundary of Myanmar outlining the plot of conflict events.
+The **`ppp`** object outputted from combining both the point and polygon feature results in the boundary of Myanmar outlining the plot of conflict events as shown.
 
 ```{r}
 # Set up plotting layout
@@ -552,18 +544,169 @@ n <- length(masked_ppp_list)
 
 # Plot each masked ppp object
 par(mfrow = c(2,3), mar = c(0,0,1,0))  # Adjust margins as needed
-for (name in names(masked_ppp_list)) {
-  plot(masked_ppp_list[[name]], main = paste("Year Quarter:", name))
+for (quarter in names(masked_ppp_list)) {
+  plot(masked_ppp_list[[quarter]], main = paste("Year Quarter:", quarter))
 }
 ```
 
-## **4. 1st Order Spatial Point Patterns Analysis**
+## 4. Exploratory Data Analysis
 
-### 4.1 Working with Different Bandwidth Methods
+### 4.1 Identifying *Districts* with Highest Proportion of Conflicts
 
-Using the geospatial data sets prepared, I will now perform 1st order spatial point pattern analysis to derive KDE layers in a quarterly basis by first leveraging **kernel density estimation** **(KDE).**
+It'll also be interesting to find out **specific districts** with the **highest concentration of armed conflicts.** I will first calculate the total occurrences of conflict events per district and add the column to **`boundary_sf`**.
 
-I will be using a variety of automatic bandwidth methods via **`density()`** of the **`spatstat`** package, to determine the most optimal method for this analysis. Namely using **`bw.diggle()`**, **`bw.ppl()`, `bw.CvL()`** and **`bw.scott()`.**
+```{r}
+#| code-fold: true
+#| code-summary: Count number of conflicts by districts
+conflict_count <- conflict_data_sf %>%
+  group_by(DT) %>%
+  summarise(total_count_DT = n()) %>%
+  st_drop_geometry() %>%
+  select(DT, total_count_DT)
+
+# Perform the join
+boundary_sf <- boundary_sf %>%
+  left_join(conflict_count, by = "DT")
+```
+
+Next, let's calculate the **proportion** of total conflicts and add it as a column into the **`boundary_sf`** dataset as **`proportion_DT`**.
+
+```{r}
+# Create new 'proportion_DT' column
+boundary_sf <- boundary_sf %>%
+  mutate(proportion_DT = total_count_DT / sum(total_count_DT))
+head(boundary_sf[c('DT','total_count_DT','proportion_DT')])
+```
+
+At a quick glance, we can see that central and southern parts of Myanmar have the highest proportions of armed conflict events occuring.
+
+```{r}
+#| code-fold: true
+#| code-summary: Set up the points map
+#| eval: false
+districts_choropleth <-
+tm_shape(boundary_sf) +
+  tm_fill("proportion_DT",
+          n=10,
+          title="Proportion",
+          style="equal",
+          palette="Blues") +
+  tm_borders(lwd=0.2,
+             alpha=1) +
+  tm_text(text = "DT", 
+          size = 0.2, 
+          col = "black",
+          fontface = "bold") +
+  tm_layout(main.title = "Distribution of Conflict Points Across Districts",
+            legend.outside=FALSE,
+            main.title.size=1)
+```
+
+```{r}
+#| eval: false
+# Plot the map
+tmap_mode("plot")
+tmap_arrange(districts_choropleth)
+```
+
+![](images/clipboard-1636605006.png)
+
+More specifically, we can observe that the district types are all unique for the **top 3** conflict areas and mainly found in the districts of **Yinmarbin, Shwebo and Pakokku** which lies in the central regions of Myanmar.
+
+```{r}
+# Count number of conflicts by district
+conflict_count <- conflict_data_sf %>%
+  group_by(DT) %>%
+  summarise(total_count_DT = n()) %>%
+  st_drop_geometry() %>%
+  select(DT, total_count_DT)
+
+# Perform the join
+boundary_sf <- boundary_sf %>%
+  left_join(conflict_count, by = "DT")
+
+conflict_count %>%
+  arrange(desc(total_count_DT)) %>%
+  slice(1:10)
+```
+
+### 4.2 Identifying *States* with Highest Proportion of Conflicts
+
+Instead, let us also explore the **top 10 states** with the highest proportions of armed conflict events.
+
+```{r}
+#| code-fold: true
+#| code-summary: Count number of conflicts by states
+conflict_count <- conflict_data_sf %>%
+  group_by(ST) %>%
+  summarise(total_count_ST = n()) %>%
+  st_drop_geometry() %>%
+  select(ST, total_count_ST)
+
+# Perform the join
+boundary_sf <- boundary_sf %>%
+  left_join(conflict_count, by = "ST")
+```
+
+Likewise, I'll add a new column called **`proportion_ST`** to represent the proportion based on each Myanmar state.
+
+```{r}
+boundary_sf <- boundary_sf %>%
+  mutate(proportion_ST = total_count_ST / sum(total_count_ST))
+
+head(boundary_sf[c('ST','total_count_ST','proportion_ST')])
+```
+
+At a quick glance, we can see that **central** and **southern** parts of Myanmar have the highest proportions of armed conflict events occurring, particularly in **Sagaing**, **Mandalay** and **Magway** states.
+
+```{r}
+#| code-fold: true
+#| code-summary: Create the points map
+#| eval: false
+states_choropleth <-
+tm_shape(boundary_sf) +
+  tm_fill("proportion_ST",
+          n=10,
+          title="Proportion",
+          style="equal",
+          palette="Blues") +
+  tm_borders(lwd=0.2,
+             alpha=1) +
+  tm_text(text = "ST", 
+          size = 0.2, 
+          col = "black",
+          fontface = "bold") +
+  tm_layout(main.title = "Distribution of Conflict Points Across States",
+            legend.outside=FALSE,
+            main.title.size=1)
+```
+
+```{r}
+#| eval: false
+# Plot the map
+tmap_mode("plot")
+tmap_arrange(states_choropleth)
+```
+
+![](images/clipboard-1404098727.png)
+
+For greater clarity, the top states with the most conflicts exist in **Sagaing**, **Mandalay,** **Magway** and **Yangon** states as indicated in the map above (darkest shade of blue).
+
+```{r}
+conflict_count %>%
+  arrange(desc(total_count_ST)) %>%
+  slice(1:10)
+```
+
+## **5. 1st Order Spatial Point Patterns Analysis**
+
+### 5.1 Kernel Density Estimation
+
+#### 5.1.1 Working with Fixed Bandwidth Methods
+
+Using the geospatial data sets prepared, I will now perform 1st order spatial point pattern analysis by leveraging **kernel density estimation** **(KDE)** to understand the intensity of conflicts in different regions.
+
+I will be using a variety of **fixed** **bandwidth** methods via **`density()`** of the **`spatstat`** package, to determine the most optimal method for this analysis. Namely using **`bw.diggle()`**, **`bw.ppl()`, `bw.CvL()`** and **`bw.scott()`.**
 
 **Steps taken to calculate the KDE:**
 
@@ -576,59 +719,74 @@ For the purposes of identifying the most optimal bandwidth method, I will create
 ```{r}
 # Set Up
 ppp_obj = masked_ppp_list$`2021 Q1`
+colours <- colorRampPalette(c("midnightblue", "skyblue"))(100)
 ```
 
-#### **1) Using bw.diggle()**
+##### **1) Using bw.diggle()**
 
 The **`bw.diggle()`** bandwidth is referred to as Diggle's cross-validation bandwidth which minimises the mean-squared error (MSE) to balance between under and over-smoothing. I will use the **`density()`** function to compute the kernel density of the masked ppp objects and visualise the distribution of conflict event points by using the **`plot()`** function.
 
 ```{r}
+#| eval: false
 # bw.diggle()
 kde_conflict_bw_diggle <- density(ppp_obj,
                            sigma=bw.diggle,
                            edge=TRUE,
                            kernel="gaussian")
 optimal_bw_d = floor(bw.diggle(ppp_obj)[[1]]*10)/10
-plot(kde_conflict_bw_diggle, main = paste("bw.diggle()", "(Bw:",optimal_bw_d,"m)"))
+plot(kde_conflict_bw_diggle, main = paste("BW: diggle", "(",optimal_bw_d,"m)"), col = colours)
 ```
 
-#### **2) Using bw.ppl()**
+![](images/clipboard-2882188917.png)
+
+##### **2) Using bw.ppl()**
 
 The second bandwidth method I attempted using is **`bw.ppl()`**, This method chooses the bandwidth that minimises the **likelihood cross-validation score** and improving the **prediction accuracy** of the kernel density estimate.
 
 ```{r}
+#| eval: false
 # bw.ppl()
 kde_conflict_bw_ppl <- density(ppp_obj,
                            sigma=bw.ppl,
                            edge=TRUE,
                            kernel="gaussian")
 optimal_bw_p = floor(bw.ppl(ppp_obj)[[1]]*10)/10
-plot(kde_conflict_bw_ppl, main = paste("bw.ppl()", "(Bw:",optimal_bw_p,"m)"))
+plot(kde_conflict_bw_ppl, main = paste("Bw: ppl", "(",optimal_bw_p,"m)"), col = colours)
 ```
 
-> 💡 **Observations:** As `bw.ppl()` tends to choose **smaller bandwidths**, it provide more **localised density estimates** which highlights finer spatial details. As such, we can see **more variability** and **finer** **details** in the density distribution, with more variation between high- and low-density areas.
+![](images/clipboard-2436588955.png)
 
-#### **3) Using bw.CvL()**
+::: {.callout-tip title="Reflections"}
+As `bw.ppl()` tends to choose **smaller bandwidths**, it provide more **localised density estimates** which highlights finer spatial details. As such, we can see **more variability** and **finer** **details** in the density distribution, with more variation between high- and low-density areas.
+:::
+
+##### **3) Using bw.CvL()**
 
 Thirdly, let's explore the bandwidth method **`bw.CvL()`**, also known as Cronie and Van Lieshout cross-validation**,** designed to provide an **optimal, adaptive bandwidth** for **inhomogeneous point patterns**.**.** Similar to **`bw.ppl()`**, it aims to reduce the error measure but also aims to **balance over and under-fitting** based on the spatial structure of the data.
 
 ```{r}
+#| eval: false
 # bw.CvL()
 kde_conflict_bw_CvL <- density(ppp_obj,
                            sigma=bw.CvL,
                            edge=TRUE,
                            kernel="gaussian")
 optimal_bw_c = floor(bw.CvL(ppp_obj)[[1]]*10)/10
-plot(kde_conflict_bw_CvL, main = paste("bw.CvL()", "(Bw:",optimal_bw_c,"m)"))
+plot(kde_conflict_bw_CvL, main = paste("Bw: CvL (",optimal_bw_c,"m)"), col = colours)
 ```
 
-> 💡 **Observations:** The kernel density plot shows that CvL makes a good attempt in **balancing between detail and smoothness**, making it more suitable for capturing the **overall density trends** in spatial data with some **local structures** highlighted.
+![](images/clipboard-139099524.png)
 
-#### **4) Using bw.scott()**
+::: {.callout-tip title="Observations"}
+The kernel density plot shows that CvL makes a good attempt in **balancing between detail and smoothness**, making it more suitable for capturing the **overall density trends** in spatial data with some **local structures** highlighted.
+:::
+
+##### **4) Using bw.scott()**
 
 Lastly, I will explore the `bw.scott()` bandwidth method. This method returns separate bandwidths for the x- and y-axes which is ideal for our spatial data that contains both x and y components. I will combine these bandwidths into a single value for isotropic kernel density estimation by taking the **taking the geometric mean** as shown in the value returned by **`sigma_combined`**.
 
 ```{r}
+#| eval: false
 # bw.scott()
 bw_values <- bw.scott(ppp_obj)
 sigma_x <- bw_values[1]
@@ -641,145 +799,1621 @@ kde_conflict_bw_scott <- density(ppp_obj,
                            kernel = "gaussian")
 
 optimal_bw_s = floor(sigma_combined*10)/10
-plot(kde_conflict_bw_scott, main = paste("bw.scott()", "(Bw:",optimal_bw_s,"m)"))
+plot(kde_conflict_bw_scott, main = paste("Bw: scott", "(",optimal_bw_s,"m)"), col = colours)
 ```
 
-> 💡 **Observations:** As shown, the **geometric mean** ensures equal smoothing in both x and y directions, and it largely similar to **`bw.Cvl()`**, making it a good choice for a **balanced** and **general overview** of the spatial data distribution.
+![](images/clipboard-479310501.png)
 
-#### **Selecting a Bandwidth Method**
+::: {.callout-tip title="Observations"}
+As shown, the **geometric mean** ensures equal smoothing in both x and y directions, and it largely similar to **`bw.Cvl()`**, making it a good choice for a **balanced** and **general overview** of the spatial data distribution.
+:::
 
-Based on my research and observations of the charts below, the four methods cater to different types of data depending on how varied the densities are spread across and the granularity of conflict events. Additionally, I notice that **`bw.ppl()`** and **`bw.CvL()`** take a significantly longer time to complete its KDE computations.
+##### **Selecting a Bandwidth Method**
 
--   **`bw.diggle()`** effective for homogeneous data in seeing **general** conflict hotspots.
+Based on my research and observations of the charts below, the four methods cater to different types of data depending on how varied the densities are spread across and the granularity of conflict events. Additionally, I notice that **`bw.ppl()`** takes a significantly longer time to complete its KDE computations.
+
+-   **`bw.diggle()`** seems effective for homogeneous data in seeing **general** conflict hotspots.
 -   **`bw.ppl()`** for non-homogeneous data in analysing specific locations of **localised conflict zones**.
 -   **`bw.CvL()`** for non-homogeneous data in capturing both **localised conflicts** and the broader **conflict trends**.
--   **`bw.scott()`** for a fast overview and aren’t focusing on small clusters or detailed variations especially when working with large datasets.
+-   **`bw.scott()`** for a **fast** **overview** and aren’t focusing on small clusters or detailed variations especially when working with large datasets.
 
 ```{r}
+#| code-fold: true
+#| code-summary: Plot all bandwidth methods
+#| eval: false
 par(mfrow = c(2,2), mar = c(0,0,1,0)) 
-plot(kde_conflict_bw_diggle, main = paste("Diggle", "(Bw:",optimal_bw_d,"m)"))
-plot(kde_conflict_bw_ppl, main = paste("Bw", "(Bw:",optimal_bw_p,"km)"))
-plot(kde_conflict_bw_CvL, main = paste("bw.CvL()", "(Bw:",optimal_bw_c,"m)"))
-plot(kde_conflict_bw_scott, main = paste("bw.scott()", "(Bw:",optimal_bw_s,"m)"))
+plot(kde_conflict_bw_diggle, main = paste("diggle (",optimal_bw_d,"m)"), col = colours)
+plot(kde_conflict_bw_ppl, main = paste("ppl (",optimal_bw_p,"m)"), col = colours)
+plot(kde_conflict_bw_CvL, main = paste("CvL (",optimal_bw_c,"m)"), col = colours)
+plot(kde_conflict_bw_scott, main = paste("scott (",optimal_bw_s,"m)"), col = colours)
 ```
 
-> 💡 **Decision: I decided to use** `bw.diggle()` **for computing the KDE** of the masked ppp objects based on each quarter. This bandwidth method is effective for the **relatively homogeneous data** spread of our Myanmar conflict data as it is the not as computationally heavy as **`bw.ppl()`** and **`bw.CvL()`** and we get a relatively smooth density estimate that isn't too detailed like **`bw.ppl()`** nor too generalised like **`bw.scott()`**.
+![](images/clipboard-3739036667.png)
 
-Now, let us perform the KDE computation for the conflict events across all quarters using **`bw.diggle()`**.
+> 💡 **Decision: I decided to use** `bw.CvL()` **for computing the KDE** of the masked ppp objects based on each quarter. As seen above, we get a relatively smooth density estimate that isn't too detailed like **`bw.ppl()`** and has a bandwidth of **\~10,000m less** than **`bw.scott()`** which makes the density not as generalised. This bandwidth method is effective for the **non-homogeneous data** spread of our Myanmar conflict data and it isn't as computationally heavy as **`bw.ppl()`**.
+
+##### Putting Together our Fixed KDE
+
+Now, let us perform the KDE computation for the conflict events across all quarters using **`bw.CvL()`**.
 
 ```{r}
-# Calculate density using bw.diggle()
+#| eval: false
+# Calculate density using bw.CvL()
 par(mfrow = c(2,3), mar = c(0,0,1,0)) 
-for (name in names(masked_ppp_list)) {
-  ppp_obj = masked_ppp_list[[name]]
+for (quarter in names(masked_ppp_list)) {
+  ppp_obj = masked_ppp_list[[quarter]]
   kde_conflict_bw <- density(ppp_obj,
-                             sigma=bw.diggle,
+                             sigma=bw.CvL,
                              edge=TRUE,
                              kernel="gaussian")
-  optimal_bw = floor(bw.diggle(ppp_obj)[[1]]*10)/10
-  plot(kde_conflict_bw, main = paste(name, "(Bw:",optimal_bw,"m)"))
+  optimal_bw = floor(bw.CvL(ppp_obj)[[1]]*10)/10
+  plot(kde_conflict_bw, main = paste(quarter, "(Bw:",optimal_bw,"m)"), col = colours)
 }
 ```
 
-> 💡 **Observations of Density Values Range**
->
-> The density values of the output range from **0 to 0.00638** which can be **too small to comprehend**. After some research, it appears that the default unit of measurement of EPSG:32647 is in **metres**. As a result, this causes the density values computed to be in number of points per square metre.
+![](images/clipboard-1170076422.png)
 
-> 💡 **Observations of Bandwidth Size**
->
-> A bandwidth of around **207 to 229** in the context of kernel density estimation means that the kernel function will **smooth** **the point data** over a distance of approximately **207 to 220 metres** from each point. Since a bandwidth of around 200 metres is **considered relatively large**, this results in a **smoother density estimate** with less emphasis on local clusters as indicated in the broader spatial trends as shown.
+![](images/clipboard-1855755584.png)
 
-To make the density values more comprehensible, we will re-scale the density values from metres to kilometres using `rescale()`.
+![](images/clipboard-1967357036.png)
+
+::: {.callout-tip title="Observations"}
+**Density Values Range**: The density values of the output range from **0 to 0.000000002** which can be **too small to comprehend**. After some research, it appears that the default unit of measurement of EPSG:32647 is in **metres**. As such, this causes the density values computed to be in **number** **of points per square metre.**
+
+**Bandwidth Size**: A bandwidth of around **60,000 to 100,000** is considered relatively large as compared to the bandwidth returned from using **`bw.diggle()`** and **`bw.ppl()`**. Hence, this results in a **smoother density estimate** with less emphasis on local clusters as indicated in the generalised spatial trends.
+
+**Note**: Using a **fixed KDE** is beneficial for our quarterly analysis but the bandwidth returned is different for each quarter. Later on, I'll take the average bandwidth across different time periods so we can focus on spatial distribution over time.
+:::
+
+To make the density values more comprehensible, we will **re-scale** the density values from metres to kilometres using `rescale()`.
 
 ```{r}
 masked_ppp_list_km = list()
 
-for (name in names(masked_ppp_list)) {
-  ppp_obj <- masked_ppp_list[[name]]
+for (quarter in names(masked_ppp_list)) {
+  ppp_obj <- masked_ppp_list[[quarter]]
   ppp_obj_km <- rescale(ppp_obj, 1000, "km")
-  masked_ppp_list_km[[name]] <- ppp_obj_km
+  masked_ppp_list_km[[quarter]] <- ppp_obj_km
 }
 ```
 
-Now, we can re-run the **`density()`** function to compute the KDE map.
+Now, we can re-run the **`density()`** function to compute the KDE map and round the numbers to their **3rd decimal place.**
 
 ```{r}
+#| eval: false
 par(mfrow = c(2,3), mar = c(0,0,1,0)) 
-for (name in names(masked_ppp_list_km)) {
-  ppp_obj = masked_ppp_list_km[[name]]
+for (quarter in names(masked_ppp_list_km)) {
+  ppp_obj = masked_ppp_list_km[[quarter]]
   kde_conflict_bw <- density(ppp_obj,
-                             sigma=bw.diggle,
+                             sigma=bw.CvL,
                              edge=TRUE,
                              kernel="gaussian")
-  optimal_bw = floor(bw.diggle(ppp_obj)[[1]]*1000)/1000
-  plot(kde_conflict_bw, main = paste(name, "(Bw:",optimal_bw,"km)"))
+  optimal_bw = floor(bw.CvL(ppp_obj)[[1]]*1000)/1000
+  plot(kde_conflict_bw, main = paste(quarter, "(Bw:",optimal_bw,"km)"), col = colours)
 }
 ```
 
-> 💡 **Observations:** Notice the output image looks identical to the earlier version, the only changes are in the data values from **metres** to **kilometres** (refer to the legend).
+![](images/clipboard-2221400801.png)
 
-### 4.2 Working with Different Kernel Methods
+![](images/clipboard-2997382061.png)
+
+![](images/clipboard-3229467718.png)
+
+> 💡 Notice the output image looks identical to the earlier version, the only changes are in the data values from **metres** to **kilometres** (refer to the legend).
+
+#### 5.1.2 Working with Different Kernel Methods
+
+Now, I will experiment with a variety of kernels for the **`CvL`** bandwidth method, specifically using the **2021 Q1** conflict data to assist me. I will be using these four kernel methods, namely **gaussian, epanechniko, quartic** and **disc.**
+
+::: {.callout-tip title="Observations"}
+It is of my observation that the **`CvL`** bandwidth will automatically be **defaulted to the Gaussian kernel** like most KDE implementations which causes a warning message '**Bandwidth selection will be based on Gaussian kernel'.** This means that only after the bandwidth is selected using the Gaussian kernel, the KDE calculation will perform using the non-gaussian kernel specified e.g. **`quartic`** / **`epanechniko` / `disc`**. In many cases, this still provides a reasonable estimate.
+:::
+
+With that said, let us begin with setting up the **`ppp_obj`** taken from 2021 Q1 and run the density estimation for each kernel method to identify the most optimal for our dataset.
 
 ```{r}
-ppp_obj = masked_ppp_list_km$`2021 Q1`
-```
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0)) 
+ppp_obj = masked_ppp_list$`2021 Q1`
 
-#### 1) Using 'gaussian' kernel
-
-```{r}
-# gaussian
+# Using the gaussian kernel
 kde_conflict_g <- density(ppp_obj,
-                           sigma=bw.diggle,
+                           sigma=bw.CvL,
                            edge=TRUE,
                            kernel="gaussian")
-plot(kde_conflict_g, main="Gaussian Kernel")
-```
+plot(kde_conflict_g, main="Gaussian Kernel", col = colours)
 
-#### 2) Using 'epanechniko' kernel
-
-```{r}
-# epanechniko
+# Using the epanechniko kernel
 kde_conflict_e <- density(ppp_obj,
-                           sigma=bw.diggle,
+                           sigma=bw.CvL,
                            edge=TRUE,
                            kernel="epanechnikov")
-plot(kde_conflict_e, main="Epanechnikov Kernel")
-```
+plot(kde_conflict_e, main="Epanechnikov Kernel", col = colours)
 
-#### 3) Using 'disc' kernel
-
-```{r}
-# disc
-kde_conflict_d <- density(ppp_obj,
-                           sigma=bw.diggle,
-                           edge=TRUE,
-                           kernel="disc")
-plot(kde_conflict_d, main="Disc Kernel")
-```
-
-#### 4) Using 'quartic' kernel
-
-```{r}
-# quartic
-kde_conflict_q <- density(ppp_obj,
-                           sigma=bw.diggle,
+# Using the quartic kernel
+kde_conflict_g <- density(ppp_obj,
+                           sigma=bw.CvL,
                            edge=TRUE,
                            kernel="quartic")
-plot(kde_conflict_q, main="Quartic Kernel")
+plot(kde_conflict_g, main="Quartic Kernel", col = colours)
+
+# Using the disc kernel
+kde_conflict_e <- density(ppp_obj,
+                           sigma=bw.CvL,
+                           edge=TRUE,
+                           kernel="disc")
+plot(kde_conflict_e, main="Disc Kernel", col = colours)
 ```
 
-#### Selecting a kernel type
+![](images/clipboard-4016342561.png)
+
+::: {.callout-tip title="Observations"}
+-   **Gaussian**: provides a **localised** density estimate over the entire spatial extent as compared to **`epanechnikov`** and **`quartic`**. It is good at **highlighting variance** and **opposing ends of conflict intensities** as shown by the wider range used in the legend.
+-   **Epanechnikov**: It is more efficient than the **`gaussian`** in terms of variance but produces a slightly rougher surface. It is also more **localised** than the **`quartic`** kernel, focusing on areas near each point, with a sharper boundary at the bandwidth limit.
+-   **Quartic**: Results in a **good balance** between smoothness and localised influence, smoother than **`epanechnikov`** but with similar properties. It appears suitable for moderate smoothing and sharper focus on local patterns.
+-   **Disc**: results in the **sharpest density estimate** as compared to the other three kernels as all points within a certain distance are made to have equal influence and zero influence beyond that distance.
+
+**Decision:** Hence, I will use the **`quartic`** kernel method to ensure a relatively smooth density estimate with emphasis on local points over distant ones.
+:::
+
+As such, I run the density estimate computation using **`kernel = 'quartic'`**.
 
 ```{r}
-par(mfrow = c(2,2), mar = c(0,0,1,0)) 
-plot(kde_conflict_g, main="Gaussian Kernel")
-plot(kde_conflict_e, main="Epanechnikov Kernel")
-plot(kde_conflict_d, main="Disc Kernel")
-plot(kde_conflict_q, main="Quartic Kernel")
+#| eval: false
+# Using 'quartic' kernel
+par(mfrow = c(2,3), mar = c(0,0,1,0)) 
+
+for (quarter in names(masked_ppp_list_km)) {
+  ppp_obj = masked_ppp_list_km[[quarter]]
+  kde_conflict_bw <- density(ppp_obj,
+                             sigma=bw.CvL,
+                             edge=TRUE,
+                             kernel="quartic")
+  optimal_bw = floor(bw.CvL(ppp_obj)[[1]]*1000)/1000
+  plot(kde_conflict_bw, main = paste(quarter, "(Bw:",optimal_bw,"km)"), col = colours)
+}
 ```
 
-### 4.3 Working with Fixed and Adaptive KDE
+![](images/clipboard-2221400801.png)
 
-## 5. Spatio-Tempmoral KDE
+![](images/clipboard-2997382061.png)
+
+![](images/clipboard-3229467718.png)
+
+::: {.callout-tip title="Observations"}
+We can see **high densities** of armed conflict in the **central** and **southern** regions of Myanmar but more can be uncovered from conflict data. Let's proceed to the next section.
+:::
+
+::: callout-note
+For all subsequent fixed KDE computations, I will assign **`sigma`** using the average of the **CvL bandwidth returned** from each quarter**.** Here's the calculations based on the plots returned:
+
+**Average bandwidth size =** `61.649 + 64.386 + 74.501 + 114.08 + 103.863 + 103.863 + 95.567 + 56.757 + 57.752 + 66.968 + 49.649 + 48.135 + 48.135 + 60.323) / 14 = 71.831`
+:::
+
+Let's recompute the Fixed KDE based on the newly calculated average bandwidth such that **sigma = 71.831.** I'll store the quarterly KDE outputs into a list called **`kde_conflict_bw_list`**.
+
+```{r}
+# Add KDE into this list
+kde_conflict_bw_list <- list()
+for (quarter in names(masked_ppp_list_km)) {
+  ppp_obj = masked_ppp_list_km[[quarter]]
+  kde_conflict_bw <- density(ppp_obj,
+                             sigma=71.831,
+                             edge=TRUE,
+                             kernel="quartic")
+  kde_conflict_bw_list[[quarter]] <- kde_conflict_bw
+}
+```
+
+```{r}
+#| eval: false
+# Plot graph
+par(mfrow = c(2,3), mar = c(0,0,1,0)) 
+
+for (quarter in names(kde_conflict_bw_list)){
+  kde_conflict_bw <- kde_conflict_bw_list[quarter]
+  plot(kde_conflict_bw, main = paste(quarter, "(Bw: 71.831 km)"), col = colours)
+}
+```
+
+![](images/clipboard-1310749876.png)
+
+![](images/clipboard-2533634750.png)
+
+![](images/clipboard-1566404523.png)
+
+#### 5.1.3 Working with Adaptive KDE
+
+![](images/clipboard-3061655849.png){fig-align="center" width="500"}
+
+As seen above, **fixed** bandwidths tend to **oversmooth** the mode of the distribution. On the contrary, the **adaptive** kernel estimate has the ability to **reduce variability** of estimates in areas with **low density** and **increases** it in areas with **higher density** (The Stata Journal, 2003).
+
+Once again, let us use the **2021 Q1** conflict data to illustrate the difference in outputs of all three adaptive methods.
+
+::: panel-tabset
+**Voronoi Adaptive KDE**
+
+```{r}
+#| eval: false
+# Set Up
+ppp_obj = masked_ppp_list_km$`2021 Q1`
+
+# Using Voronoi adaptive KDE
+vd_adaptive_kde <- adaptive.density(ppp_obj, f=1, method="voronoi")
+
+# Plot
+par(mar = c(0,1,1,1))
+plot(vd_adaptive_kde, main = "Voronoi-Dirichlet Adaptive KDE", col = colours)
+```
+
+![](images/clipboard-1548554195.png)
+
+**Adaptive KDE**
+
+```{r}
+#| eval: false
+# Using adaptive KDE
+adaptive_kde <- adaptive.density(ppp_obj, method="kernel")
+
+# Plot
+par(mar = c(0,1,1,1))
+plot(adaptive_kde, main = "Adaptive KDE", col = colours)
+```
+
+![](images/clipboard-328155812.png)
+
+**Nearest Neighbour Adaptive KDE**
+
+I've used a relatively larger number of neighbours **(i.e. k = 10)** to provide a smoother, more general density estimate to capture broader trends and may smooth out details.
+
+```{r}
+#| eval: false
+# Using nearest neighbour adaptive KDE
+nn_kde <- nndensity(ppp_obj, k=10)
+
+# Plot
+par(mar = c(0,1,1,1))
+plot(nn_kde, main = "Nearest Neighbour Adaptive KDE", col = colours)
+```
+
+![](images/clipboard-2043867264.png)
+:::
+
+We can also compare the performance of each method based on the **top 4** **states** with highest proporiton of conflicts as highlighted earlier.
+
+::: panel-tabset
+**Voronoi Adaptive KDE**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot for Voronoi Adaptive KDE
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0))
+
+# Sagaing
+conflict_sagaing <- conflict_data_sf %>%
+  filter(ST == "Sagaing")
+boundary_sagaing <- filter(boundary_sf, ST == "Sagaing")
+district_boundary <- as.owin(st_as_sfc(boundary_sagaing))
+ppp_obj <- as.ppp(st_geometry(conflict_sagaing), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, f=1, method="voronoi")
+plot(kde, main = paste("Sagaing"), col=colours)
+
+# Mandalay
+conflict_mandalay <- conflict_data_sf %>%
+  filter(ST == "Mandalay")
+boundary_mandalay <- filter(boundary_sf, ST == "Mandalay")
+district_boundary <- as.owin(st_as_sfc(boundary_mandalay))
+ppp_obj <- as.ppp(st_geometry(conflict_mandalay), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, f=1, method="voronoi")
+plot(kde, main = paste("Mandalay"), col=colours)
+
+# Magway
+conflict_magway <- conflict_data_sf %>%
+  filter(ST == "Magway")
+boundary_magway <- filter(boundary_sf, ST == "Magway")
+district_boundary <- as.owin(st_as_sfc(boundary_magway))
+ppp_obj <- as.ppp(st_geometry(conflict_magway), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, f=1, method="voronoi")
+plot(kde, main = paste("Magway"), col=colours)
+
+# Yangon
+conflict_yangon <- conflict_data_sf %>%
+  filter(ST == "Yangon")
+boundary_yangon <- filter(boundary_sf, ST == "Yangon")
+district_boundary <- as.owin(st_as_sfc(boundary_yangon))
+ppp_obj <- as.ppp(st_geometry(conflict_yangon), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, f=1, method="voronoi")
+plot(kde, main = paste("Yangon"), col=colours)
+```
+
+![](images/clipboard-4112612774.png)
+
+**Adaptive KDE**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot for Adaptive KDE
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0))
+
+# Sagaing
+district_boundary <- as.owin(st_as_sfc(boundary_sagaing))
+ppp_obj <- as.ppp(st_geometry(conflict_sagaing), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, method="kernel")
+plot(kde, main = paste("Sagaing"), col=colours)
+
+# Mandalay
+district_boundary <- as.owin(st_as_sfc(boundary_mandalay))
+ppp_obj <- as.ppp(st_geometry(conflict_mandalay), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, method="kernel")
+plot(kde, main = paste("Mandalay"), col=colours)
+
+# Magway
+district_boundary <- as.owin(st_as_sfc(boundary_magway))
+ppp_obj <- as.ppp(st_geometry(conflict_magway), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, method="kernel")
+plot(kde, main = paste("Magway"), col=colours)
+
+# Yangon
+district_boundary <- as.owin(st_as_sfc(boundary_yangon))
+ppp_obj <- as.ppp(st_geometry(conflict_yangon), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- adaptive.density(ppp_obj, method="kernel")
+plot(kde, main = paste("Yangon"), col=colours)
+```
+
+![](images/clipboard-931791001.png)
+
+**Nearest Neighbour Adaptive KDE**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot for NN Adaptive KDE
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0))
+
+# Sagaing
+district_boundary <- as.owin(st_as_sfc(boundary_sagaing))
+ppp_obj <- as.ppp(st_geometry(conflict_sagaing), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- nndensity(ppp_obj, k=10)
+plot(kde, main = paste("Sagaing"), col=colours)
+
+# Mandalay
+district_boundary <- as.owin(st_as_sfc(boundary_mandalay))
+ppp_obj <- as.ppp(st_geometry(conflict_mandalay), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- nndensity(ppp_obj, k=10)
+plot(kde, main = paste("Mandalay"), col=colours)
+
+# Magway
+district_boundary <- as.owin(st_as_sfc(boundary_magway))
+ppp_obj <- as.ppp(st_geometry(conflict_magway), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- nndensity(ppp_obj, k=10)
+plot(kde, main = paste("Magway"), col=colours)
+
+# Yangon
+district_boundary <- as.owin(st_as_sfc(boundary_yangon))
+ppp_obj <- as.ppp(st_geometry(conflict_yangon), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+kde <- nndensity(ppp_obj, k=10)
+plot(kde, main = paste("Yangon"), col=colours)
+```
+
+![](images/clipboard-2647645436.png)
+:::
+
+**Comparing the three Adaptive KDE Types**
+
+From the outputs above, it appears that there is no major differences between the distribution of KDE values returned across the three methods, where there is high concentration of points in a specific area. Hence, we will choose to go with `Adapative Kernel` method.
+
+```{r}
+#| eval: false
+par(mar = c(2,2,2,2),mfrow = c(3,1))
+hist(vd_adaptive_kde,main = "Voronoi-Dirichlet Adaptive")
+hist(adaptive_kde,main = "Adaptive Kernel")
+hist(nn_kde,main = "Nearest-Neighbour Adaptive")
+```
+
+![](images/clipboard-3272856398.png)
+
+**Let's compare the results of my two selected fixed and adaptive KDEs (E.g. Magway District)**
+
+```{r}
+#| eval: false
+#| message: false
+par(mfrow = c(1,2), mar = c(0,0,1,0))
+district_boundary <- as.owin(st_as_sfc(boundary_magway))
+ppp_obj <- as.ppp(st_geometry(conflict_magway), W = district_boundary)
+ppp_obj <- rescale(ppp_obj, 1000, "km")
+
+kde_fixed <- density(ppp_obj, sigma=bw.CvL, edge=TRUE, kernel="quartic")
+plot(kde_fixed, main = paste("Fixed KDE (CvL | quartic)"), col = colours)
+kde_adaptive <- adaptive.density(ppp_obj, method="kernel")
+plot(kde_adaptive, main = paste("Adaptive KDE (Kernel)"), col=colours)
+```
+
+![](images/clipboard-263685601.png)
+
+> We can observe how **adaptive kernels** provides a **more detailed** picture of conflict spatial distribution but since it's largely localised, conflict spots require more effort in identifying and can be **computationally heavy** for this exercise.
+>
+> Additionally, **varying bandwidth** makes comparisons across **regions** or **time** **periods** (like quarters) **more difficult** because the scale of smoothing is not constant across space and time.
+
+#### 5.1.5 **Converting Gridded KDE Output into Raster**
+
+Next, we need to convert the KDE output to KDE raster layers before it can be viewed using **`tmap`**.
+
+**Step 1) Converting KDE to Spatial Grid Data Frame**
+
+```{r}
+#| eval: false
+library(grid)
+plot_list <- list()
+for (quarter in names(kde_conflict_bw_list)) {
+  ppp_obj <- kde_conflict_bw_list[[quarter]]
+  gridded_ppp_obj <- as(ppp_obj, "SpatialGridDataFrame")
+  plot_list[[quarter]] <- spplot(gridded_ppp_obj, main = paste(quarter), col.regions = colours)
+}
+
+library(gridExtra)
+plot_list_subset1 <- plot_list[1:6]
+plot_list_subset2 <- plot_list[7:12]
+plot_list_subset3 <- plot_list[13:14]
+grid.newpage()
+grid.arrange(grobs = plot_list_subset1, ncol = 3, nrow = 2)
+grid.newpage() 
+grid.arrange(grobs = plot_list_subset2, ncol = 3, nrow = 2)
+grid.newpage()
+grid.arrange(grobs = plot_list_subset3, ncol = 3, nrow = 2)
+```
+
+![](images/clipboard-2964538096.png)
+
+![](images/clipboard-59080481.png)
+
+![](images/clipboard-1565606559.png)
+
+**Step 2) Rasterisation of Grid Outputs & Assigning Projection Systems**
+
+```{r}
+gridded_ppp_obj_raster_list <- list()
+for (quarter in names(kde_conflict_bw_list)) {
+  gridded_ppp_obj = kde_conflict_bw_list[[quarter]]
+  gridded_ppp_obj_raster <- raster(gridded_ppp_obj)
+  projection(gridded_ppp_obj_raster) <- CRS("+init=EPSG:32647")
+  gridded_ppp_obj_raster_list[[quarter]] <- gridded_ppp_obj_raster
+}
+
+# Inspect for 2024 Q2
+gridded_ppp_obj_raster_list$`2024 Q2`
+```
+
+**Step 3) Plot Maps**
+
+```{r}
+#| eval: false
+tmap_mode("plot")
+plots_by_quarter <- list()
+for (quarter in names(gridded_ppp_obj_raster_list)){
+  gridded_ppp_obj_raster = gridded_ppp_obj_raster_list[[quarter]]
+  raster_plot <- tm_shape(gridded_ppp_obj_raster) +
+    tm_raster("layer", title="Density", palette="Blues") +
+    tm_layout(legend.position = c("left","bottom"),frame=FALSE, main.title = quarter,
+            main.title.size=1, main.title.position = "center", legend.text.size = 0.5,legend.title.size = 0.7) 
+  plots_by_quarter[[quarter]] <- raster_plot
+}
+
+tmap_arrange(plots_by_quarter[1:14], ncol=5, nrow=3)
+```
+
+![](images/clipboard-756448525.png)
+
+::: {.callout-tip title="Observations"}
+Plotting raster grid versions of KDE outputs uses discrete colour ranges which does a good job in highlighting gradual changes in conflict events across an area. Since 2021 Q2, more conflicts are seen in Southern parts of Myanmar. The density range differs for each quarter but we can see an increase in no. of armed conflicts per kilometre from 2021 Q1 to 2022 Q2, which stagnates in density and increases again in 2023 Q4.
+:::
+
+### 5.2 Nearest Neighbour Analysis
+
+Our current analyses does not reveal patterns of clustering or dispersion, to which Michael J. Crawley proposes to employ **Clark-Evans** **test** spatial randomness for its simplicity and applicability for **first-order spatial analysis**, which means checking for overall spatial randomness based on nearest-neighbor distances. (Crawley M. J. , 2007)
+
+![](images/clipboard-1436160892.png){fig-align="center" width="386"}
+
+**Clark-Evans Test**
+
+The test checks whether the observed point pattern of armed conflicts in Myanmar shows **clustering** (points are closer than expected under randomness), **dispersion** (points are more spread out), or **randomness**.
+
+**The test hypotheses are:**
+
+-   **Ho** = The distribution of armed conflicts in Myanmar are randomly distributed.
+-   **H1**= The distribution of armed conflicts in Myanmar are not randomly distributed.
+-   The **95%** confident interval will be used.
+
+We will conduct the test using [clarkevans.test()](https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test) of **statspat**.
+
+```{r}
+for (quarter in names(masked_ppp_list_km)) {
+  ppp_obj = masked_ppp_list_km[[quarter]]
+  print(quarter)
+  print(clarkevans.test(ppp_obj,
+                  correction="none",
+                  clipregion="boundary_sf",
+                  alternative=c("clustered"),
+                  nsim=99))
+}
+```
+
+::: {.callout-tip title="Observations"}
+For a 95% confidence level, If the **p-value \< 0.05**, I will **reject** **the null hypothesis** of complete spatial randomness and **check if data is uniform (R \> 1)** or **clustered (R \< 1).**
+
+With that said, all tests conducted across each quarter **rejects the null hypothesis** as **p \< 0.05** and spatial points are found to be **clustered** since **R \< 1**.
+:::
+
+### 5.3 Further Data Exploration
+
+By using the fixed KDE with CvL bandwidth and quartic kernel, let's see what insights can we glean from the density of conflicts in Myanmar.
+
+#### 5.3.1 KDE by *Event Type*
+
+First, let's identify the unique event types in this dataset.
+
+```{r}
+# Check unique events
+unique(conflict_data_sf$event_type)
+```
+
+Now, let us analyse the kernel density estimate of each unique event type found in **`conflict_data_sf`** to identify hot and cold spots across Myanmar.
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot the KDE based on Event Type
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0)) 
+
+conflict_data_sf %>%
+  group_by(event_type) %>%
+  group_split() -> conflict_by_event_type
+
+# Convert the sf object to owin
+district_boundary <- as.owin(st_as_sfc(boundary_sf))
+
+kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
+  data <- conflict_by_event_type[[i]]
+  event_type <- unique(data$event_type)
+  ppp_obj <- as.ppp(st_geometry(data), W = district_boundary)
+  ppp_obj <- rescale(ppp_obj, 1000, "km")
+  kde <- density(ppp_obj,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  plot(kde, main = paste(event_type), col=colours)
+  return(kde)
+})
+```
+
+![](images/clipboard-80379057.png)
+
+::: {.callout-tip title="Observations"}
+We can almost see an equal spread of all four event types, with **battles** being more dominantly found in **Central** **Myanmar**, followed by strategic developments and violence against citizens.
+:::
+
+#### 5.3.2 KDE Across Top 4 States With Most Conflicts
+
+Previously, we identified the **top 4** **states** with the highest proportions of conflicts as Sagaing, Mandalay, Magway and Yangon. We can delve deeper into each state by **analysing the intensity of conflicts** across these states using **`density()`**.
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot the KDE of Top 4 States
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0))
+
+# Sagaing
+district_boundary <- as.owin(st_as_sfc(boundary_sagaing))
+ppp_obj <- as.ppp(st_geometry(conflict_sagaing), W = district_boundary)
+ppp_obj_sagaing <- rescale(ppp_obj, 1000, "km")
+kde <- density(ppp_obj_sagaing,
+               sigma=71.831,
+               edge=TRUE,
+               kernel="quartic")
+plot(kde, main = paste("Sagaing"), col=colours)
+
+# Mandalay
+district_boundary <- as.owin(st_as_sfc(boundary_mandalay))
+ppp_obj <- as.ppp(st_geometry(conflict_mandalay), W = district_boundary)
+ppp_obj_mandalay <- rescale(ppp_obj, 1000, "km")
+kde <- density(ppp_obj_mandalay,
+               sigma=71.831,
+               edge=TRUE,
+               kernel="quartic")
+plot(kde, main = paste("Mandalay"), col=colours)
+
+# Magway
+district_boundary <- as.owin(st_as_sfc(boundary_magway))
+ppp_obj <- as.ppp(st_geometry(conflict_magway), W = district_boundary)
+ppp_obj_magway <- rescale(ppp_obj, 1000, "km")
+kde <- density(ppp_obj_magway,
+               sigma=71.831,
+               edge=TRUE,
+               kernel="quartic")
+plot(kde, main = paste("Magway"), col=colours)
+
+# Yangon
+district_boundary <- as.owin(st_as_sfc(boundary_yangon))
+ppp_obj <- as.ppp(st_geometry(conflict_yangon), W = district_boundary)
+ppp_obj_yangon <- rescale(ppp_obj, 1000, "km")
+kde <- density(ppp_obj_yangon,
+               sigma=71.831,
+               edge=TRUE,
+               kernel="quartic")
+plot(kde, main = paste("Yangon"), col=colours)
+```
+
+![](images/clipboard-2885991334.png)
+
+::: {.callout-tip title="Observations"}
+It's interesting that armed conflict isn't evenly distributed across the states though it does seem that **armed conflict** has **inflicted the entire state of Yangon.** Nonetheless, it is worth noting that Yangon is **relatively smaller in size** than the other three states and that will **increase** the density of conflict **quite significantly.**
+:::
+
+#### 5.3.3 KDE of Top 4 States by *Event Type*
+
+It'll also be interesting to breakdown each top 4 state **by the event type** category as shown.
+
+::: panel-tabset
+**Sagaing**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot the KDE for Sagaing by Event Type
+#| eval: true
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0)) 
+
+conflict_sagaing %>%
+  group_by(event_type) %>%
+  group_split() -> conflict_by_event_type
+
+# Convert the sf object to owin
+district_boundary <- as.owin(st_as_sfc(boundary_sagaing))
+
+kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
+  data <- conflict_by_event_type[[i]]
+  event_type <- unique(data$event_type)
+  ppp_obj <- as.ppp(st_geometry(data), W = district_boundary)
+  ppp_obj <- rescale(ppp_obj, 1000, "km")
+  kde <- density(ppp_obj,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  plot(kde, main = paste("Sagaing - ",event_type), col=colours)
+  contour(kde, add=TRUE)
+  return(kde)
+})
+```
+
+![](images/clipboard-6085056.png)**Mandalay**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot the KDE for Mandalay by Event Type
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0)) 
+
+conflict_mandalay %>%
+  group_by(event_type) %>%
+  group_split() -> conflict_by_event_type
+
+# Convert the sf object to owin
+district_boundary <- as.owin(st_as_sfc(boundary_mandalay))
+
+kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
+  data <- conflict_by_event_type[[i]]
+  event_type <- unique(data$event_type)
+  ppp_obj <- as.ppp(st_geometry(data), W = district_boundary)
+  ppp_obj <- rescale(ppp_obj, 1000, "km")
+  kde <- density(ppp_obj,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  plot(kde, main = paste("Mandalay - ",event_type), col=colours)
+  contour(kde, add=TRUE)
+  return(kde)
+})
+```
+
+![](images/clipboard-3881088639.png)
+
+**Magway**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot the KDE for Magway by Event Type
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0)) 
+
+conflict_magway %>%
+  group_by(event_type) %>%
+  group_split() -> conflict_by_event_type
+
+# Convert the sf object to owin
+district_boundary <- as.owin(st_as_sfc(boundary_magway))
+
+kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
+  data <- conflict_by_event_type[[i]]
+  event_type <- unique(data$event_type)
+  ppp_obj <- as.ppp(st_geometry(data), W = district_boundary)
+  ppp_obj <- rescale(ppp_obj, 1000, "km")
+  kde <- density(ppp_obj,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  plot(kde, main = paste("Magway - ",event_type), col=colours)
+  contour(kde, add=TRUE)
+  return(kde)
+})
+```
+
+![](images/clipboard-2674625985.png)
+
+**Yangon**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot the KDE for Yangon by Event Type
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0)) 
+
+conflict_yangon %>%
+  group_by(event_type) %>%
+  group_split() -> conflict_by_event_type
+
+# Convert the sf object to owin
+district_boundary <- as.owin(st_as_sfc(boundary_yangon))
+
+kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
+  data <- conflict_by_event_type[[i]]
+  event_type <- unique(data$event_type)
+  ppp_obj <- as.ppp(st_geometry(data), W = district_boundary)
+  ppp_obj <- rescale(ppp_obj, 1000, "km")
+  kde <- density(ppp_obj,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  plot(kde, main = paste("Yangon - ",event_type), col=colours)
+  contour(kde, add=TRUE)
+  return(kde)
+})
+```
+
+![](images/clipboard-1632126526.png)
+:::
+
+::: {.callout-tip title="Observations"}
+The kernel density of **violence against civillians** is generally found to be the **lowest** amongst all conflict events. Additionally, all types of armed conflicts tend to **occur repeatedly** in the **same parts of each state.** E.g. conflicts regarding strategic development tend to happen in Southern part of the Sagaing state, just as it is for explosions/remote violence.
+:::
+
+#### 5.5.4 KDE by Interaction Type
+
+```{r}
+# Convert Interaction Code to Text
+unique(conflict_data_sf$interaction)
+```
+
+```{r}
+library(dplyr)
+
+# Create a named vector for mapping interaction values
+interaction_map <- c(
+  "10" = "SOLE STATE FORCES ACTION",
+  "11" = "STATE FORCES VERSUS STATE FORCES",
+  "12" = "STATE FORCES VERSUS REBELS",
+  "13" = "STATE FORCES VERSUS POLITICAL MILITIA",
+  "14" = "STATE FORCES VERSUS IDENTITY MILITIA",
+  "17" = "STATE FORCES VERSUS CIVILIANS",
+  "18" = "STATE FORCES VERSUS EXTERNAL/OTHER FORCES",
+  "20" = "SOLE REBEL ACTION",
+  "22" = "REBELS VERSUS REBELS",
+  "23" = "REBELS VERSUS POLITICAL MILITIA",
+  "24" = "REBELS VERSUS IDENTITY MILITIA",
+  "27" = "REBELS VERSUS CIVILIANS",
+  "28" = "REBELS VERSUS OTHERS",
+  "30" = "SOLE POLITICAL MILITIA ACTION",
+  "33" = "POLITICAL MILITIA VERSUS POLITICAL MILITIA",
+  "34" = "POLITICAL MILITIA VERSUS IDENTITY MILITIA",
+  "37" = "POLITICAL MILITIA VERSUS CIVILIANS",
+  "38" = "POLITICAL MILITIA VERSUS OTHERS",
+  "40" = "SOLE IDENTITY MILITIA ACTION",
+  "44" = "IDENTITY MILITIA VERSUS IDENTITY MILITIA",
+  "47" = "IDENTITY MILITIA VERSUS CIVILIANS",
+  "48" = "IDENTITY MILITIA VERSUS OTHER",
+  "70" = "SOLE CIVILIAN ACTION",
+  "77" = "CIVILIANS VERSUS CIVILIANS",
+  "78" = "OTHER ACTOR VERSUS CIVILIANS",
+  "80" = "SOLE OTHER ACTION",
+  "88" = "OTHER VERSUS OTHER"
+)
+
+conflict_data_sf <- conflict_data_sf %>%
+  rename(interaction_code = interaction) %>%
+  mutate(interaction = interaction_map[as.character(interaction_code)])  
+
+# View the updated dataframe
+head(conflict_data_sf[c("interaction_code","interaction")])
+```
+
+**1) Involvement of Political** **Militia**
+
+The conflict landscape in Myanmar is complex and fragmented, with political militias focused on **advancing political agendas** or controlling governance structures.. They can be associated as either of these groups..
+
+-   **Pro-Government Militias**: supporting the central government or Tatmadaw, such as Pyithu Sit and BGFs.
+-   **Pro-Democracy Militias**: emerged as part of the resistance movement against the military junta. E.g. the People's Defence Forces (PDF)
+
+Let's discover how the density of armed conflicts differ for each interaction of the political militia.
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot conflicts involving political militia
+#| eval: false
+codes <- c('13','23','33')
+par(mfrow = c(3,1), mar = c(0,0,1,0)) 
+
+for(code in codes) {
+  # Filter for the specific interaction type
+  filtered_data <- conflict_data_sf %>%
+    filter(interaction_code == code)
+  
+  # Convert to ppp object
+  boundary_owin <- as.owin(boundary_sf)
+  ppp_owin_obj <- as.ppp(filtered_data$geometry, W = boundary_owin)
+  ppp_owin_obj_km <- rescale(ppp_owin_obj, 1000, "km")
+  
+  # Compute KDE
+  kde <- density(ppp_owin_obj_km,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  
+  # Plot the KDE
+  plot(kde, main = paste(interaction_map[code]), col = colours)
+}
+```
+
+![](images/clipboard-2276729289.png)
+
+::: {.callout-tip title="Observations"}
+The political army or organisations tend to be less involved with unarmed civilians but state forces, rebels and other policial militia.
+
+**Against State Forces**
+
+-   **High density of conflicts** with state forces (e.g. police) in **central** and **western** Myanmar
+-   These regions have significant ethnic diversity and political grievances. E.g. **Rakhine State in the west** is home to ethnic Rakhine groups who have historically sought greater autonomy and have been involved in conflicts with state forces.
+-   Central regions, such as **Sagaing and Magway,** have also seen intense resistance against state forces, particularly after the 2021 military coup.
+
+**Against Rebels**
+
+-   Rebels and political militias **operate throughout Myanmar** with varying objectives but of a **much smaller intensity** than with other actors (seen from its low density scale).
+-   Clashes between rebels and political militias can stem from **differing political goals, territorial disputes, or strategic interests**.
+-   For instance, a rebel group might view a political militia as a rival in a contested region or as a competitor for local support.
+
+**Against other Political Miliitia**
+
+-   In **central and western Myanmar,** where political militias are more active, there is often competition among different resistance groups. These militias may have different leadership, ideologies, or goals, leading to clashes.
+:::
+
+**2. Involvement of Identity Militia**
+
+Identity militias are typically organised around **ethnic, religious, or cultural identities**. heir main goal is to protect the interests, rights, and autonomy of specific identity-based groups within Myanmar.
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot conflicts involving identity militia
+#| eval: false
+codes <- c('14','24')
+par(mfrow = c(2,1), mar = c(0,0,1,0)) 
+
+for(code in codes) {
+  # Filter for the specific interaction type
+  filtered_data <- conflict_data_sf %>%
+    filter(interaction_code == code)
+  
+  # Convert to ppp object
+  boundary_owin <- as.owin(boundary_sf)
+  ppp_owin_obj <- as.ppp(filtered_data$geometry, W = boundary_owin)
+  ppp_owin_obj_km <- rescale(ppp_owin_obj, 1000, "km")
+  
+  # Compute KDE
+  kde <- density(ppp_owin_obj_km,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  
+  # Plot the KDE
+  plot(kde, main = paste(interaction_map[code]), col = colours)
+}
+```
+
+![](images/clipboard-1772587757.png){fig-align="center" width="650"}
+
+::: {.callout-tip title="Observations"}
+Armed conflicts involving the identity militia is of a **much smaller intensity** than political militia with about 5e\^-0.5 or **3 conflict events per kilometre**.
+
+**State Forces vs Identity Militia**
+
+-   Conflicts between these two parties are **concerntrated in the Western region** which has a history of conflict, including uprisings against **colonial and post-colonial governments.**
+
+-   Additionally, the region's **proximity to Bangladesh** has some influence on local conflicts as ethnic groups in Myanmar may have connections or support from across the border.
+
+-   In the **Rakhine State** of western Myanmar, historical grievances and **demands for autonomy** has also fueled tensions between these groups and the central government (Crisis Group, 2024).
+
+**Rebels vs identity militia**
+
+-   **Higher intensity** of armed conflicts are seen in **North** Myanmar
+-   Northern Myanmar hosts **various ethnic armed groups and rebel factions** that seek autonomy or independence. (E.g. Kachin, Shan and Chin)
+-   Northern Myanmar is **rich** **in natural resources**, e.g. jade and timber. Control over these resources can be a significant driver of conflict, as various armed groups vie for control and when there's a **lack of economic opportunities.** (Fishbein & Lusan, 2022)
+-   Unresolved conflicts from **colonial and post-colonial periods** continue to influence current tensions between different ethnic groups and armed factions in the Northen region.
+:::
+
+**3**. **Involvement of Civilian Actors**
+
+```{r}
+#| code-fold: true
+#| code-summary: Plot conflicts involving civilians
+#| eval: false
+codes <- c('17', '27', '37', '47', '78')
+par(mfrow = c(3,2), mar = c(0,0,1,0)) 
+
+for(code in codes) {
+  # Filter for the specific interaction type
+  filtered_data <- conflict_data_sf %>%
+    filter(interaction_code == code)
+  
+  # Convert to ppp object with boundary window
+  boundary_owin <- as.owin(boundary_sf)
+  ppp_obj <- as.ppp(filtered_data$geometry, W = boundary_owin)
+  
+  # Rescale the ppp object
+  ppp_obj_km <- rescale(ppp_obj, 1000, "km")
+  
+  # Compute KDE
+  kde <- density(ppp_obj_km,
+                 sigma = 71.831,
+                 edge = TRUE,
+                 kernel = "quartic")
+  
+  # Plot the KDE
+  plot(kde, main = paste(interaction_map[code]), col = colours)
+}
+
+```
+
+![](images/clipboard-3608045083.png)
+
+::: {.callout-tip title="Observations"}
+Across all actors, we see that perhaps civilians are involved with the biggest range of actors.
+
+Notably, we see the **lowest intensity** of clashes with **identity militia** which could stem from how civilians might be part of the **same social/ethnic networks** as the identity militia and these militia may seek the support of civilian populations too.
+
+In contrast, **state forces and civilians** have the highest intensity of armed conflicts
+
+-   In **Western** **Rakhine State,** Buddhist-majority and Muslim-minority communities have experienced significant tension causing state forces to act in response to these tensions which has led to severe clashes with civilian populations.
+
+-   Reports of **human rights abuses,** including arbitrary arrests, torture, and extrajudicial killings by state forces, has led to large-scale displacement and humanitarian crises, **further exacerbating tensions** between state forces and civilians. The **struggle for resources and safety** often intensifies the conflicts. (Farge E. & Mantovani C., 2024)
+:::
+
+```{r}
+#| code-fold: true
+#| code-summary: Civilians involvement by Event Type
+#| eval: false
+# Set Up
+par(mfrow = c(2,2), mar = c(0,0,1,0)) 
+codes <- c('17', '27', '37', '47', '78')
+
+conflict_data_sf %>%
+  filter(interaction_code %in% codes) %>%
+  group_by(event_type) %>%
+  group_split() -> conflict_by_event_type
+
+# Convert the sf object to owin
+district_boundary <- as.owin(st_as_sfc(boundary_sf))
+
+kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
+  data <- conflict_by_event_type[[i]]
+  event_type <- unique(data$event_type)
+  ppp_obj <- as.ppp(st_geometry(data), W = district_boundary)
+  ppp_obj <- rescale(ppp_obj, 1000, "km")
+  kde <- density(ppp_obj,
+                 sigma=71.831,
+                 edge=TRUE,
+                 kernel="quartic")
+  plot(kde, main = paste(event_type), col=colours)
+  return(kde)
+})
+```
+
+![](images/clipboard-332831084.png)
+
+::: {.callout-tip title="Observations"}
+Civilians are seen to be embroiled mostly in conflicts resulting from **strategic development** and **violence against civilians events,** primarily in Central and Western Myanmar. Fortunately, conflicts involving **explosions or remote violence is not as intense** against civilians but this raises a great concern on the **humanitarian crisis** faced by civilians in Myanmar.
+:::
+
+## 6. 2nd Order Spatial Point Patterns Analysis
+
+Unlike 1st-order analysis, which studies the intensity of points (e.g., density), let's also leverage 2nd-order analysis to examine how points are distributed relative to each other, which can offer deeper insights into the spatial interaction between events.
+
+I will use the K-function and L-function is to understand the spatial relationships between events, particularly focusing on whether the points exhibit clustering, uniformity, or randomness.
+
+### 6.1 Using K-Function Estimation
+
+**K-function** helps detect spatial patterns by comparing the observed distribution of points against a random pattern at different distances.
+
+#### **6.1.1 Yinmarbin District**
+
+**1) Computing K-Function Estimation**
+
+For Yinmarbin district, let's compute K-function estimates by using **`Kest()`** of the **spatstat** package.
+
+```{r}
+#| code-fold: true
+#| code-summary: Prepare Dataset for Yinmarbin District
+#| eval: true
+conflict_yinmarbin = filter(conflict_data_sf, DT == "Yinmarbin")
+boundary_yinmarbin <- filter(boundary_sf, DT == "Yinmarbin")
+
+# Create a combined ppp and owin object
+boundary_yinmarbin <- st_transform(boundary_yinmarbin, crs = st_crs(conflict_data_sf))
+
+yinmarbin_owin <- as.owin(st_transform(boundary_yinmarbin, crs = st_crs(conflict_data_sf)))
+
+ppp_obj <- as.ppp(st_geometry(conflict_yinmarbin))
+
+# Handle duplicates
+ppp_obj <- rjitter(ppp_obj, retry=TRUE, nsim=1, drop=TRUE)
+
+yinmarbin_ppp_owin <- ppp_obj[yinmarbin_owin]
+#yinmarbin_ppp_owin <- rescale(masked_ppp, 1000, "km")
+```
+
+We are now ready to plot the K-function.
+
+```{r}
+#| eval: true
+K_ck = Kest(yinmarbin_ppp_owin, correction = "Ripley")
+plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(m)",
+       main = paste("Yinmarbin District (K-Function)"))
+```
+
+![](images/d(km).png)
+
+::: {.callout-tip title="Observations"}
+**How to interpret the plot:**
+
+-   **K-iso** represents the observed or estimated K-function value calculated from the actual data
+-   **K-pois** is the theoretical K-function that represents the expected K-function
+
+**With that said...**
+
+We can observe how the **observed line (K-iso)** is found to be above the **theoretical line (K-pois)** which suggests conflict points in **Yinmarbin** are **highly clustered**. In fact, it is more clustered together than expected by the null hypothesis.
+
+**Note:** Since I had used the default **`edge = TRUE`** settings, edge correction will account for missing neighbours outside the boundary which helps maintain an accurate estimate of the K-function. Hence, there is **marginal difference** in the actual and expected K-function.
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test (i.e. Monte Carlo simulation test) will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+Let's define a function to calculate the p-value from an envelope object.
+
+```{r}
+#| code-fold: true
+#| code-summary: Create calculate_p_value function
+calculate_p_value <- function(envelope_obj) {
+  
+  # Extract observed K-function values and the upper and lower envelopes
+  observed_values <- envelope_obj$obs
+  upper_envelope <- envelope_obj$hi
+  lower_envelope <- envelope_obj$lo
+  
+  # Count the number of times the observed values exceed the upper envelope or fall below the lower envelope
+  r <- sum(observed_values > upper_envelope | observed_values < lower_envelope)
+  
+  
+  # Get the number of simulations used in the envelope
+  nsim <- 99
+  
+  # Calculate the p-value
+  p_value <- (r + 1) / (nsim + 1)
+  
+  # Return the p-value
+  return(p_value)
+}
+```
+
+By using **`envelop()`**, we can get a more robust interpretation by comparing the observed K-function against a simulation envelope of K-functions generated under the null hypothesis.
+
+::: callout-note
+To achieve a **95% confidence envelope** in a K-function test with **Complete Spatial Randomness,** I will need to exclude the upper 2.5% and lower 2.5% of the simulated K-functions., i.e. I will need to generate **at least** **40 simulations** where **`nsim = 39`**.
+
+We'll set **`rank = 1`** for a conservative setting, such that the envelope is based on the **extreme values** (highest and lowest) from the simulations.
+:::
+
+```{r}
+#| eval: true
+# Monte Carlo test with K-function
+K_yinmarbin_csr <- envelope(yinmarbin_ppp_owin, Kest, 
+                            nsim = 39, rank = 1, glocal=TRUE)
+plot(K_yinmarbin_csr, main = paste("Yinmarbin District (CSR)"))
+```
+
+![](images/clipboard-4215508963.png)
+
+::: {.callout-tip title="Observations"}
+DON'T RESCALE THE PPP OWIN OBJECT TO KM AND CHECK RESULTS AGAIN!
+
+The reason why the **envelope produced is narrow** might be due to the K-function not adequately capturing the variability in the simulations since I've set the number of simulations **(nsim = 39)** at the **minimal value** - limited by the computational capacity of my laptop. (Section 8.1 shows better results when drilled down into quarters).
+
+The narrow envelope indicates that simulations under CSR are producing **homogeneous patterns**. On the other hand, the **observed** K-function line is **constantly above** the shaded region of the envelope and the theoretical line, suggesting that observed spatial pattern shows **more clustering than expected** under the null hypothesis of CSR
+:::
+
+Just to be sure that there is no improvement in a higher number of simulations, I ran it again with **nsim = 99**. As shown below, the k-function outputs a **somewhat** **smoother** **plot** than before since we are working with less vaariability.
+
+![](images/clipboard-2378436398.png)
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(K_yinmarbin_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+#### **6.1.2 Shwebo District**
+
+**1) Computing K-Function Estimation**
+
+For Shwebo district, let's compute K-function estimates by using **`Kest()`** of the **spatstat** package.
+
+```{r}
+#| code-fold: true
+#| code-summary: Prepare Dataset for Shwebo District
+#| eval: false
+conflict_shwebo = filter(conflict_data_sf, DT == "Shwebo")
+boundary_shwebo <- filter(boundary_sf, DT == "Shwebo")
+
+# Create a combined ppp and owin object
+boundary_shwebo <- st_transform(boundary_shwebo, crs = st_crs(conflict_data_sf))
+
+shwebo_owin <- as.owin(st_transform(boundary_shwebo, crs = st_crs(conflict_data_sf)))
+
+ppp_obj <- as.ppp(st_coordinates(conflict_shwebo))
+
+# Handle duplicates
+ppp_obj <- rjitter(ppp_obj, retry=TRUE, nsim=1, drop=TRUE)
+
+masked_ppp <- ppp_obj[shwebo_owin]
+shwebo_ppp_owin <- rescale(masked_ppp, 1000, "km")
+```
+
+We are now ready to plot the K-function.
+
+```{r}
+#| eval: false
+K_ck = Kest(shwebo_ppp_owin, correction = "Ripley")
+plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(km)",
+       main = paste("Shwebo District (K-Function)"))
+```
+
+![](images/d(km)%20(1).png)
+
+::: {.callout-tip title="Observations"}
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test (i.e. Monta Carlo simulation test) will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+```{r}
+#| eval: false
+# Monte Carlo test with K-function
+K_shwebo_csr <- envelope(shwebo_ppp_owin, Kest, 
+                     nsim = 39, rank = 1, glocal=TRUE)
+plot(K_shwebo_csr, main = paste("Shwebo District (CSR)"))
+```
+
+![](images/clipboard-998335521.png)
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(K_shwebo_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+#### **6.1.3 Pakokku District**
+
+**1) Computing K-Function Estimation**
+
+For Pakokku district, let's compute K-function estimates by using **`Kest()`** of the **spatstat** package.
+
+```{r}
+#| code-fold: true
+#| code-summary: Prepare Dataset for Pakokku District
+#| eval: false
+conflict_pakokku = filter(conflict_data_sf, DT == "Pakokku")
+boundary_pakokku <- filter(boundary_sf, DT == "Pakokku")
+
+# Create a combined ppp and owin object
+boundary_pakokku <- st_transform(boundary_pakokku, crs = st_crs(conflict_data_sf))
+
+pakokku_owin <- as.owin(st_transform(boundary_pakokku, crs = st_crs(conflict_data_sf)))
+
+ppp_obj <- as.ppp(st_coordinates(conflict_pakokku))
+
+# Handle duplicates
+ppp_obj <- rjitter(ppp_obj, retry=TRUE, nsim=1, drop=TRUE)
+
+masked_ppp <- ppp_obj[pakokku_owin]
+pakokku_ppp_owin <- rescale(masked_ppp, 1000, "km")
+```
+
+We are now ready to plot the K-function.
+
+```{r}
+#| eval: false
+K_ck = Kest(pakokku_ppp_owin, correction = "Ripley")
+plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(km)",
+       main = paste("Pakokku District (K-Function)"))
+```
+
+![](images/clipboard-2832050063.png)
+
+::: {.callout-tip title="Observations"}
+**How to interpret the plot:**
+
+-   **K-iso** represents the observed or estimated K-function value calculated from the actual data
+-   **K-pois** is the theoretical K-function that represents the expected K-function
+
+**With that said...**
+
+We can observe how the **observed line (K-iso)** is found to be above the **theoretical line (K-pois)** which suggests conflict points in **Pakokku** are **highly clustered**. In fact, it is more clustered together than expected by the null hypothesis.
+
+**Note:** Since I had used the default **`edge = TRUE`** settings, edge correction will account for missing neighbours outside the boundary which helps maintain an accurate estimate of the K-function. Hence, there is **marginal difference** in the actual and expected K-function.
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test (i.e. Monta Carlo simulation test) will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+By using **`envelop()`**, we can get a more robust interpretation by comparing the observed K-function against a simulation envelope of K-functions generated under the null hypothesis.
+
+::: callout-note
+To achieve a **95% confidence envelope** in a K-function test with **Complete Spatial Randomness,** I will need to exclude the upper 2.5% and lower 2.5% of the simulated K-functions., i.e. I will need to generate **at least** **40 simulations** where **`nsim = 39`**.
+:::
+
+```{r}
+#| eval: true
+# Monte Carlo test with K-function
+K_pakokku_csr <- envelope(pakokku_ppp_owin, Kest, 
+                     nsim = 39, rank = 1, glocal=TRUE)
+plot(K_pakokku_csr, main = paste("Pakokku District (CSR)"))
+```
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(K_pakokku_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+#### **6.1.4 Mandalay District**
+
+**1) Computing K-Function Estimation**
+
+For Mandalay district, let's compute K-function estimates by using **`Kest()`** of the **spatstat** package.
+
+```{r}
+#| code-fold: true
+#| code-summary: Prepare Dataset for Mandalay District
+#| eval: false
+conflict_mandalay = filter(conflict_data_sf, DT == "Mandalay")
+boundary_mandalay <- filter(boundary_sf, DT == "Mandalay")
+
+# Create a combined ppp and owin object
+boundary_mandalay <- st_transform(boundary_mandalay, crs = st_crs(conflict_data_sf))
+
+mandalay_owin <- as.owin(st_transform(boundary_mandalay, crs = st_crs(conflict_data_sf)))
+
+ppp_obj <- as.ppp(st_coordinates(conflict_mandalay))
+
+# Handle duplicates
+ppp_obj <- rjitter(ppp_obj, retry=TRUE, nsim=1, drop=TRUE)
+
+masked_ppp <- ppp_obj[mandalay_owin]
+mandalay_ppp_owin <- rescale(masked_ppp, 1000, "km")
+```
+
+We are now ready to plot the K-function.
+
+```{r}
+#| eval: false
+K_ck = Kest(mandalay_ppp_owin, correction = "Ripley")
+plot(K_ck, . -r ~ r, ylab= "K(d)-r", xlab = "d(km)",
+       main = paste("Mandalay District (K-Function)"))
+```
+
+![](images/clipboard-363816982.png)
+
+::: {.callout-tip title="Observations"}
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test (i.e. Monta Carlo simulation test) will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+```{r}
+#| eval: false
+# Monte Carlo test with K-function
+K_mandalay_csr <- envelope(mandalay_ppp_owin, Kest, 
+                     nsim = 39, rank = 1, glocal=TRUE)
+plot(K_mandalay_csr, main = paste("Mandalay District (CSR)"))
+```
+
+![](images/clipboard-2726224351.png)
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(K_mandalay_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+### 6.2 Using L-Function Estimation
+
+In this section, I will be computing L-function via [Lest()](#0) of **spatstat** package which is normalises the K-function to a linear scale for easier interpretation.
+
+#### **6.2.1 Yinmarbin District**
+
+**1) Computing L-function Estimation**
+
+```{r}
+#| eval: false
+L_yinmarbin = Lest(yinmarbin_ppp_owin, correction = "Ripley")
+plot(L_yinmarbin, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
+     main = paste("Yinmarbin District (L-Function)"))
+```
+
+![](images/clipboard-679889488.png)
+
+::: {.callout-tip title="Observations"}
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
+
+```{r}
+#| eval: false
+# Monte Carlo test with L-function
+L_yinmarbin_csr <- envelope(yinmarbin_ppp_owin, Lest, 
+                     nsim = 39, rank = 1, glocal=TRUE)
+plot(L_yinmarbin_csr, . - r ~ r, xlab="d(km)", ylab="L(d)-r",
+       main = paste("Yinmarbin District (CSR)"))
+```
+
+![](images/clipboard-3164642810.png)
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(L_yinmarbin_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+#### **6.2.2 Shwebo District**
+
+**1) Computing L-function Estimation**
+
+```{r}
+#| eval: false
+L_shwebo = Lest(shwebo_ppp_owin, correction = "Ripley")
+plot(L_shwebo, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
+     main = paste("Shwebo District (L-Function)"))
+```
+
+![](images/clipboard-1424827266.png)
+
+::: {.callout-tip title="Observations"}
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
+
+```{r}
+#| eval: true
+# Monte Carlo test with L-function
+L_shwebo_csr <- envelope(shwebo_ppp_owin, Lest, 
+                     nsim = 39, rank = 1, glocal=TRUE)
+plot(L_shwebo_csr, . - r ~ r, xlab="d(km)", ylab="L(d)-r",
+       main = paste("Shwebo District (CSR)"))
+```
+
+![](images/clipboard-1343711461.png)
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(L_shwebo_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+#### **6.2.3 Pakokku District**
+
+**1) Computing L-function Estimation**
+
+```{r}
+#| eval: false
+L_pakokku = Lest(pakokku_ppp_owin, correction = "Ripley")
+plot(L_yinmarbin, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
+     main = paste("Pakokku District (L-Function)"))
+```
+
+![](images/clipboard-129069972.png)
+
+::: {.callout-tip title="Observations"}
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
+
+```{r}
+#| eval: false
+# Monte Carlo test with L-function
+L_pakokku_csr <- envelope(pakokku_ppp_owin, Lest, 
+                     nsim = 39, rank = 1, glocal=TRUE)
+
+```
+
+![](images/clipboard-3364496780.png)
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(L_pakokku_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+#### **6.2.4 Mandalay District**
+
+**1) Computing L-function Estimation**
+
+```{r}
+#| eval: false
+L_mandalay = Lest(mandalay_ppp_owin, correction = "Ripley")
+plot(L_mandalay, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
+     main = paste("Mandalay District (L-Function)"))
+```
+
+![](images/clipboard-1257608418.png)
+
+::: {.callout-tip title="Observations"}
+:::
+
+**2) Performing Complete Spatial Randomness Test**
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
+-   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
+-   The null hypothesis will be rejected if **p-value is smaller** than **alpha value of 0.001**.
+
+I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
+
+```{r}
+#| eval: false
+# Monte Carlo test with L-function
+L_mandalay_csr <- envelope(mandalay_ppp_owin, Lest, 
+                     nsim = 39, rank = 1, glocal=TRUE)
+plot(L_mandalay_csr, . - r ~ r, xlab="d(km)", ylab="L(d)-r",
+       main = paste("Mandalay District (CSR)"))
+```
+
+![](images/clipboard-2910906591.png)
+
+```{r}
+# Check the p-value
+p_value <- calculate_p_value(L_mandalay_csr)
+print(paste("P-value:", p_value))
+```
+
+::: {.callout-tip title="Observations"}
+:::
+
+## 7. Spatio-Tempmoral KDE
 
 We focus on the continuous time
+
+## 9. My Reflection
+
+This Take-Home Exercise 1 had greatly **stretched my learnings** and provided me the opportunity to apply spatial and spatio-temporal point pattern analysis on a real-world dataset.
+
+Myanmar’s humanitarian conflict is a complex interplay of ethnic, political, and religious struggles which continues to be an **on-going humanitarian crisis**, involving the **military, ethnic armed groups, political militias, and civilians.**
+
+My analysis has shown that **central and southern states** (notably, Sagaing, Mandalay, Magway and Yangon) have experienced intense clashes between **state forces and politica/identity militias**, while **northern Myanmar** sees high conflict levels between **rebels and political militias**.
+
+Running **computationally intensive codes** such as **`envelope()`** for 2nd order spatial analysis may differ in processing speed from one student to another. My system, however, is running with **8 cores** and it does take a **lengthy amount of time** for processing the large 40,000+ rows of conflict data. (1 simulation takes around 2 minutes to run). Hence, I would suggest other students to **begin their take-home exercise as early as possible** to provide buffer time for processing the data, handling code bugs and even data cleaning errors.
+
+## 10. References
+
+1.  Crawley, M. J. (2007). The R Book. Wiley.
+
+2.  Crisis Group. (2024, August 27). Breaking Away: The Battle for Myanmar’s Rakhine State. <https://www.crisisgroup.org/asia/south-east-asia/myanmar/339-breaking-away-battle-myanmars-rakhine-state>
+
+3.  Farge, E., & Mantovani, C. (2024, September 17). Myanmar military stepping up civilian killings and arrests, says UN report. <https://www.reuters.com/world/asia-pacific/myanmar-military-intensifies-civilian-killings-arrests-says-un-report-2024-09-17/#:~:text=The%20report%20by%20the%20United,the%20military%20since%20the%20coup>.
+
+4.  Fishbein, E., & Lusan, N. N. (2022, December 14). 'Afraid of the gun': Military coup fuels Myanmar resource grab. Al Jazeera. <https://www.aljazeera.com/news/2022/12/14/afraid-of-the-gun-military-coup-fuels-myanmar-resource-grab>
+
+5.  The Stata Journal. (2003). Adaptive kernel density estimation. Sage Journals. <https://journals.sagepub.com/doi/pdf/10.1177/1536867X0300300204>
