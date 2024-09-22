@@ -22,7 +22,15 @@ Hey there! 👋 I'm **Samantha Foo**, a Year 3 SMU student pursuing a Bachelor i
 Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 :::
 
-+:--------------------+:---------------------------------------------------------------------------------------------------------------+:--------------------------------------------------+
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Take Home Exercise 1**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex1/take-home_ex1)  | ![](images/clipboard-1636605006.png){width="200"} |
+|                     |                                                                                                                |                                                   |
+| Sep 22, 2024        | Spatial & Spatio-Temporal Point Pattern Analysis of Myanmar's Armed Conflicts                                  |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
 | <p id="contents">   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1)      | \                                                 |
 |                     |                                                                                                                |                                                   |
 | Aug 16, 2024        | Geospatial Wrangling with R                                                                                    | ![](images/clipboard-195378010.png){width="200"}  |
