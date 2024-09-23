@@ -115,13 +115,7 @@ I will also be using a geospatial dataset from the Myanmar Information Managemen
 
 My reason for choosing the **district boundary** dataset is that we do not want to select a boundary dataset that is too generalised when analysing conflict events since it **might not provide sufficient insights to trends** where conflict events happen. Neither do we want to analyse a geography that is too detailed (e.g. Admin 3 - townships) since it can be **computationally inefficient** as seen in the types of boundary data below.
 
-+--------------------------------------+-------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------+
-| Admin 0                              | Admin 1                             | Admin 1                              | Admin 2 \[To Use\]                   | Admin 3                             |
-+:====================================:+:===================================:+:====================================:+:====================================:+:===================================:+
-| National boundary                    | Myanmar region                      | Region and sub-region                | District boundary                    | Myanmar township                    |
-+--------------------------------------+-------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------+
-| ![](images/clipboard-4062665913.png) | ![](images/clipboard-799910136.png) | ![](images/clipboard-3525847239.png) | ![](images/clipboard-1135072014.png) | ![](images/clipboard-204520723.png) |
-+--------------------------------------+-------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------+
+![](images/clipboard-679107542.png)
 
 I have donwloaded the two data sets and organised them into my folder as follows.
 
@@ -3618,7 +3612,7 @@ animation <- image_animate(image_join(frames), fps = 1)
 animation
 ```
 
-![](L_function_monta_carlo/kfunction_pakokku.gif)
+![](L_function_monta_carlo/kfunction_pakokku.gif){width="500"}
 
 ::: {.callout-tip title="Observations"}
 The results of the simulation produces the greatest variability in conflict activity in Pakokku in **2021 Q2** and **2024 Q1.** The CSR tests confirms **significant clustering** throughout all quarters in Pakokku. We can confirm that **localised clustering** are more promoinent in **2021 Q2, 2022 Q3** and **2024 Q1** where the L-values deviates more above the envelope at smaller distances. The remaning quarters show strong evidence of **widespread** **clustering** across a bigger distribution of Pakokku district.
@@ -3672,7 +3666,7 @@ animation <- image_animate(image_join(frames), fps = 1)
 animation
 ```
 
-![](sec_order_L_function/kfunction_mandalay.gif)
+![](sec_order_L_function/kfunction_mandalay.gif){width="500"}
 
 ::: {.callout-tip title="Observations"}
 Generally from 2021 to 2024, we see an **upward trend** of observed L values with sharp fluctuations as distance increases.
@@ -3727,7 +3721,7 @@ animation <- image_animate(image_join(frames), fps = 1)
 animation
 ```
 
-![](L_function_monta_carlo/kfunction_mandalay.gif)
+![](L_function_monta_carlo/kfunction_mandalay.gif){width="500"}
 
 ::: {.callout-tip title="Observations"}
 In 2021 Q1 and 2024 Q1-2, we can observe a **bigger envelope** from the CSR test especially at **larger distances**. This means certain areas in Mandalay show strong clustering (hotspots), while others are more dispersed, leading to **greater variability** in the overall spatial structure of conflict events.
