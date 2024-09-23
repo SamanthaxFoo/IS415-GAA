@@ -459,7 +459,7 @@ conflict_data_sf$year_quarter <- as.factor(conflict_data_sf$year_quarter)
 year_quarters <- unique(conflict_data_sf$year_quarter)
 
 # Set up a grid layout for multiple plots (adjust 'mfrow' as needed)
-par(mfrow = c(2,3))
+par(mfrow = c(4,4))
 par(mar = c(0,0,1,0))
 
 # Loop through each year_quarter and plot
@@ -468,15 +468,11 @@ for (yq in year_quarters) {
   conflict_data_ppp <- as.ppp(subset_data_sf$geometry)
   
   # Plot each subset ppp object
-  plot(conflict_data_ppp, main = paste("Year-Quarter:", yq))
+  plot(conflict_data_ppp, main = paste(yq))
 }
 ```
 
-![](images/clipboard-2245208814.png){width="700"}
-
-![](images/clipboard-1025062504.png){width="700"}
-
-![](images/clipboard-1293939410.png){width="700"}
+![](images/clipboard-3765192516.png)
 
 ::: {.callout-tip title="Observations"}
 It is noticeable that there **conflict events have occured more frequently** since 2021 as points plotted on the graph have gotten darker across 2021 to 2024. We can also observe the **possibility of duplicated events** occurring from the darker spots in the plot, in which it appears more intense in Myanmar's central and west regions.
