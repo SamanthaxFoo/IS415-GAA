@@ -1,5 +1,5 @@
 ---
-title: "Take-home Exercise 1"
+title: "Take-home Exercise 1 - Part 1"
 subtitle: "Harnessing Geospatial Analytics to Uncover Armed Conflict Patterns in Myanmar"
 author: "Foo Jia Yi Samantha"
 date-modified: 09/22/2024
@@ -115,11 +115,11 @@ I will also be using a geospatial dataset from the Myanmar Information Managemen
 
 My reason for choosing the **district boundary** dataset is that we do not want to select a boundary dataset that is too generalised when analysing conflict events since it **might not provide sufficient insights to trends** where conflict events happen. Neither do we want to analyse a geography that is too detailed (e.g. Admin 3 - townships) since it can be **computationally inefficient** as seen in the types of boundary data below.
 
-![](images/clipboard-679107542.png)
+![](images/clipboard-679107542.png){fig-align="center" width="700"}
 
 I have donwloaded the two data sets and organised them into my folder as follows.
 
-![](images/clipboard-4213243167.png){width="793"}
+![](images/clipboard-4213243167.png){fig-align="center" width="793"}
 
 ## **2. Let’s Set Up!**
 
@@ -1059,7 +1059,7 @@ hist(kde_conflict_q, main = "Quartic")
 hist(kde_conflict_d, main = "Disc")
 ```
 
-![](images/clipboard-2725383806.png)
+![](images/clipboard-2725383806.png){width="700"}
 
 ::: {.callout-tip title="Observations"}
 As expected, we don't see major variations in the smoothness and spread of KDE across a range of distances, and bias continues to be present across all kernel methods as seen from the long-tails. However, there are slight differences in the sharpness of the bandwidth radius in terms of how localised or widespread our data points are being captured.
@@ -1165,7 +1165,7 @@ par(mar = c(0,1,1,1))
 plot(vd_adaptive_kde, main = "Voronoi-Dirichlet Adaptive KDE", col = colours)
 ```
 
-![](images/clipboard-1548554195.png){width="500"}
+![](images/clipboard-1548554195.png){width="300"}
 
 ##### **Adaptive KDE**
 
@@ -1179,7 +1179,7 @@ par(mar = c(0,1,1,1))
 plot(adaptive_kde, main = "Adaptive KDE", col = colours)
 ```
 
-![](images/clipboard-328155812.png){width="500"}
+![](images/clipboard-328155812.png){width="300"}
 
 ##### **Nearest Neighbour Adaptive KDE**
 
@@ -1195,7 +1195,7 @@ par(mar = c(0,1,1,1))
 plot(nn_kde, main = "Nearest Neighbour Adaptive KDE", col = colours)
 ```
 
-![](images/clipboard-2043867264.png){width="500"}
+![](images/clipboard-2043867264.png){width="300"}
 :::
 
 We can also compare the performance of each method based on the **top 4** **states** with highest proportion of conflicts as highlighted earlier.
@@ -1207,6 +1207,7 @@ We can also compare the performance of each method based on the **top 4** **stat
 #| code-fold: true
 #| code-summary: Plot for Voronoi Adaptive KDE
 #| eval: false
+#| include: false
 # Set Up
 par(mfrow = c(2,2), mar = c(0,0,1,0))
 
@@ -1251,7 +1252,7 @@ kde <- adaptive.density(ppp_obj, f=1, method="voronoi")
 plot(kde, main = paste("Yangon"), col=colours)
 ```
 
-![](images/clipboard-3356847122.png)
+![](images/clipboard-3356847122.png){width="500"}
 
 ##### **Adaptive KDE**
 
@@ -1259,6 +1260,7 @@ plot(kde, main = paste("Yangon"), col=colours)
 #| code-fold: true
 #| code-summary: Plot for Adaptive KDE
 #| eval: false
+#| include: false
 # Set Up
 par(mfrow = c(2,2), mar = c(0,0,1,0))
 
@@ -1291,9 +1293,7 @@ kde <- adaptive.density(ppp_obj, method="kernel")
 plot(kde, main = paste("Yangon"), col=colours)
 ```
 
-![](images/clipboard-931791001.png)
-
-![](images/clipboard-931791001.png)
+![](images/clipboard-3356847122-01.png){width="500"}
 
 ##### **Nearest Neighbour Adaptive KDE**
 
@@ -1301,6 +1301,7 @@ plot(kde, main = paste("Yangon"), col=colours)
 #| code-fold: true
 #| code-summary: Plot for NN Adaptive KDE
 #| eval: false
+#| include: false
 # Set Up
 par(mfrow = c(2,2), mar = c(0,0,1,0))
 
@@ -1333,7 +1334,7 @@ kde <- nndensity(ppp_obj, k=10)
 plot(kde, main = paste("Yangon"), col=colours)
 ```
 
-![](images/clipboard-2647645436.png)
+![](images/clipboard-2647645436.png){width="500"}
 :::
 
 **Comparing the three Adaptive KDE Types**
@@ -1342,19 +1343,21 @@ From the outputs above, it appears that there is no major differences between th
 
 ```{r}
 #| eval: false
+#| include: false
 par(mar = c(2,2,2,2),mfrow = c(3,1))
 hist(vd_adaptive_kde,main = "Voronoi-Dirichlet Adaptive")
 hist(adaptive_kde,main = "Adaptive Kernel")
 hist(nn_kde,main = "Nearest-Neighbour Adaptive")
 ```
 
-![](images/clipboard-3272856398.png)
+![](images/clipboard-3272856398.png){fig-align="center" width="600"}
 
 **Let's compare the results of my two selected fixed and adaptive KDEs (E.g. Magway District)**
 
 ```{r}
 #| eval: false
 #| message: false
+#| include: false
 par(mfrow = c(1,2), mar = c(0,0,1,0))
 district_boundary <- as.owin(st_as_sfc(boundary_magway))
 ppp_obj <- as.ppp(st_geometry(conflict_magway), W = district_boundary)
@@ -1366,7 +1369,7 @@ kde_adaptive <- adaptive.density(ppp_obj, method="kernel")
 plot(kde_adaptive, main = paste("Adaptive KDE (Kernel)"), col=colours)
 ```
 
-![](images/clipboard-263685601.png){width="700"}
+![](images/clipboard-263685601.png){width="500"}
 
 > We can observe how **adaptive kernels** provides a **more detailed** picture of conflict spatial distribution but since it's largely localised, conflict spots require more effort in identifying and can be **computationally heavy** for this exercise.
 >
@@ -1439,7 +1442,7 @@ for (quarter in names(gridded_ppp_obj_raster_list)){
 tmap_arrange(plots_by_quarter[1:14], ncol=5, nrow=3)
 ```
 
-![](images/clipboard-756448525.png)
+![](images/clipboard-3608703802-01.png){width="1000"}
 
 ::: {.callout-tip title="Observations"}
 Plotting raster grid versions of KDE outputs uses discrete colour ranges which does a good job in highlighting gradual changes in conflict events across an area. Since 2021 Q2, more conflicts are seen in Southern parts of Myanmar. The density range differs for each quarter but we can see an increase in no. of armed conflicts per kilometre from 2021 Q1 to 2022 Q2, which stagnates in density and increases again in 2023 Q4.
@@ -1638,6 +1641,7 @@ It'll also be interesting to breakdown each top 4 state **by the event type** ca
 #| code-fold: true
 #| code-summary: Plot the KDE for Sagaing by Event Type
 #| eval: false
+#| include: false
 # Set Up
 par(mfrow = c(2,2), mar = c(0,0,1,0)) 
 
@@ -1671,6 +1675,7 @@ kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
 #| code-fold: true
 #| code-summary: Plot the KDE for Mandalay by Event Type
 #| eval: false
+#| include: false
 # Set Up
 par(mfrow = c(2,2), mar = c(0,0,1,0)) 
 
@@ -1704,6 +1709,7 @@ kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
 #| code-fold: true
 #| code-summary: Plot the KDE for Magway by Event Type
 #| eval: false
+#| include: false
 # Set Up
 par(mfrow = c(2,2), mar = c(0,0,1,0)) 
 
@@ -1737,6 +1743,7 @@ kde_list <- lapply(seq_along(conflict_by_event_type), function(i) {
 #| code-fold: true
 #| code-summary: Plot the KDE for Yangon by Event Type
 #| eval: false
+#| include: false
 # Set Up
 par(mfrow = c(2,2), mar = c(0,0,1,0)) 
 
@@ -2154,7 +2161,7 @@ K_shwebo_csr <- envelope(shwebo_ppp_owin, Kest,
 plot(K_shwebo_csr, main = paste("Shwebo District (CSR)"))
 ```
 
-![](images/clipboard-998335521.png){width="700"}
+![](images/clipboard-1343711461-01.png){width="700"}
 
 ::: {.callout-tip title="Observations"}
 Since the **observed line** lies above the envelope and the shaded region of the envelope is rather narrow, it **strongly suggests clustering in Shwebo**, rather than due to random variation.
@@ -2380,1383 +2387,4 @@ plot(L_mandalay_csr, . - r ~ r, xlab="d(km)", ylab="L(d)-r",
 The Monte Carlo simulation shows that there's **statistically significant clustering** across all distances since the observed L values consistently **lie above** the envelope. There is also a **marginal increase in variability** of random points observed which is inherent in larger distance scales as seen from the **slight widening of the envelope** as distance increases.
 :::
 
-## 7. 1st Order Spatio-Temporal Point Pattern Analysis
-
-```{r}
-#| code-fold: true
-#| code-summary: Set up DayofYear variable per quarter
-#| eval: true
-Q2_2024 <- conflict_data_sf %>%
-  filter(year_quarter == "2024 Q2") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q1_2024 <- conflict_data_sf %>%
-  filter(year_quarter == "2024 Q1") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q4_2023 <- conflict_data_sf %>%
-  filter(year_quarter == "2023 Q4") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q3_2023 <- conflict_data_sf %>%
-  filter(year_quarter == "2023 Q3") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q2_2023 <- conflict_data_sf %>%
-  filter(year_quarter == "2023 Q2") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q1_2023 <- conflict_data_sf %>%
-  filter(year_quarter == "2023 Q1") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q4_2022 <- conflict_data_sf %>%
-  filter(year_quarter == "2022 Q4") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q3_2022 <- conflict_data_sf %>%
-  filter(year_quarter == "2022 Q3") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q2_2022 <- conflict_data_sf %>%
-  filter(year_quarter == "2022 Q2") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q1_2022 <- conflict_data_sf %>%
-  filter(year_quarter == "2022 Q1") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q4_2021 <- conflict_data_sf %>%
-  filter(year_quarter == "2021 Q4") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q3_2021 <- conflict_data_sf %>%
-  filter(year_quarter == "2021 Q3") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q2_2021 <- conflict_data_sf %>%
-  filter(year_quarter == "2021 Q2") %>%
-  mutate(DayofYear = yday(event_date))
-
-Q1_2021 <- conflict_data_sf %>%
-  filter(year_quarter == "2021 Q1") %>%
-  mutate(DayofYear = yday(event_date))
-```
-
-### 7.1 **Creating ppp object**
-
-In the code chunk below, **DayofYear** from the **fire_sf** data frame is selected and is included in the output ppp object.
-
-```{r}
-# Create ppp object per quarter
-Q2_2024_ppp <- Q2_2024 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q1_2024_ppp <- Q1_2024 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q4_2023_ppp <- Q4_2023 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q3_2023_ppp <- Q3_2023 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q2_2023_ppp <- Q2_2023 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q1_2023_ppp <- Q1_2023 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q4_2022_ppp <- Q4_2022 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q3_2022_ppp <- Q3_2022 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q2_2022_ppp <- Q2_2022 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q1_2022_ppp <- Q1_2022 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q4_2021_ppp <- Q4_2021 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q3_2021_ppp <- Q3_2021 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q2_2021_ppp <- Q2_2021 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-
-Q1_2021_ppp <- Q1_2021 %>% 
-  select(DayofYear) %>%
-  as.ppp()
-```
-
-### 7.2 Combining ppp with owin object
-
-Next, code chunk below is used to combine the ppp object and the owin object.
-
-```{r}
-# Mask the ppp object with owin object
-Q2_2024_owin <- Q2_2024_ppp[myanmar_owin]
-
-Q1_2024_owin <- Q1_2024_ppp[myanmar_owin]
-
-Q4_2023_owin <- Q4_2023_ppp[myanmar_owin]
-
-Q3_2023_owin <- Q3_2023_ppp[myanmar_owin]
-
-Q2_2023_owin <- Q2_2023_ppp[myanmar_owin]
-
-Q1_2023_owin <- Q1_2023_ppp[myanmar_owin]
-
-Q4_2022_owin <- Q4_2022_ppp[myanmar_owin]
-
-Q3_2022_owin <- Q3_2022_ppp[myanmar_owin]
-
-Q2_2022_owin <- Q2_2022_ppp[myanmar_owin]
-
-Q1_2022_owin <- Q1_2022_ppp[myanmar_owin]
-
-Q4_2021_owin <- Q4_2021_ppp[myanmar_owin]
-
-Q3_2021_owin <- Q3_2021_ppp[myanmar_owin]
-
-Q2_2021_owin <- Q2_2021_ppp[myanmar_owin]
-
-Q1_2021_owin <- Q1_2021_ppp[myanmar_owin]
-```
-
-Now, I will perform a **spatio-temporal kernel density estimate** on the `owin` object which gives us insights into where and when conflict event occurrences are concentrated within the specified observation window.
-
-```{r}
-#| code-fold: true
-#| code-summary: Perform spatial temporal KDE per quarter
-#| results: hide
-library(spatstat)
-Q2_2024_stkde <- spattemp.density(Q2_2024_owin)
-
-Q1_2024_stkde <- spattemp.density(Q1_2024_owin)
-
-Q4_2023_stkde <- spattemp.density(Q4_2023_owin)
-
-Q3_2023_stkde <- spattemp.density(Q3_2023_owin)
-
-Q2_2023_stkde <- spattemp.density(Q2_2023_owin)
-
-Q1_2023_stkde <- spattemp.density(Q1_2023_owin)
-
-Q4_2022_stkde <- spattemp.density(Q4_2022_owin)
-
-Q3_2022_stkde <- spattemp.density(Q3_2022_owin)
-
-Q2_2022_stkde <- spattemp.density(Q2_2022_owin)
-
-Q1_2022_stkde <- spattemp.density(Q1_2022_owin)
-
-Q4_2021_stkde <- spattemp.density(Q4_2021_owin)
-
-Q3_2021_stkde <- spattemp.density(Q3_2021_owin)
-
-Q2_2021_stkde <- spattemp.density(Q2_2021_owin)
-
-Q1_2021_stkde <- spattemp.density(Q1_2021_owin)
-```
-
-### 7.3 Plotting STKDE Outputs
-
-Let's plot our animated spatio-temporal KDE outputs for each quarter.
-
-#### 7.3.1 2024 Q1-2 STKDE
-
-```{r}
-#| eval: false
-library(spatstat)
-library(magick)
-library(viridis)
-
-# 2024 Q2
-frames <- image_read(list.files("STKDE/2024_Q2_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2024_Q2_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2024 Q1
-frames <- image_read(list.files("STKDE/2024_Q1_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2024_Q1_stkde.gif){fig-align="center" width="500"}
-
-::: {.callout-tip title="Observations"}
-At the start of **2024 Q1**, we see that the kernel density estimate of Myanmar conflicts tend to **move sporadically** where there are no specific patterns but in **2024 Q2**, we start seeing conflict events occurring more intensely in **Central and Southern Myanmar**.
-:::
-
-#### 7.3.2 2023 Q1-Q4 STKDE
-
-```{r}
-#| eval: false
-# 2023 Q4
-frames <- image_read(list.files("STKDE/2023_Q4_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2023_Q4_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2023 Q3
-frames <- image_read(list.files("STKDE/2023_Q3_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2023_Q3_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2023 Q2
-frames <- image_read(list.files("STKDE/2023_Q2_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2023_Q2_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2023 Q1
-frames <- image_read(list.files("STKDE/2023_Q1_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2023_Q1_stkde.gif){fig-align="center" width="500"}
-
-::: {.callout-tip title="Observations"}
-From **2023 Q1 to Q3**, there is a noticeable cluster of conflict events happening in **Central** and **Southern** regions of Myanmar than the other parts of the country. In **2023 Q4**, we can notice more dispersion in conflict events across Myanmar, spreading into **Western** and **Eastern** regions. Throughout 2023, conflict events are **least** **observed** in **North Myanmar.**
-:::
-
-#### 7.3.3 2022 Q1-Q4 STKDE
-
-```{r}
-#| eval: false
-# 2022 Q4
-frames <- image_read(list.files("STKDE/2022_Q4_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2022_Q4_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2022 Q3
-frames <- image_read(list.files("STKDE/2022_Q3_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2022_Q3_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2022 Q2
-frames <- image_read(list.files("STKDE/2022_Q2_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2022_Q2_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2022 Q1
-frames <- image_read(list.files("STKDE/2022_Q1_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2022_Q1_stkde.gif){fig-align="center" width="500"}
-
-::: {.callout-tip title="Observations"}
-Similar to 2023, the spread of conflict events in **2022** is largely clustered in **Central** and **Southen parts of Myanmar.** However, we do see some jitters in conflict trends in **2022 Q1** with a **rare sight of conflicts** in the **far North** of Myanmar and **occasional conflicts** in **Southern** Myanmar.
-:::
-
-#### 7.3.4 2021 Q1-Q4 STKDE
-
-```{r}
-#| eval: false
-# 2021 Q4
-frames <- image_read(list.files("STKDE/2021_Q4_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2021_Q4_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2021 Q3
-frames <- image_read(list.files("STKDE/2021_Q3_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2021_Q3_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2021 Q2
-frames <- image_read(list.files("STKDE/2021_Q2_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2021_Q2_stkde.gif){fig-align="center" width="500"}
-
-```{r}
-#| eval: false
-# 2021 Q1
-frames <- image_read(list.files("STKDE/2021_Q1_frames", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 10) 
-animation
-```
-
-![](STKDE/2021_Q1_stkde.gif){fig-align="center" width="500"}
-
-::: {.callout-tip title="Observations"}
-Finally, armed conflicts in **2021** is by far the **most random spread** of armed conflicts throughout Myanmar. There is also a high intensity of conflicts in South Myanmar, particularly in the **state of Yangon** while we **rarely** see conflicts occurring in the **extreme** **North** of Myanmar.
-:::
-
-#### 7.3.5 OpenStreetMap in Myanmar - Spatio Temporal
-
-We can observe the spatio-temporal conflict patterns per quarter using OpenStreetMap as well.
-
-```{r}
-#| echo: true
-#| warning: false
-Q2_2024_owin <- rescale(Q2_2024_owin, 1000, "km")
-Q2_2024_stkde <- density(Q2_2024_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q1_2024_owin <- rescale(Q1_2024_owin, 1000, "km")
-Q1_2024_stkde <- density(Q1_2024_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q4_2023_owin <- rescale(Q4_2023_owin, 1000, "km")
-Q4_2023_stkde <- density(Q4_2023_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q3_2023_owin <- rescale(Q3_2023_owin, 1000, "km")
-Q3_2023_stkde <- density(Q3_2023_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q2_2023_owin <- rescale(Q2_2023_owin, 1000, "km")
-Q2_2023_stkde <- density(Q2_2023_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q1_2023_owin <- rescale(Q1_2023_owin, 1000, "km")
-Q1_2023_stkde <- density(Q1_2023_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q4_2022_owin <- rescale(Q4_2022_owin, 1000, "km")
-Q4_2022_stkde <- density(Q4_2022_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q3_2022_owin <- rescale(Q3_2022_owin, 1000, "km")
-Q3_2022_stkde <- density(Q3_2022_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q2_2022_owin <- rescale(Q2_2022_owin, 1000, "km")
-Q2_2022_stkde <- density(Q2_2022_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q1_2022_owin <- rescale(Q1_2022_owin, 1000, "km")
-Q1_2022_stkde <- density(Q1_2022_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q4_2021_owin <- rescale(Q4_2021_owin, 1000, "km")
-Q4_2021_stkde <- density(Q4_2021_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q3_2021_owin <- rescale(Q3_2021_owin, 1000, "km")
-Q3_2021_stkde <- density(Q3_2021_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q2_2021_owin <- rescale(Q2_2021_owin, 1000, "km")
-Q2_2021_stkde <- density(Q2_2021_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-Q1_2021_owin <- rescale(Q1_2021_owin, 1000, "km")
-Q1_2021_stkde <- density(Q1_2021_owin, sigma=bw.CvL, edge=TRUE, kernel="quartic")
-```
-
-```{r}
-#| code-fold: true
-#| code-summary: Set up raster and projection
-#| warning: false
-raster_Q2_2024 <- raster(Q2_2024_stkde)
-raster_Q1_2024 <- raster(Q1_2024_stkde)
-raster_Q4_2023 <- raster(Q4_2023_stkde)
-raster_Q3_2023 <- raster(Q3_2023_stkde)
-raster_Q2_2023 <- raster(Q2_2023_stkde)
-raster_Q1_2023 <- raster(Q1_2023_stkde)
-raster_Q4_2022 <- raster(Q4_2022_stkde)
-raster_Q3_2022 <- raster(Q3_2022_stkde)
-raster_Q2_2022 <- raster(Q2_2022_stkde)
-raster_Q1_2022 <- raster(Q1_2022_stkde)
-raster_Q4_2021 <- raster(Q4_2021_stkde)
-raster_Q3_2021 <- raster(Q3_2021_stkde)
-raster_Q2_2021 <- raster(Q2_2021_stkde)
-raster_Q1_2021 <- raster(Q1_2021_stkde)
-projection(raster_Q2_2024) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q1_2024) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q4_2023) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q3_2023) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q2_2023) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q1_2023) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q4_2022) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q3_2022) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q2_2022) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q1_2022) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q4_2021) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q3_2021) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q2_2021) <- CRS("+init=EPSG:32647 +units=km")
-projection(raster_Q1_2021) <- CRS("+init=EPSG:32647 +units=km")
-```
-
-```{r}
-# Plot KDE Map on OpenStreetMap
-raster_quarters <- list('raster_Q2_2024','raster_Q1_2024','raster_Q4_2023','raster_Q3_2023','raster_Q2_2023','raster_Q1_2023','raster_Q4_2022','raster_Q3_2022','raster_Q2_2022','raster_Q1_2022','raster_Q4_2021','raster_Q3_2021','raster_Q2_2021','raster_Q1_2021')
-
-# Set tmap mode to view
-tmap_mode('view')
-
-# Function to create tmap for each raster
-create_tmap <- function(raster_var) {
-  kde_fixed_output <- tm_basemap(server = "OpenStreetMap.HOT") +
-    tm_basemap(server = "Esri.WorldImagery") +
-    tm_shape(get(raster_var)) +  # Dynamically get the raster variable
-    tm_raster("layer",
-              n = 10,
-              title = paste(raster_var),
-              alpha = 0.6,
-              palette = c("#fafac3","#fd953b","#f02a75","#b62385","#021c9e")) +
-    tm_shape(boundary_sf) +
-    tm_polygons(alpha=0.1, id="DT") +
-    tmap_options(check.and.fix = TRUE)
-  
-  return(kde_fixed_output)
-}
-
-# Create a list of tmap objects by iterating over the raster_quarters list
-tmap_list <- lapply(raster_quarters, create_tmap)
-
-# Arrange and display the tmaps
-tmap_arrange(tmap_list, ncol = 2, nrow = 2, sync = TRUE)
-
-tmap_mode("plot")
-```
-
-::: {.callout-tip title="Observations"}
-The plots uncover the increasing levels of conflicts across each quarter. Interestingly, **2021 Q1** begins with higher concentration of armed conflicts in **Southern** and **Eastern** parts of Myanmar, but gradually becomes more concentrated in the **Central districts**. From **2022 Q4 onwards**, we see that conflicts have spread **outside the core central region** of Myanmar towards the **Western region.** Conflicts return to occurring more frequently in the Central districts like Yinmarbin and Sagaing in **2024 Q1 and Q2,**
-:::
-
-## 8. 2nd Order Spatio-Temporal Point Pattern Analysis
-
-Similar to the 2nd order spatial analysis in section 6, I want to explore **spatio-temporal trends** of Myanmar's conflicts and how the events differ in distribution, from **quarter to quarter.** I'll delve into the **four districts** I'm most interested in, that is the districts with the **highest proportions of conflicts** - Yinmarbin, Shwebo, Pakokku and Mandalay.
-
-### 8.1 Using K-Function Estimation
-
-#### 8.1.1 Yinmarbin District
-
-We'll want to compute the **K-Function by quarters** via **`Kest()`** by iterating over each unique quarter in **date format**, then plotting an **animated graph** of the K-Function outputs **per quarter.**
-
-**1) Computing K-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Prepare Dataset for Yinmarbin District
-# Set up yinmarbin_ppp_owin_list
-conflict_yinmarbin <- conflict_data_sf %>% filter(DT == "Yinmarbin")
-unique_quarter <- unique(conflict_yinmarbin$year_quarter)
-boundary_yinmarbin <- filter(boundary_sf, DT == "Yinmarbin")
-yinmarbin_owin <- as.owin(boundary_yinmarbin)
-yinmarbin_ppp_owin_list <- list()
-
-for (quarter in unique_quarter) {
-  quarter_data <- conflict_yinmarbin %>% 
-    filter(year_quarter == quarter)
-
-  ppp_obj <- as.ppp(quarter_data$geometry)
-  ppp_owin_obj <- ppp_obj[yinmarbin_owin]
-  ppp_owin_obj_km <- rescale(ppp_owin_obj, 1000, "km")
-  yinmarbin_ppp_owin_list[[quarter]] <- ppp_owin_obj_km
-}
-```
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Plot K-function for Yinmarbin District
-library(magick)
-
-# Create a directory to store PNG frames
-path <- file.path("sec_order_k_function", "conflict_yinmarbin")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the K-function
-for (quarter in names(yinmarbin_ppp_owin_list)) {
-  ppp_owin_obj_km <- yinmarbin_ppp_owin_list[[quarter]]
-  K_result <- Kest(ppp_owin_obj_km, correction = "Ripley")
-
-  # Create PNG filename
-  png_filename <- file.path("sec_order_k_function/conflict_yinmarbin", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, . -r ~ r, ylab= "K(d)-r", xlab = "d(km)",
-       main = paste("Yinmarbin District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("sec_order_k_function/conflict_yinmarbin", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "sec_order_k_function/kfunction_yinmarbin.gif"
-image_write(animation, path = output_path)
-```
-
-![](sec_order_k_function/kfunction_yinmarbin.gif)
-
-::: {.callout-tip title="Observations"}
-We can observe how the **observed line (K-iso)** is constantly above the **actual line (K-pois)** from **2021 Q2 to 2024 Q2**. This confirms that conflict points in **Yinmarbin** are **highly clustered**. In fact, it is more clustered together than expected by the null hypothesis. There is no K-function outputted for **2021 Q1** as **no conflict points** were observed in Yinmarbin District for that time period.
-:::
-
-::: callout-note
-**Ripley’s Correction** provides a way to **mitigate the bias** introduced by points near the edge of the study window by accounting for the reduced area for point comparisons near the edges. Hence, this results in a a **more accurate estimate** of the spatial distribution as seen in the **slight difference between actual and expected K-function.**
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-To confirm the observed spatial patterns above, a hypothesis test (i.e. Monta Carlo simulation test) will be conducted. The hypothesis and test are as follows:
-
--   **Ho** = The distribution of conflict events in Myanmar are randomly distributed.
--   **H1**= The distribution of conflict events in Myanmar are not randomly distributed.
--   The null hypothesis will be rejected if the **observed K-function lies above/below** the theoretical K-function and envelope.
-
-By using **`envelop()`**, we can get a more robust interpretation by comparing the observed K-function against a simulation envelope of K-functions generated under the null hypothesis.
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Yinmarbin District
-library(magick)
-
-# Unique quarters of the year in the dataset
-unique_quarter <- unique(conflict_yinmarbin$year_quarter)
-
-# Create a directory to store PNG frames
-path <- file.path("k_function_monta_carlo", "conflict_yinmarbin")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the K-function
-for (quarter in names(yinmarbin_ppp_owin_list)) {
-  ppp_owin_obj_km <- yinmarbin_ppp_owin_list[[quarter]]
-  
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("k_function_monta_carlo/conflict_yinmarbin", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Yinmarbin District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("k_function_monta_carlo/conflict_yinmarbin", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "k_function_monta_carlo/kfunction_yinmarbin.gif"
-image_write(animation, path = output_path)
-```
-
-![](k_function_monta_carlo/kfunction_yinmarbin.gif)
-
-::: {.callout-tip title="Observations"}
-I noticed that the observed line has a **somewhat substantial** **deviation** above the **upper** **envelop** (shaded region) generated from the Monte Carlo simulation. This indicates a **strong** **tendancy** for points to be **clustered** in the **Yinmarbin district.** Since this occurs across a wide range of distances, it implies that **clustering is a prominent feature** of the spatial distribution.
-:::
-
-#### 8.1.2 Shwebo District
-
-**1) Computing K-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Prepare Dataset for Shwebo District
-# Set up shwebo_ppp_owin_list
-conflict_shwebo <- conflict_data_sf %>% filter(DT == "Shwebo")
-unique_quarter <- unique(conflict_shwebo$year_quarter)
-boundary_shwebo <- filter(boundary_sf, DT == "Shwebo")
-shwebo_owin <- as.owin(boundary_shwebo)
-shwebo_ppp_owin_list <- list()
-
-for (quarter in unique_quarter) {
-  quarter_data <- conflict_shwebo %>% 
-    filter(year_quarter == quarter)
-
-  ppp_obj <- as.ppp(quarter_data$geometry)
-  ppp_owin_obj <- ppp_obj[shwebo_owin]
-  ppp_owin_obj_km <- rescale(ppp_owin_obj, 1000, "km")
-  shwebo_ppp_owin_list[[quarter]] <- ppp_owin_obj_km
-}
-```
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Plot K-function for Shwebo District
-library(magick)
-
-# Unique quarters of the year in the dataset
-unique_quarter <- unique(conflict_shwebo$year_quarter)
-
-# Create a directory to store PNG frames
-path <- file.path("sec_order_k_function", "conflict_shwebo")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the K-function
-for (quarter in names(shwebo_ppp_owin_list)) {
-  ppp_owin_obj_km <- shwebo_ppp_owin_list[[quarter]]
-  
-  # Calculate the K-function
-  K_result <- Kest(ppp_owin_obj_km, correction = "Ripley")
-
-  # Create PNG filename
-  png_filename <- file.path("sec_order_k_function/conflict_shwebo", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, . -r ~ r, ylab= "K(d)-r", xlab = "d(km)",
-       main = paste("Shwebo District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("sec_order_k_function/conflict_shwebo", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "sec_order_k_function/kfunction_shwebo.gif"
-image_write(animation, path = output_path)
-```
-
-![](sec_order_k_function/kfunction_shwebo.gif)
-
-::: {.callout-tip title="Observations"}
-For the Shwebo District, the **observed line (K-iso)** also lies constantly above the **actual line (K-pois)** from **2021 Q2 to 2024 Q2**, indicating **clustering** at all distances 'r' of our spatial points. Interestingly, conflict events in **2021 Q1 displayed some tendancy towards a dispersed point pattern** as the observed K-function lies **slightly below** the actual line at a distance of 17km.
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-To confirm the observed spatial patterns above, a hypothesis test (i.e. Monta Carlo simulation test) will be conducted.
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Shwebo District
-# Create a directory to store PNG frames
-path <- file.path("k_function_monta_carlo", "conflict_shwebo")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the K-function
-for (quarter in names(shwebo_ppp_owin_list)) {
-  ppp_owin_obj_km <- shwebo_ppp_owin_list[[quarter]]
-
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("k_function_monta_carlo/conflict_shwebo", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Shwebo District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("k_function_monta_carlo/conflict_shwebo", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "k_function_monta_carlo/kfunction_shwebo.gif"
-image_write(animation, path = output_path)
-```
-
-![](k_function_monta_carlo/kfunction_shwebo.gif)
-
-::: {.callout-tip title="Observations"}
-In **2021 Q1,** a sharp jagged plot is generated due to the smaller dataset size of conflicts in Shwebo. In **2024 Q2,** we see the **highest variability** in spatial patterns which results in a larger envelope size
-
-Generally, the observed line has a **smaller** **deviation** above the **upper** **envelop** than in the Yinmarbin data. This indicates a **a somewhat intense level of clustering** in the Shwebo district and remains more clustered than would be expected if points were distributed randomly..
-:::
-
-#### 8.1.3 Pakokku District
-
-**1) Computing K-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Prepare Dataset for Pakokku District
-# Set up pakokku_ppp_owin_list
-conflict_pakokku <- conflict_data_sf %>% filter(DT == "Pakokku")
-unique_quarter <- unique(conflict_pakokku$year_quarter)
-boundary_pakokku <- filter(boundary_sf, DT == "Pakokku")
-pakokku_owin <- as.owin(boundary_pakokku)
-pakokku_ppp_owin_list <- list()
-
-for (quarter in unique_quarter) {
-  quarter_data <- conflict_pakokku %>% 
-    filter(year_quarter == quarter)
-
-  ppp_obj <- as.ppp(quarter_data$geometry)
-  ppp_owin_obj <- ppp_obj[pakokku_owin]
-  ppp_owin_obj_km <- rescale(ppp_owin_obj, 1000, "km")
-  pakokku_ppp_owin_list[[quarter]] <- ppp_owin_obj_km
-}
-```
-
-![](sec_order_k_function/kfunction_pakokku.gif)
-
-::: {.callout-tip title="Observations"}
-The observed K-function **lies above** the expected K-function outputted from 2021 to 2024**,** indicating **clustering** at all distances 'r' of our spatial points. However, we can observe **milder clustering** from **2021 Q4 to 2024 Q2** as the **magnitude of deviation is significantly smaller** than the period of **2021 Q1 to 2021 Q3.**
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Pakokku District
-# Create a directory to store PNG frames
-path <- file.path("k_function_monta_carlo", "conflict_pakokku")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the K-function
-for (quarter in names(pakokku_ppp_owin_list)) {
-  ppp_owin_obj_km <- pakokku_ppp_owin_list[[quarter]]
-  
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("k_function_monta_carlo/conflict_pakokku", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Pakokku District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("k_function_monta_carlo/conflict_pakokku", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "k_function_monta_carlo/kfunction_pakokku.gif"
-image_write(animation, path = output_path)
-```
-
-![](k_function_monta_carlo/kfunction_pakokku.gif)
-
-::: {.callout-tip title="Observations"}
-In **2021 Q2,** we see a **large envelope** which reflects greater variability in the expected K-function and this could stem from the **mix of both clustering and dispersion** across Myanmar for that period. Generally from **2021 Q1 to 2024 Q2,** clustering is evident as the observed K-function continues to lie above the envelope.
-:::
-
-#### 8.1.4 Mandalay District
-
-**1) Computing K-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Prepare Dataset for Mandalay District
-# Set up mandalay_ppp_owin_list
-conflict_mandalay <- conflict_data_sf %>% filter(DT == "Mandalay")
-unique_quarter <- unique(conflict_mandalay$year_quarter)
-boundary_mandalay <- filter(boundary_sf, DT == "Mandalay")
-mandalay_owin <- as.owin(boundary_mandalay)
-mandalay_ppp_owin_list <- list()
-
-for (quarter in unique_quarter) {
-  quarter_data <- conflict_mandalay %>% 
-    filter(year_quarter == quarter)
-
-  ppp_obj <- as.ppp(quarter_data$geometry)
-  ppp_owin_obj <- ppp_obj[mandalay_owin]
-  ppp_owin_obj_km <- rescale(ppp_owin_obj, 1000, "km")
-  mandalay_ppp_owin_list[[quarter]] <- ppp_owin_obj_km
-}
-```
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Plot K-function for Mandalay District
-library(magick)
-# Create a directory to store PNG frames
-path <- file.path("sec_order_k_function", "conflict_mandalay")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the K-function
-for (quarter in names(mandalay_ppp_owin_list)) {
-  ppp_owin_obj_km <- mandalay_ppp_owin_list[[quarter]]
-  
-  # Calculate the K-function
-  K_result <- Kest(ppp_owin_obj_km, correction = "Ripley")
-
-  # Create PNG filename
-  png_filename <- file.path("sec_order_k_function/conflict_mandalay", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, . -r ~ r, ylab= "K(d)-r", xlab = "d(km)",
-       main = paste("Mandalay District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("sec_order_k_function/conflict_mandalay", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "sec_order_k_function/kfunction_mandalay.gif"
-image_write(animation, path = output_path)
-```
-
-![](sec_order_k_function/kfunction_mandalay.gif)
-
-::: {.callout-tip title="Observations"}
-The degree of **clustering** **is less pronounced** in Mandalay than the other districts since the **gap** between the observed line and the theoretical line is smaller. Clustering is **large-scale** in Mandalay where statistically significant clustering patterns are seen in larger distance ranges.
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-To confirm the observed spatial patterns above, a hypothesis test (i.e. Monta Carlo simulation test) will be conducted.
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Mandalay District
-library(magick)
-# Create a directory to store PNG frames
-path <- file.path("k_function_monta_carlo", "conflict_mandalay")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the K-function
-for (quarter in names(mandalay_ppp_owin_list)) {
-  ppp_owin_obj_km <- mandalay_ppp_owin_list[[quarter]]
-
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("k_function_monta_carlo/conflict_mandalay", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Mandalay District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("k_function_monta_carlo/conflict_mandalay", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "k_function_monta_carlo/kfunction_mandalay.gif"
-image_write(animation, path = output_path)
-```
-
-![](k_function_monta_carlo/kfunction_mandalay.gif)
-
-::: {.callout-tip title="Observations"}
-We see the highest variability in spatial patterns in **2024 Q1 and Q2** which indicates that **some areas** in Mandalay District are **more clustered** with conflict events while other areas are **more evenly spaced.**
-
-We can confirm **statistically significant clustering** from **2021 Q1 to 2023 Q3** as K value is larger than the upper confidence of the envelope than in **2024 Q1 and Q2.** There is also strong evidence of clustering especially at larger distances which means Mandalay District faces **large-scale clustering.**
-:::
-
-### 8.2 Using L-Function Estimation
-
-#### 8.2.1 Yinmarbin District
-
-**1) Computing L-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Plot L-function for Yinmarbin District
-library(magick)
-# Create a directory to store PNG frames
-path <- file.path("sec_order_L_function", "conflict_yinmarbin")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(yinmarbin_ppp_owin_list)) {
-  ppp_owin_obj_km <- yinmarbin_ppp_owin_list[[quarter]]
-  
-  # Calculate the L-function
-  L_result <- Lest(ppp_owin_obj_km, correction = "Ripley")
-
-  # Create PNG filename
-  png_filename <- file.path("sec_order_L_function/conflict_yinmarbin", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(L_result, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
-       main = paste("Yinmarbin District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("sec_order_L_function/conflict_yinmarbin", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "sec_order_L_function/kfunction_yinmarbin.gif"
-image_write(animation, path = output_path)
-```
-
-![](sec_order_L_function/kfunction_yinmarbin.gif)
-
-::: {.callout-tip title="Observations"}
-Firstly, the L-function plot **appears more zig-zag** than the K-function as the L-function can **magnify small fluctuations** in the K-function. Secondly, the theoretical line (dotted) is fixed at 0 where L(d)−r=0 which is an expected behavior under **Complete Spatial Randomness**.
-
-From **2022 Q1- Q3, all of 2023 and 2024 Q2,** there is **large scale clustering** as the observed line (K-iso) consistently **lies above** the theoretical line (K-pois) particularly at **larger spatial distances**. This suggests conflicts in Yinmarbin are **clustered** across the district during this time period.
-
-From **2021, 2022 Q4 and 2024 Q1,** there is a decreasing K value observed which indicates more **localised clustering** **in specific towns** on Yinmarbin.
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Yinmarbin District
-library(magick)
-# Create a directory to store PNG frames
-path <- file.path("L_function_monta_carlo", "conflict_yinmarbin")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(yinmarbin_ppp_owin_list)) {
-  ppp_owin_obj_km <- yinmarbin_ppp_owin_list[[quarter]]
-
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("L_function_monta_carlo/conflict_yinmarbin", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Yinmarbin District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("L_function_monta_carlo/conflict_yinmarbin", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "L_function_monta_carlo/kfunction_yinmarbin.gif"
-image_write(animation, path = output_path)
-```
-
-![](L_function_monta_carlo/kfunction_yinmarbin.gif)
-
-::: {.callout-tip title="Observations"}
-The periods of 2022 Q4, 2024 Q1 and 2024 Q2 shows a wider envelope which indicates that **some areas are clustered** while **others are more evenly spaced** in Yinmarbin. There's also more **widespread** **clustering** observed in **all of** **2023** and in **2024 Q2** where deviation of L values above the envelope are signifiantly larger at bigger distances scales.
-:::
-
-#### 8.2.2 Shwebo District
-
-**1) Computing L-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Plot L-function for Shwebo District
-library(magick)
-# Create a directory to store PNG frames
-path <- file.path("sec_order_L_function", "conflict_shwebo")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(shwebo_ppp_owin_list)) {
-  ppp_owin_obj_km <- shwebo_ppp_owin_list[[quarter]]
-  
-  # Calculate the L-function
-  L_result <- Lest(ppp_owin_obj_km, correction = "Ripley")
-
-  # Create PNG filename
-  png_filename <- file.path("sec_order_L_function/conflict_shwebo", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(L_result, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
-       main = paste("Shwebo District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("sec_order_L_function/conflict_shwebo", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "sec_order_L_function/kfunction_shwebo.gif"
-image_write(animation, path = output_path)
-```
-
-```{r}
-#| eval: false
-# Display Plot
-frames <- image_read(list.files("sec_order_L_function/conflict_shwebo", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1) 
-animation
-```
-
-![](sec_order_L_function/kfunction_shwebo.gif)
-
-::: {.callout-tip title="Observations"}
-The **2021 Q1** observed L values are much **more** **jagged** than other quarters as we have a smalller dataset of conflicts in Shwebo district of that quarter. In general, we see stronger clustering in bigger areas of the district which suggests **wide-scale clustering** of conflicts.
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Shwebo District
-library(magick)
-# Create a directory to store PNG frames
-path <- file.path("L_function_monta_carlo", "conflict_shwebo")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(shwebo_ppp_owin_list)) {
-  ppp_owin_obj_km <- shwebo_ppp_owin_list[[quarter]]
-  
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("L_function_monta_carlo/conflict_shwebo", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Shwebo District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("L_function_monta_carlo/conflict_shwebo", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "L_function_monta_carlo/kfunction_shwebo.gif"
-image_write(animation, path = output_path)
-```
-
-```{r}
-#| eval: false
-# Display Plot
-frames <- image_read(list.files("L_function_monta_carlo/conflict_shwebo", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1) 
-animation
-```
-
-![](L_function_monta_carlo/kfunction_shwebo.gif)
-
-::: {.callout-tip title="Observations"}
-**2021 Q2** and **2024 Q2** has the highest variability in spatial points with both clustering and dispersion patterns under the CRS test in Shwebo district. Nonetheless, we can confirm **strong significance of widespread clustering** **of conflicts** throughout all quarters in Shwebo where the observed L values like above the theoretical values simulated, particularly at larger distance scales.
-:::
-
-#### 8.2.3 Pakokku District
-
-**1) Computing L-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Plot L-function for Pakokku District
-# Create a directory to store PNG frames
-path <- file.path("sec_order_L_function", "conflict_pakokku")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(pakokku_ppp_owin_list)) {
-  ppp_owin_obj_km <- pakokku_ppp_owin_list[[quarter]]
-  
-  # Calculate the L-function
-  L_result <- Lest(ppp_owin_obj_km, correction = "Ripley")
-
-  # Create PNG filename
-  png_filename <- file.path("sec_order_L_function/conflict_pakokku", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(L_result, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
-       main = paste("Pakokku District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("sec_order_L_function/conflict_pakokku", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "sec_order_L_function/kfunction_pakokku.gif"
-image_write(animation, path = output_path)
-```
-
-```{r}
-#| eval: false
-# Display Plot
-frames <- image_read(list.files("sec_order_L_function/conflict_pakokku", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1) 
-animation
-```
-
-![](sec_order_L_function/kfunction_pakokku.gif)
-
-::: {.callout-tip title="Observations"}
-We generally see **strong evidence** of **localised clustering** in the Pakokku district with **weaker significance of clustering in bigger distance scales.** This means that **specific towns in Pakokku** have more intense hotspots than others.It is worth noting that the jagged ouputs from the observed L values in **2021 Q1 and Q2** stems from our smaller data conflict points for these periods.
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Pakokku District
-# Create a directory to store PNG frames
-path <- file.path("L_function_monta_carlo", "conflict_pakokku")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(pakokku_ppp_owin_list)) {
-  ppp_owin_obj_km <- pakokku_ppp_owin_list[[quarter]]
-
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("L_function_monta_carlo/conflict_pakokku", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Pakokku District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("L_function_monta_carlo/conflict_pakokku", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "L_function_monta_carlo/kfunction_pakokku.gif"
-image_write(animation, path = output_path)
-```
-
-```{r}
-#| eval: false
-# Display Plot
-frames <- image_read(list.files("L_function_monta_carlo/conflict_pakokku", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1) 
-animation
-```
-
-![](L_function_monta_carlo/kfunction_pakokku.gif){width="500"}
-
-::: {.callout-tip title="Observations"}
-The results of the simulation produces the greatest variability in conflict activity in Pakokku in **2021 Q2** and **2024 Q1.** The CSR tests confirms **significant clustering** throughout all quarters in Pakokku. We can confirm that **localised clustering** are more promoinent in **2021 Q2, 2022 Q3** and **2024 Q1** where the L-values deviates more above the envelope at smaller distances. The remaning quarters show strong evidence of **widespread** **clustering** across a bigger distribution of Pakokku district.
-:::
-
-#### 8.2.4 Mandalay District
-
-**1) Computing L-function Estimation**
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Plot L-function for Mandalay District
-library(magick)
-# Create a directory to store PNG frames
-path <- file.path("sec_order_L_function", "conflict_mandalay")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(mandalay_ppp_owin_list)) {
-  ppp_owin_obj_km <- mandalay_ppp_owin_list[[quarter]]
-  
-  # Calculate the L-function
-  L_result <- Lest(ppp_owin_obj_km, correction = "Ripley")
-
-  # Create PNG filename
-  png_filename <- file.path("sec_order_L_function/conflict_mandalay", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(L_result, . -r ~ r, ylab= "L(d)-r", xlab = "d(km)",
-       main = paste("Mandalay District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("sec_order_L_function/conflict_mandalay", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "sec_order_L_function/kfunction_mandalay.gif"
-image_write(animation, path = output_path)
-```
-
-```{r}
-#| eval: false
-# Display Plot
-frames <- image_read(list.files("sec_order_L_function/conflict_mandalay", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1) 
-animation
-```
-
-![](sec_order_L_function/kfunction_mandalay.gif){width="500"}
-
-::: {.callout-tip title="Observations"}
-Generally from 2021 to 2024, we see an **upward trend** of observed L values with sharp fluctuations as distance increases.
-
-At both small and large distance scales, we can observe **deviations** of the observed line above the theoretical line which suggests **statistically strong** evidence of **clustering across Mandalay,** where clustering is **present at local towns and across Mandalay.**
-:::
-
-**2) Performing Complete Spatial Randomness Test**
-
-I will also perform monta carlo simulation test using **`envelope()`** of the **spatstat** package.
-
-```{r}
-#| code-fold: true
-#| eval: false
-#| code-summary: Monta Carlo Simulation for Mandalay District
-# Create a directory to store PNG frames
-path <- file.path("L_function_monta_carlo", "conflict_mandalay")
-if (!dir.exists(path)) {
-  dir.create(path, recursive = TRUE)
-}
-
-# Loop through each unique quarter and plot the L-function
-for (quarter in names(mandalay_ppp_owin_list)) {
-  ppp_owin_obj_km <- mandalay_ppp_owin_list[[quarter]]
-  
-  # Calculate the envelope
-  K_result <- envelope(ppp_owin_obj_km, Kest, nsim = 39, 
-                       rank = 1, glocal=TRUE)
-  # Create PNG filename
-  png_filename <- file.path("L_function_monta_carlo/conflict_mandalay", 
-                            sprintf("frame_%s.png", quarter))
-  
-  # Save the plot as PNG
-  png(filename = png_filename, width = 800, height = 800)
-  plot(K_result, 
-       main = paste("Mandalay District -",quarter))
-  dev.off()
-}
-
-# Read all PNG files from the frames directory
-frames <- image_read(list.files("L_function_monta_carlo/conflict_mandalay", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1)
-output_path <- "L_function_monta_carlo/kfunction_mandalay.gif"
-image_write(animation, path = output_path)
-```
-
-```{r}
-#| eval: false
-# Display Plot
-frames <- image_read(list.files("L_function_monta_carlo/conflict_shwebo", full.names = TRUE, pattern = "*.png"))
-animation <- image_animate(image_join(frames), fps = 1) 
-animation
-```
-
-![](L_function_monta_carlo/kfunction_mandalay.gif){width="500"}
-
-::: {.callout-tip title="Observations"}
-In 2021 Q1 and 2024 Q1-2, we can observe a **bigger envelope** from the CSR test especially at **larger distances**. This means certain areas in Mandalay show strong clustering (hotspots), while others are more dispersed, leading to **greater variability** in the overall spatial structure of conflict events.
-
-Additionally, throughout 2021 to 2024, there is **prominent evidence of hotspots and clustering** throughout Mandalay since observed L values deviate above the theoretical L values, across a range of distances.
-:::
-
-## 9. Conclusion
-
-My analysis has revealed how **central districts** (i.e., Yinmarbin, Shwebo, Pakokku and Mandalay) and **western states** (i.e. Yangon) have experienced intense clashes between **state forces and politica/identity militias**, while **northern Myanmar** sees high conflict levels between **rebels and political militias**. However, one should also consider the size of a state/district when computing KDE since a smaller area could increase the density of conflict **quite significantly.**
-
-The **political militia** are found to be less involved with unarmed civilians than state forces, rebels and other policial militia. Conversely, civilians are seen to be embroiled mostly in conflicts resulting from **strategic development** and **violence against civilians events,** primarily in Central and Western Myanmar. Fortunately, conflicts involving **explosions or remote violence is not as intense** against civilians but this raises a great concern on the **humanitarian crisis** faced by civilians in Myanmar, especially since armed conflicts tend to **occur repeatedly** in the **same parts of each state** which indicates an **unceasing cycle of conflicts in Myanmar.**
-
-Additionally, results from the Monte Carlo CSR test indicated a **strong** **tendency** for points to be **clustered** across a wide range of distances, implying that **clustering is a prominent feature** of the spatial distribution in districts like Sagaing, Mandalay, Magway and Yangon. Conversely, there are **specific conflict hot spots** observed in certain towns of the district which means **localised clustering are also present.**
-
-It can also be derived that in **2021 Q1 and Q2**, conflict points are **less intense and slightly more random** in its distribution. The intensity of conflicts continue to soar from **2022 Q1 to 2024 Q2** with both **localised and widespread** conflict events during these period of time.
-
-## 10. My Reflections
-
-This take-home exercise has significantly **expanded my understanding** and **underscored the severe humanitarian conflicts** in Myanmar, revealed through this spatial and spatio-temporal point pattern analysis.
-
-A key takeaway from Myanmar’s humanitarian conflict is how complex the interplay of ethnic, political, and religious struggles has been and continues to be an **on-going humanitarian crisis**, involving the **military, ethnic armed groups, political militias, and civilians.**
-
-Lastly, running **computationally intensive codes** such as **`envelope()`** for 2nd order spatial analysis may differ in processing speed from one student to another. My system, however, is running with **8 cores** and it does take a **lengthy amount of time** for processing the large 40,000+ rows of conflict data.
-
-Hence, I would suggest other students to **begin their take-home exercise as early as possible** to provide buffer time for processing the data, handling code bugs and even data cleaning errors.
-
-## 11. References
-
-1.  Crawley, M. J. (2007). The R Book. Wiley.
-
-2.  Crisis Group. (2024, August 27). Breaking Away: The Battle for Myanmar’s Rakhine State. <https://www.crisisgroup.org/asia/south-east-asia/myanmar/339-breaking-away-battle-myanmars-rakhine-state> 
-
-3.  Farge, E., & Mantovani, C. (2024, September 17). Myanmar military stepping up civilian killings and arrests, says UN report. <https://www.reuters.com/world/asia-pacific/myanmar-military-intensifies-civilian-killings-arrests-says-un-report-2024-09-17/#:~:text=The%20report%20by%20the%20United,the%20military%20since%20the%20coup>. 
-
-4.  Fishbein, E., & Lusan, N. N. (2022, December 14). 'Afraid of the gun': Military coup fuels Myanmar resource grab. Al Jazeera. <https://www.aljazeera.com/news/2022/12/14/afraid-of-the-gun-military-coup-fuels-myanmar-resource-grab> 
-
-5.  Rajagopalan, B., Lall, U., & Tarboton, D. (1997). Evaluation of kernel density estimation methods for daily precipitation resampling. Springer-Verlag.
-
-6.  Shen, B., Xiang Xu, Plaza, A., & Huang, Q. (2020, November 15). Unfolding Spatial-Temporal Patterns of Taxi Trip based on an Improved Network Kernel Density Estimation. MDPI. Retrieved September 22, 2024, from <https://www.mdpi.com/2220-9964/9/11/683> 
-
-7.  The Stata Journal. (2003). Adaptive kernel density estimation. Sage Journals. <https://journals.sagepub.com/doi/pdf/10.1177/1536867X0300300204>
+[Continue to Part 2 \>](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex1/take-home_ex1_part2)
