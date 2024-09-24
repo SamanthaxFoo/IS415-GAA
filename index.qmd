@@ -111,3 +111,11 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                |                                                   |
 | </p>                |                                                                                                                |                                                   |
 +---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 6**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex6/In-class_Ex6.html) | ![](images/clipboard-4166706862.png){width="234"} |
+|                     |                                                                                                                |                                                   |
+| Sep 18, 2024        | Global and Local Measures of Spatial Autocorrelation: sfdep methods                                            |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
