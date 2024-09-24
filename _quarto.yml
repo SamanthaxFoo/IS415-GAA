@@ -47,8 +47,10 @@ website:
           href: "Hands-on_Ex/Hands-on_Ex11/Hands-on_Ex11.html"
     - text: "Take-home Exercises"
       menu:
-        - text: "Take-home Exercise 1"
+        - text: "Take-home Exercise 1 - Part 1"
           href: "Take-home_Ex/Take-home_Ex1/Take-home_Ex1.html"
+        - text: "Take-home Exercise 1 - Part 2"
+          href: "Take-home_Ex/Take-home_Ex1/Take-home_Ex1_Part2.html"
         - text: "Take-home Exercise 2"
           href: "Take-home_Ex/Take-home_Ex2/Take-home_Ex2.html"
         - text: "Take-home Exercise 3"
