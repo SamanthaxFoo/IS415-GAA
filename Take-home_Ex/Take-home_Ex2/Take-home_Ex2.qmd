@@ -2,8 +2,8 @@
 title: "Take-home Exercise 2"
 subtitle: "Harnessing Geospatial Methods to Analyse Drug Abuse Patterns in Thailand"
 author: "Foo Jia Yi Samantha"
-date-modified: 09/22/2024
-date: 09/22/2024
+date-modified: 10/06/2024
+date: 10/06/2024
 format: 
   html:
     toc-depth: 5
@@ -13,7 +13,7 @@ execute:
   freeze: true
 ---
 
-## **1. Setting the Scene: Geospatial Analysis of Drug Abuse in Thailand**
+## **1. Setting the Scene: Drug Abuse in Thailand**
 
 In 2022, **567,609 drug users in ASEAN** were treated, in which Thailand was found to have the **highest number of drug users requiring treatment** among ASEAN countries, followed by Malaysia, Indonesia, Laos, the Philippines, and Singapore. (Kahanto M., et al, 2022) Drug abuse is a significant social issue in Thailand, with profound health, financial, and societal implications. Positioned near the Golden Triangle—one of the largest drug production areas in Asia—Thailand faces ongoing challenges due to its geographical proximity and extensive transportation routes, which facilitate drug trafficking. Within Thailand, drug abuse is particularly **prevalent among the youth**, with approximately **2.7 million young people involved**. Of those aged 15–19, around **300,000 are in need of drug treatment**, and vocational students are disproportionately affected compared to their peers in secondary school.
 
@@ -25,7 +25,7 @@ In this exercise, I will utilise geospatial analysis methods to explore the prov
 
 ### **2.1 Spatial Autocorrelation**
 
-![](images/clipboard-3332517198.png){fig-align="center"}
+![](images/clipboard-1506008753.png){fig-align="center"}
 
 This quote from Tobler (1970) highlights the essence of spatial autocorrelation, emphasising the importance of studying how values of the same variable are interconnected across space. By examining spatial dependence, we can better understand local and global patterns and variations. This law suggests that phenomena that are geographically close to each other are more likely to be similar or have some kind of spatial relationship compared to phenomena that are farther apart. 
 
@@ -37,7 +37,7 @@ It is also important to note that spatial structure and spatial autocorrelation 
 
 Thus, the observed spatial distribution is regarded as a reflection of the underlying spatial process. When spatial autocorrelation is present, the value of a variable at a given observation is connected to the values of that same variable at neighbouring observations:
 
-![](images/clipboard-747395366.png)
+![](images/clipboard-3880014486.png){fig-align="center" width="500"}
 
 Configuration of areas showing different types of autocorrelation (Nguyen K. et al., 2022)
 
@@ -106,7 +106,7 @@ pacman::p_load(sf, st, tidyverse, lubridate, sfdep, tmap, ggplot2, knitr, Kendal
 
 ## **4. Importing Datasets into R**
 
-![](images/clipboard-2233382775.png){width="528"}
+![](images/clipboard-2233382775.png){fig-align="center" width="528"}
 
 We will be leveraging two datasets in this exercise. The first dataset to be used is Thailand’s provincial boundary is `tha_admbnda_adm1_rtsd_20220121` which exists in **ESRI .shp** **format** and is based on the Thailand geographic coordinate system. This dataset is extracted from [Thailand - Subnational Administrative Boundaries](https://data.humdata.org/dataset/cod-ab-tha?) via the HDX portal.
 
@@ -114,13 +114,13 @@ The second dataset `thai_drug_offenses_2017_2022` consists of aspatial data in a
 
 ### **4.1 Importing Geospatial Data**
 
-In this section, st_read() of sf package will be used to import `tha_admbnda_adm1_rtsd_20220121` dataset into the R environment. The **`st_transform()`** function below converts the CRS of the **`sf`** object to EPSG:4618 which maps to Thailand's coordinate system.
+In this section, `st_read()` of sf package will be used to import `tha_admbnda_adm1_rtsd_20220121` dataset into the R environment. The **`st_transform()`** function below converts the CRS of the **`sf`** object to EPSG:32647 which maps to Thailand's UTM zone, particularly for Western/Central parts.
 
 ```{r}
-thai_boundary <- st_read(dsn = "data/geospatial",layer = "tha_admbnda_adm1_rtsd_20220121") %>% st_transform(crs = 4618)
+thai_boundary <- st_read(dsn = "data/geospatial",layer = "tha_admbnda_adm1_rtsd_20220121") %>% st_transform(crs = 32647)
 
 # Inspect data
-thai_boundary
+glimpse(thai_boundary)
 ```
 
 Let’s verify the coordinate reference systems of the `thai_boundary` object to ensure the assignment of the correct CRS value.
@@ -129,7 +129,7 @@ Let’s verify the coordinate reference systems of the `thai_boundary` object to
 st_crs(thai_boundary)
 ```
 
-Before we delve into further data analysis, it is crucial that we first understand the levels of administration that makes up Thailand today. In particular, Thailand has 4 levels of administration, i.e. **level 0 (country), 1 (province), 2 (district),** and **3 (sub-district) boundaries.** Thailand comprises 76 provinces (Thai: จังหวัด,or English: changwat), along with one special administrative area, Bangkok, the capital. 
+Before we delve into further data analysis, it is crucial that we first understand the levels of administration that makes up Thailand today. In particular, Thailand has 4 levels of administration, i.e. **level 0 (country), 1 (province), 2 (district),** and **3 (sub-district) boundaries.** Thailand comprises 76 provinces (known as จังหวัด in Thai or changwat in English), along with one special administrative area, Bangkok, the capital. 
 
 -   These provinces function as the main local government units and possess legal personhood. 
 -   Each province is subdivided into amphoe (districts), which are further broken down into tambon (sub-districts), representing the next tier of local governance. 
@@ -138,20 +138,28 @@ Before we delve into further data analysis, it is crucial that we first understa
 We can visualise the structure of our geospatial object as such.
 
 ```{r}
+#| eval: false
 tmap_mode("plot")
-tm_shape(thai_boundary)+
-  tm_borders(col = "black", lwd=0.3, alpha=0.6)+
+
+# Plot the provinces of Thailand with labels
+tm_shape(thai_boundary) +
+  tm_borders(col = "black", lwd = 0.3, alpha = 0.6) + 
+  tm_polygons()+
   tm_layout(
     main.title = "Provinces of Thailand",
     main.title.size = 1,
     main.title.position = "center",
     legend.show = FALSE,
-     frame = FALSE)
+    frame = FALSE
+  ) +
+  tm_text("ADM1_EN", size = 0.2)
 ```
+
+![](images/clipboard-2171615491.png)
 
 ### **4.2 Importing Aspatial Data**
 
-In this section, read_csv() of sf package will be used to import the csv file into the R environment. The output is a R dataframe class.
+In this section, `read_csv()` of **sf** package will be used to import the csv file into the R environment. The output is a R dataframe class containing 5 unique columns of drug offences in Thailand from 2017 - 2022.
 
 ```{r}
 drug_cases <- read_csv("data/aspatial/thai_drug_offenses_2017_2022.csv")
@@ -159,7 +167,7 @@ head(drug_cases)
 ```
 
 |                        |               |                                                                                |
-|------------------------|---------------|--------------------------------------------------------------------------------|
+|----------------|----------------|---------------------------------------|
 | **Column Name**        | **Data Type** | **Description**                                                                |
 | fiscal_year            | *\<dbl\>*     | The fiscal year during which the drug offenses were recorded.                  |
 | types_of_drug_offenses | *\<chr\>*     | The specific type or category of drug offence being reported.                  |
@@ -167,31 +175,35 @@ head(drug_cases)
 | province_th            | *\<chr\>*     | The name of the province in Thailand, written in Thai.                         |
 | province_en            | *\<chr\>*     | The name of the province in Thailand, written in English.                      |
 
-Next, we will want to aggregate the total number of drug use cases according to each 77 provinces in Thailand. Here, I use `left_join()` to associate each drug use case to its respective province.
+### **4.3 Performing a Join on Geometry Column**
+
+Next, we will want to aggregate the total number of drug use cases according to each 77 provinces in Thailand. Here, I use `left_join()` to associate each drug use case to its respective province (i.e. the geometry of the drug case).
 
 ```{r}
 library(dplyr)
 
-# Join and then convert to sf
+# Step 1: Count rows before the join
+initial_row_count <- nrow(drug_cases)
+
+# Step 2: Perform the join and convert to sf
 drug_cases <- drug_cases %>%
-  left_join(thai_boundary %>% select(geometry, ADM1_EN), by = c("province_en" = "ADM1_EN")) %>%
+  left_join(thai_boundary %>% select(geometry, ADM1_EN, ADM1_PCODE), 
+            by = c("province_en" = "ADM1_EN")) %>%
   st_as_sf()
 
+# Step 3: Count rows after the join
+final_row_count <- nrow(drug_cases)
+
+# Step 4: Check if rows were dropped
+if (initial_row_count != final_row_count) {
+  cat("Rows were dropped during the join.\n")
+  cat("Rows before join:", initial_row_count, "\n")
+  cat("Rows after join:", final_row_count, "\n")
+} else {
+  cat("No rows were dropped during the join.\n")
+}
+
 glimpse(drug_cases)
-
-# tm_shape(thai_boundary) + 
-#   tm_polygons() +
-# tm_shape(drug_cases) +
-#   tm_dots(col = "red")+
-#   tm_layout(
-#     main.title = "Drug Cases Across Thailand",
-#     main.title.size = 1,
-#     main.title.position = "center",
-#      frame = FALSE)
-```
-
-```{r}
-class(drug_cases)
 ```
 
 ## **5. Data Wrangling**
@@ -208,73 +220,382 @@ head(drug_cases)
 We'll also only retain columns that are most useful from `thai_boundary`.
 
 ```{r}
-thai_boundary <- subset(thai_boundary, select = c(Shape_Leng, Shape_Area, ADM1_EN, geometry))
+thai_boundary <- subset(thai_boundary, select = c(Shape_Leng, Shape_Area, ADM1_EN, ADM1_PCODE, geometry))
 head(thai_boundary)
 ```
 
-### 5.2 Remove Outer Islands
+### 5.2 Fixing Missing Values
+
+There are no troublesome rows in the `drug_cases` dataframe.
 
 ```{r}
-plot(st_union(thai_boundary))
+any(is.na(thai_boundary))
+#thai_boundary[!complete.cases(st_drop_geometry(thai_boundary)), ]
 ```
 
 ```{r}
-# thai_boundary_valid <- st_make_valid(thai_boundary)
-# features_within_boundary <- st_intersection(drug_cases, thai_boundary_valid)
-# plot(features_within_boundary)
+any(is.na(drug_cases))
 ```
 
-Next, we will want to aggregate the total number of drug use cases according to each 77 provinces in Thailand. Here, I use `st_join` to associate each drug use case to its respective province.
+#### 5.2.1 Identify Missing Values
+
+We can observe ***192*** reported offences that do not include the **ADM1_PCODE** as seen from how some rows contain empty values 'NA'. We are also getting the **192 empty** `geometry` values as returned from the null test below.
 
 ```{r}
-drug_cases$gemoetry
+drug_cases %>%
+  filter(is.na(ADM1_PCODE)) %>%
+  select(province_en, ADM1_PCODE)
 ```
 
-There are some troublesome rows where a report does not include the province as seen from how these rows contain empty values 'NA'.
+The root cause of this problem lies in how these two province names were incorrectly spelled in the **province_en** column of `drug_casses` , causing an incomplete `left_join()` to be executed.
 
 ```{r}
-drug_cases[!rownames(drug_cases) %in% rownames(na.omit(drug_cases)), ]
+unique(drug_cases[!complete.cases(st_drop_geometry(drug_cases)), ][c('province_en')])
 ```
 
-CHECK IF ITS TRUE. So let's remove
-
 ```{r}
-drug_cases <- drug_cases[!is.na(drug_cases$province_en), ]
+thai_boundary %>%
+  filter(ADM1_EN == "Lop Buri" | ADM1_EN == "Bueng Kan") %>%
+  select(ADM1_PCODE, ADM1_EN) %>%
+  as_tibble()
 ```
 
-Here, I create a new dataframe `drug_cases_province` to count the total number of cases per province.
+#### 5.2.2 Fix Missing Values Discovered
+
+Let's fix these NA values by transforming the two province names to their correct names.
+
+-   **Step 1**: Replace Loburi –\> Lop Buri, buogkan –\> Bueng Kan
+-   **Step 2:** Replace 'NA' `ADM1_PCDOE` with the correct province code - TH16 and TH38 for Lop Buri and Bueng Kan respectively
+-   **Step 3:** Replace the existing geometry column in `drug_cases` with the right geometry
 
 ```{r}
-drug_cases_province <- drug_cases %>% 
-  group_by(province_en, fiscal_year,) %>% 
-  summarise(count = sum(no_cases)) 
-drug_cases_province
+# Extract the geometry for Lop Buri
+lop_buri_geometry <- drug_cases %>%
+  filter(province_en == "Lop Buri") %>%
+  reframe(first_geometry = st_union(geometry)) %>%  
+  pull(first_geometry)
+
+# Extract the geometry for Bueng Kan
+bueng_kan_geometry <- drug_cases %>%
+  filter(province_en == "Bueng Kan") %>%
+  reframe(first_geometry = st_union(geometry)) %>%
+  pull(first_geometry)
+
+# Fix incorrect province names
+drug_cases <- drug_cases %>%
+  mutate(
+    province_en = case_when(
+      province_en == "Loburi" ~ "Lop Buri",
+      province_en == "buogkan" ~ "Bueng Kan",
+      TRUE ~ province_en  
+    )
+  )
+
+# Fix empty province code
+drug_cases <- drug_cases %>%
+  mutate(ADM1_PCODE = ifelse(province_en == "Lop Buri" & 
+                             is.na(ADM1_PCODE),"TH16", 
+                      ifelse(province_en == "Bueng Kan" & 
+                             is.na(ADM1_PCODE),"TH38", ADM1_PCODE)))
+
+# Fix empty geometry
+thai_boundary_no_geom <- thai_boundary %>%
+  select(ADM1_EN, geometry)
+drug_cases <- drug_cases %>%
+  st_drop_geometry() %>%
+  left_join(thai_boundary_no_geom, by = c("province_en" = "ADM1_EN")) 
+drug_cases <- st_as_sf(drug_cases)
 ```
 
-We can see that all polygons are preserved
+We have successfully removed all NA values found in `drug_cases`.
 
 ```{r}
-plot(drug_cases_province)
+any(is.na(drug_cases))
 ```
 
-VIEW CASES BY PROVINCE
-
 ```{r}
-# basemap <- tm_shape(drug_cases) +
-#   tm_polygons() +
-#   tm_text("province_en", size=0.5)
-# drug_indicator <- qtm(drug_cases, "no_cases")
-# tmap_arrange(basemap, drug_indicator, asp=1, ncol=2)
+# Check the updated drug_cases
+drug_cases[!complete.cases(st_drop_geometry(drug_cases)), ]
 ```
 
-VIEW CASES BY YEAR
+### 5.3 Create New `total_cases` Column
+
+Next, I create a new dataframe `drug_cases_province` to count the total number of cases per province.
 
 ```{r}
-# tm_shape(drug_cases_province) + 
-#   tm_polygons(col='white') + 
-#   tm_shape(drug_cases_province) + 
-#   tm_polygons("count", palette = "Blues", style="quantile") + 
-#   tm_facets(by="fiscal_year", free.coords = FALSE)
+drug_cases_province <- drug_cases %>%
+  group_by(province_en) %>%
+  summarise(
+    total_cases = sum(no_cases), 
+    ADM1_PCODE = first(ADM1_PCODE),              
+    geometry = first(geometry), 
+    .groups = "drop"                           
+  ) %>%
+  st_as_sf()
+
+print(drug_cases_province)
+```
+
+I will also create a new `drug_cases_province_year` to aggregate the total number of cases for each province and based on each year, regardless of drug offense type.
+
+```{r}
+drug_cases_province_year <- drug_cases %>%
+  group_by(province_en, fiscal_year) %>%
+  summarise(
+    fiscal_year = first(fiscal_year),
+    total_cases = sum(no_cases), 
+    ADM1_PCODE = first(ADM1_PCODE),              
+    geometry = first(geometry), 
+    .groups = "drop"                           
+  ) %>%
+  st_as_sf()
+
+print(drug_cases_province_year)
+```
+
+## 6. Exploratory Geospatial Data Analysis
+
+### 6.1 Overall Histogram of Drug Cases
+
+I employed the `geom_histogram` function of the `ggplot` package to plot histogram distributions of the spread of the number of drug cases found in Thailand from 2017 to 2022.
+
+Overall, the number of cases appears to be relatively right-skewed with some outliers indicating a significantly high number of drug cases.
+
+```{r}
+ggplot(drug_cases, aes(x = no_cases)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  labs(x = "Number of Cases", y = "Count", title = "Histogram of Total Drug Cases in Thailand (2017-2022)") +
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold")
+  )
+```
+
+### 6.2 Histogram of Drug Cases by Year
+
+Based on each year category, we see that there is a similar pattern of drug cases skewed towards the lower end with an uneven distribution.
+
+```{r}
+#| eval: false
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+
+# Create histogram for each year
+drug_cases_2017 <- filter(drug_cases, fiscal_year == 2017)
+hist_2017 <- ggplot(drug_cases_2017, aes(x = no_cases)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  labs(x = "Number of Cases", y = "Count", title = "Drug Cases in 2017") +
+  theme_minimal(base_size = 9) 
+
+drug_cases_2018 <- filter(drug_cases, fiscal_year == 2018)
+hist_2018 <- ggplot(drug_cases_2018, aes(x = no_cases)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  labs(x = "Number of Cases", y = "Count", title = "Drug Cases in 2018") +
+  theme_minimal(base_size = 9)
+
+drug_cases_2019 <- filter(drug_cases, fiscal_year == 2019)
+hist_2019 <- ggplot(drug_cases_2019, aes(x = no_cases)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  labs(x = "Number of Cases", y = "Count", title = "Drug Cases in 2019") +
+  theme_minimal(base_size = 9)
+
+drug_cases_2020 <- filter(drug_cases, fiscal_year == 2020)
+hist_2020 <- ggplot(drug_cases_2020, aes(x = no_cases)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  labs(x = "Number of Cases", y = "Count", title = "Drug Cases in 2020") +
+  theme_minimal(base_size = 9)
+
+drug_cases_2021 <- filter(drug_cases, fiscal_year == 2021)
+hist_2021 <- ggplot(drug_cases_2021, aes(x = no_cases)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  labs(x = "Number of Cases", y = "Count", title = "Drug Cases in 2021") +
+  theme_minimal(base_size = 9)
+
+drug_cases_2022 <- filter(drug_cases, fiscal_year == 2022)
+hist_2022 <- ggplot(drug_cases_2022, aes(x = no_cases)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  labs(x = "Number of Cases", y = "Count", title = "Drug Cases in 2022") +
+  theme_minimal(base_size = 9)
+
+# Arrange all histograms in a grid layout
+grid.arrange(hist_2017, hist_2018, hist_2019, hist_2020, hist_2021, hist_2022, nrow = 2)
+```
+
+![](images/clipboard-1227396748.png)
+
+### 6.3 Overall Plot of Drug Cases
+
+As such, an ***quantile*** interval will be more suitable in plotting the total number of cases for each province as shown in the tmap output below. Additionally, we can use the default break of **5** to capture a suitable level of granularity across all provinces. For comparison purposes, I will also plot the ***equal*** scale as shown.
+
+```{r}
+#| eval: false
+# First plot using quantile interval
+plot_quantile <- tm_shape(drug_cases_province) +
+  tm_polygons("total_cases", 
+          style = "quantile", 
+          palette = "Blues",
+          n = 5,
+          title = "Number of Drug Cases") +
+  tm_layout(main.title = "Distribution of Drug Cases in Thailand \n by Province (Quantile Interval)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", size = 2, position = c("right", "top")) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+
+# Second plot using equal interval
+plot_equal <- tm_shape(drug_cases_province) +
+  tm_polygons("total_cases", 
+          style = "equal", 
+          palette = "Blues",
+          n = 5,
+          title = "Number of Drug Cases") +
+  tm_layout(main.title = "Distribution of Drug Cases in Thailand \n by Province (Equal Interval)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", size = 2, position = c("right", "top")) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+
+# Combine both plots side by side
+tmap_arrange(plot_quantile, plot_equal, nrow = 1)
+```
+
+![](images/clipboard-234682238.png)
+
+::: {.callout-tip title="Observations"}
+Overall, we can observe that the highest number of drug cases are found in the **north-western, central, eastern and southern** provinces of Thailand as seen in the darker regions. Namely..
+
+-   North-west: Chiang Mai, Chiang Rai
+-   Central: Chaiyaphum, Khon Kaen and Nakhon-Ratchasima
+-   East: Sisaket, Ubon-Ratchathani
+-   South: Surat Thani, Nakhon Si Thammarat, Phuket
+
+It is worth noting that smaller provinces are likely to be lighter in shade due to their smaller geographic area.
+:::
+
+### 6.4 Plot of Drug Cases by Year
+
+When we further categorise the drug cases by year, we can see that there is an even spread of cases
+
+```{r}
+#| eval: false
+plot_quantile_year <- tm_shape(drug_cases_province_year) +
+  tm_polygons("total_cases", 
+          style = "quantile", 
+          palette = "Blues") +
+  tm_facets(by="fiscal_year", free.coords = FALSE) +
+  tm_layout(main.title = "Distribution of Drug Cases in Thailand \n by Province for Each Year (Quantile Interval)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) 
+
+plot_quantile_year
+```
+
+![](images/clipboard-1946072980.png)
+
+```{r}
+#| eval: false
+library(tmap)
+
+# Create temporal maps
+temporal_maps <- tm_shape(drug_cases_province_year) +  
+  tm_polygons("total_cases",  
+              palette = "Blues",  
+              style = "quantile", 
+              title = "Drug Cases") + 
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_layout(legend.title.size = 1.8,
+            legend.text.size = 1.5) +
+  tm_facets(along = "fiscal_year", free.coords = FALSE)
+
+# Generate animation
+tmap_animation(temporal_maps, filename = "thailand_drugs_temporal.gif", 
+               delay = 150, width = 1000, height = 1200)
+```
+
+```{r}
+library(knitr)
+# Include the generated GIF
+knitr::include_graphics("thailand_drugs_temporal.gif")
+```
+
+## 7. Global Measures of Spatial Autocorrelation
+
+### 7.1 Methods Used
+
+This section delves into analysing the spatial autocorrelation of our drug cases dataset and assessing how the presence of drug abuse in a province may influence and form clusters around it.
+
+![](images/clipboard-3777711026.png){fig-align="center" width="418"}
+
+![](images/clipboard-550850738.png){fig-align="center"}
+
+\<INSERT THE THREE TYPES OF METHODS\>
+
+### 7.2 Computing Contiguity Neighbours
+
+I decided to use the Queen criterion in deriving our **neighbour list object**. To do so, we will utilise the `st_contiguity()` function from the `sfdep` package to create contiguity weight matrices for the study area. This function generates a list of neighbors based on provinces that **share** **contiguous boundaries.** It is worth noting that the function only supports the rook and queen criteria which is suitable for our analysis.
+
+```{r}
+thailand_nb_q <- st_contiguity(drug_cases_province, queen=TRUE)
+summary(thailand_nb_q)
+```
+
+Each number returned above is an ID assigned to each province from the `st_contiguity()` function. Let's find out the specific provinces highlighted by the summary above!
+
+```{r}
+province_ids <- data.frame(
+  region_id = seq_along(drug_cases_province$province_en),
+  province_en = drug_cases_province$province_en
+)
+
+province_ids[province_ids$region_id %in% c(17, 48, 69, 71), ]
+```
+
+::: {.callout-tip title="Observations"}
+-   I can observe a total of 77 provinces (regions) in the dataset with **352 neighbouring links** between the provinces
+-   There is **roughly 5.94% non-zero neighbour relationships**. This indicates only a small proportion of total possible connections have neighbours.
+-   On average, we can also observe that **each province** has **4.57 neighbouring regions.**
+-   **Region** **48** (Phuket province) has **no neighbouring regions**
+-   **Region 71** (Trat province) is one of the **least connected provinces** with only 1 neighbouring region
+-   **Regions 17** (Khon Kaen province) and **69** (Tak province) are the two provinces with the **most neighbours**, each sharing boundaries with 9 other provinces
+:::
+
+### 7.3 **Computing Row-Standardised Weight Matrix**
+
+Next, I attempt to calculate spatial weights but the **isolated region (48)** is causing issues as spatial weights calculations require all regions to have neighbors.
+
+To resolve the issue caused by the isolated region, I will use the `allow_zero = TRUE` option when calculating spatial weights, which will allow the analysis to proceed despite isolated regions.
+
+```{r}
+thailand_wt <- st_weights(thailand_nb_q, style = "W", allow_zero = TRUE)
+```
+
+We will mutate the newly created neighbour list object `thailand_nb_1` and weight matrix `thailand_wt` into our existing `drug_cases_province`. This results in a newly created object called `wm_1`.
+
+```{r}
+wm_q <- drug_cases_province %>%
+  mutate(nb = thailand_nb_q,
+         wt = thailand_wt,
+         .before = 1) 
+
+# Inspect
+wm_q
 ```
 
 ```{r}
