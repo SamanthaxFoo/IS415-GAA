@@ -1,0 +1,364 @@
+---
+title: "In-class Exercise 7"
+subtitle: "Building Interacitve Shiny Applications"
+author: "Foo Jia Yi Samantha"
+date-modified: "September 30, 2024"
+date: "September 30, 2024"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{=html}
+<button>In-class Exercise</button> <button>R</button> <button>Shiny</button> <button>reconnect</button>
+```
+## 1. Install Package
+
+Firstly, we install the `shiny` package in our R terminal. This will allow us to work with interactive packages
+
+```{r}
+#| eval: false
+install.packages("shiny")
+```
+
+## 2. Building a Fluid Page
+
+Next, we will start creating our first Shiny app using the Hunan 2012 dataset used in previous in-class exercises.
+
+RStudio acts as a server here in which our `shinyApp()` runs the server logic function defined in `server`. Additionally, the `shinyApp()` function takes in the UI defined by the `ui` variable and outputs a dashboard containing a choropleth along with dropdown and slider features for the user to use.
+
+```{r}
+#| eval: false
+library(shiny)
+pacman::p_load(shiny, sf, tmap, bslib, tidyverse)
+
+# Load spatial data
+hunan <- st_read(dsn = "data/geospatial", layer = "Hunan")
+data <- read_csv("data/aspatial/Hunan_2012.csv")
+hunan_data <- left_join(hunan, data, by = c("County" = "County"))
+
+# Define UI with default width sidebar
+ui <- fluidPage(
+  titlePanel("Choropleth Mapping"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput(inputId = "variable", 
+                  label = "Mapping variable",
+                  choices = list("Gross Domestic Product, GDP" = "GDP",
+                                 "Gross Domestic Product Per Capita" = "GDPPC",
+                                 "Gross Industry Output" = "GIO",
+                                 "Output Value of Agriculture" = "OVA",
+                                 "Output Value of Service" = "OVS"),
+                  selected = "GDPPC"),
+      sliderInput(inputId = "classes",
+                  label = "Number of classes",
+                  min = 5,
+                  max = 10,
+                  value = 6)
+    ),
+    
+    mainPanel(
+      plotOutput("mapPlot")  # Map output placeholder
+    )
+  )
+)
+
+# Define server logic function
+server <- function(input, output) {
+  
+  output$mapPlot <- renderPlot({
+    # Generate a choropleth map based on the selected input variable
+    tmap_options(check.and.fix = TRUE) +
+      tm_shape(hunan_data) +
+      tm_fill(col = input$variable, 
+              n = input$classes, 
+              style = "quantile") +
+      tm_borders(lwd = 0.1, alpha = 1)
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+
+```
+
+![](images/clipboard-3755316557.png)
+
+## 3.  Building a Navigation Bar Page
+
+This time, we will build a Shiny dashboard which allows us to select our preferred Shiny theme for beautifying the UI. We expose additional UI such as the a slider panel for classification methods, for colour and the level of transparency which allows the user to interact with.
+
+Let's load the required `shinydashboard` and `shinythemes` packages first.
+
+```{r}
+#| eval: false
+pacman::p_load(shiny, sf, tmap, bslib, tidyverse,
+               sfdep, shinydashboard, shinythemes)
+```
+
+-   `tm_view(set.zoom.limits = c(6.5, 8)` allows you to set the limit of which your user can zoom in. This allows us to reduce the computational load and resources of the laptop
+
+-   `choices = c("Queen" = TRUE, "Rook" = FALSE)` we will let the user choose either Queen or Rook as a form of design consideratio but at the back-end, we'll just consider the TRUE/FALSE boolean
+
+-   `st_contiguity(geometry, queen = !!input$Contiguity1)` here we use double exclamation marks since the computer won;t be able to read the "Queen" and "Rook" but TRUE/FALSE values.
+
+-   We use `plotOutput()` for regular maps but since we are using tmap, we shall use `tmapOutput()`
+
+```{r}
+#| eval: false
+hunan <- st_read(dsn = "data/geospatial", 
+                layer = "Hunan")
+data <- read_csv("data/aspatial/Hunan_2012.csv")
+hunan_profile <- left_join(hunan, data,
+                        by = c("County" = "County"))
+
+#========================#
+###### Shiny UI ######
+#========================#  
+
+ui <- navbarPage(
+  title = "GLSA Application",
+  fluid = TRUE,
+  theme=shinytheme("flatly"),
+  id = "navbarID",
+  tabPanel("GeoVisualisation",
+           sidebarLayout(
+             sidebarPanel(
+               selectInput(inputId = "variable",
+                           label = "Mapping variable",
+                           choices = list("Gross Domestic Product, GDP" = "GDP",
+                                          "Gross Domestic Product Per Capita" = "GDPPC",
+                                          "Gross Industry Output" = "GIO",
+                                          "Output Value of Agriculture" = "OVA",
+                                          "Output Value of Service" = "OVS"),
+                           selected = "GDPPC"),
+               selectInput(inputId = "classification",
+                           label = "Classification method:",
+                           choices = list("sd" = "sd", 
+                                          "equal" = "equal", 
+                                          "pretty" = "pretty", 
+                                          "quantile" = "quantile", 
+                                          "kmeans" = "kmeans", 
+                                          "hclust" = "hclust", 
+                                          "bclust" = "bclust", 
+                                          "fisher" = "fisher", 
+                                          "jenks" = "jenks"),
+                           selected = "pretty"),
+               sliderInput(inputId = "classes",
+                           label = "Number of classes",
+                           min = 5,
+                           max = 10,
+                           value = c(6)),
+               selectInput(inputId = "colour",
+                           label = "Colour scheme:",
+                           choices = list("blues" = "Blues", 
+                                          "reds" = "Reds", 
+                                          "greens" = "Greens",
+                                          "Yellow-Orange-Red" = "YlOrRd",
+                                          "Yellow-Orange-Brown" = "YlOrBr",
+                                          "Yellow-Green" = "YlGn",
+                                          "Orange-Red" = "OrRd"),
+                           selected = "YlOrRd"),
+               sliderInput(inputId = "opacity",
+                           label = "Level of transparency",
+                           min = 0,
+                           max = 1,
+                           value = c(0.5))
+               ),
+             mainPanel(
+               tmapOutput("mapPlot",
+                          width = "100%", 
+                          height = 580)
+               )
+             )
+           ),
+  navbarMenu("Global Measures",
+             tabPanel("Moran's I"),
+             tabPanel("Geary's c"),
+             tabPanel("Getis-Ord Global G")
+             ),
+  navbarMenu("Local Measures",
+             tabPanel("Local Moran",
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectInput(inputId = "variable",
+                                      label = "Mapping variable",
+                                      choices = list("Gross Domestic Product, GDP" = "GDP",
+                                                     "Gross Domestic Product Per Capita" = "GDPPC",
+                                                     "Gross Industry Output" = "GIO",
+                                                     "Output Value of Agriculture" = "OVA",
+                                                     "Output Value of Service" = "OVS"),
+                                      selected = "GDPPC"),
+                          radioButtons(inputId = "Contiguity1",
+                                       label = "Contiguity Method",
+                                       choices = c("Queen" = TRUE, 
+                                                   "Rook" = FALSE),
+                                       selected = "TRUE",
+                                       inline = TRUE),
+                          selectInput("MoranWeights", "Spatial Weights Style",
+                                      choices = c("W: Row standardised" = "W",
+                                                  "B: Binary" = "B",
+                                                  "C: Globally standardised" = "C",
+                                                  "U: C / no of neighbours" = "U",
+                                                  "minmax" = "minmax",
+                                                  "S: Variance" = "S"),
+                                      selected = "W"),
+                          sliderInput(inputId = "MoranSims", 
+                                      label = "Number of Simulations:", 
+                                      min = 99, max = 499,
+                                      value = 99, step = 100),
+                          actionButton("MoranUpdate", "Update Plot"),
+                          hr(),
+                          radioButtons(inputId = "MoranConf",
+                                       label = "Select Confidence level",
+                                       choices = c("0.95" = 0.05, 
+                                                   "0.99" = 0.01),
+                                       selected = 0.05,
+                                       inline = TRUE),
+                          selectInput("LisaClass", "Select Lisa Classification",
+                                      choices = c("mean" = "mean",
+                                                  "median" = "median",
+                                                  "pysal" = "pysal"),
+                                      selected = "mean"),
+                          selectInput("localmoranstats", "Select Local Moran's Stat:",
+                                      choices = c("local moran(ii)" = "local moran(ii)",
+                                                  "expectation(eii)" = "expectation(eii)",
+                                                  "variance(var_ii)" = "variance(var_ii)",
+                                                  "std deviation(z_ii)" = "std deviation(z_ii)",
+                                                  "P-value" = "p_value"),
+                                      selected = "local moran(ii)")
+                        ),
+                        mainPanel(
+                          fluidRow(
+                            column(6, tmapOutput("LocalMoranMap")),
+                            column(6, tmapOutput("LISA"))
+                          )
+                        )
+                      )
+                      ),
+             tabPanel("Local Gi")
+             ),
+  navbarMenu("Emerging Hot Spot Analysis")
+)
+
+#========================#
+###### Shiny Server ######
+#========================# 
+
+server <- function(input, output){
+    output$mapPlot <- renderTmap({
+      tmap_options(check.and.fix = TRUE) +
+        tm_shape(hunan_profile)+
+        tm_fill(input$variable,
+                n = input$classes,
+                style = input$classification,
+                palette = input$colour,
+                alpha = input$opacity) +
+        tm_borders(lwd = 0.1,  alpha = 1) +
+        tm_view(set.zoom.limits = c(6.5, 8)
+                )
+    })
+    
+    #==========================================================
+    # Local Measures of Spatial AutoCorrelation
+    #==========================================================   
+    
+    localMIResults <- eventReactive(input$MoranUpdate,{
+      
+      if(nrow(hunan_profile) == 0) return(NULL)  # Exit if no data
+      
+      # Computing Contiguity Spatial Weights
+      wm_q <- hunan_profile %>%
+        mutate(nb = st_contiguity(geometry, 
+                                  queen = !!input$Contiguity1),
+               wt = st_weights(nb,
+                               style = input$MoranWeights))
+
+      # Computing Local Moran's I
+
+      lisa <- wm_q %>%
+        mutate(local_moran = local_moran(
+          hunan_profile$GDPPC, nb, wt, 
+          nsim = as.numeric(input$MoranSims)),
+          .before = 5) %>%
+        unnest(local_moran)
+
+      lisa <- lisa %>%
+        rename("local moran(ii)" = "ii", "expectation(eii)" = "eii",
+               "variance(var_ii)" = "var_ii", "std deviation(z_ii)" = "z_ii",
+               "p_value" = "p_ii")
+      
+      return(lisa)       
+    })
+    
+    #==========================================================
+    # Render output maps
+    #==========================================================
+    
+    #Render local Moran I statistics
+    output$LocalMoranMap <- renderTmap({
+      df <- localMIResults()
+      
+      if(is.null(df) || nrow(df) == 0) return()  # Exit if no data
+      
+      # Map creation using tmap
+      localMI_map <- tm_shape(df) +
+        tm_fill(col = input$localmoranstats, 
+                style = "pretty", 
+                palette = "RdBu", 
+                title = input$localmoranstats) +
+        tm_borders() +
+        tm_view(set.zoom.limits = c(6, 7))
+      
+      localMI_map 
+    })
+
+    #Render LISA map 
+    output$LISA <- renderTmap({
+      df <- localMIResults()
+      if(is.null(df)) return()
+      
+      
+      lisa_sig <- df  %>%
+        filter(p_value < as.numeric(input$MoranConf))  
+      
+      lisamap <- tm_shape(df) +
+        tm_polygons() +
+        tm_borders() +
+        
+        tm_shape(lisa_sig) +
+        tm_fill(col = input$LisaClass,  
+                palette = "-RdBu",  
+                title = (paste("Significance:", input$LisaClass))) +
+        tm_borders(alpha = 0.4) +
+        tm_view(set.zoom.limits = c(6, 7))
+
+      lisamap 
+    })
+}
+
+shinyApp (ui=ui, server=server)
+```
+
+![](images/clipboard-1147026403.png)
+
+## 4. Deploying Shiny App to the Cloud
+
+We'll set up our ShinyApp.io account and save the token in our local device.
+
+> **NOTE:** rename your app3.R file to app.R. Else, RStudio will not be able to find the file
+
+Let's download the required `rsconnect` package
+
+```{r}
+#| eval: false
+install.packages("rsconnect")
+```
+
+After running the app.R file, click the 'publish' buttona, select ShinyApp.io and enter in the token. You can monitor website metrics on ShinyApp.io
+
+![](images/clipboard-3553463400.png)
+
+Here is my link to the deployed app: <https://samanthafoo.shinyapps.io/In-class_ex7/>

@@ -119,3 +119,11 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                |                                                   |
 | </p>                |                                                                                                                |                                                   |
 +---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 7**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex7/In-class_Ex7.html) | ![](images/clipboard-1673615115.png){width="234"} |
+|                     |                                                                                                                |                                                   |
+| Sep 30, 2024        | Building interactive Shiny Dashboard Applications                                                              |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
