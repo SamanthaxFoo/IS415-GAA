@@ -86,7 +86,7 @@ shinyApp(ui = ui, server = server)
 
 ![](images/clipboard-3755316557.png)
 
-## 3.  Building a Navigation Bar Page
+## 3. Building a Navigation Bar Page
 
 This time, we will build a Shiny dashboard which allows us to select our preferred Shiny theme for beautifying the UI. We expose additional UI such as the a slider panel for classification methods, for colour and the level of transparency which allows the user to interact with.
 

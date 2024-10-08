@@ -31,6 +31,14 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                |                                                   |
 | </p>                |                                                                                                                |                                                   |
 +---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Take Home Exercise 2**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02) | ![](images/clipboard-2820920240.png){width="200"} |
+|                     |                                                                                                                |                                                   |
+| Oct 13, 2024        | Harnessing Geospatial Methods to Analyse Drug Abuse Patterns in Thailand                                       |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
 | <p id="contents">   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1)      | \                                                 |
 |                     |                                                                                                                |                                                   |
 | Aug 16, 2024        | Geospatial Wrangling with R                                                                                    | ![](images/clipboard-195378010.png){width="200"}  |
