@@ -2667,12 +2667,14 @@ th60_coldspot_data %>%
 
 ### 9.6 Performing Emerging Hot Spot Analysis
 
-Lastly, we will perform EHSA analysis by using [`emerging_hotspot_analysis()`](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html) of the sfdep package. We will utilise the spacetime object `drug_cases_spt`, and the name of the variable of interest `total_cases` for the.var argument. The k argument is used to specify the number of time lags which is set to 1 by default. Finally, `nsim` map numbers of simulation to be performed.
+Lastly, we will perform EHSA analysis by using [`emerging_hotspot_analysis()`](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html) of the sfdep package. **Note that this is NOT recommended** since our dataset does not meet the **minimum** **10 years** of data as it requires a longer temporal span to establisih more meaningful trends. This attempt in performing EHSA using spacetime cubes in this exercise is solely for the **purposes of practising** different spatio-temporal approaches.
+
+I will utilise the spacetime object `drug_cases_spt`, and the name of the variable of interest `total_cases` for the.var argument. The k argument is used to specify the number of time lags which is set to 1 by default. Finally, `nsim` map numbers of simulation to be performed.
 
 The method classifies locations into different categories, such as:
 
 | Pattern Type              | Definition                                                                                                                                                                                                                                                                                                                 |
-|-------------|-----------------------------------------------------------|
+|----------------|--------------------------------------------------------|
 | **No Pattern Detected**   | Does not fall into any of the hot or cold spot patterns defined below.                                                                                                                                                                                                                                                     |
 | **Sporadic Hot Spo**t     | A statistically significant hot spot for the final time-step interval with a history of also being an on-again and off-again hot spot. Less than 90 percent of the time-step intervals have been statistically significant hot spots and none of the time-step intervals have been statistically cold spots.               |
 | **Sporadic Cold Spot**    | A statistically significant cold spot for the final time-step interval with a history of also being an on-again and off-again cold spot. Less than 90 percent of the time-step intervals have been statistically significant cold spots and none of the time-step intervals have been statistically significant hot spots. |
