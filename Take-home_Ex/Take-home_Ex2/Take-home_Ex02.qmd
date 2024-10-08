@@ -153,7 +153,7 @@ head(drug_cases)
 ```
 
 |                        |               |                                                                                |
-|------------------------|---------------|--------------------------------------------------------------------------------|
+|------------------|------------------|-------------------------------------|
 | **Column Name**        | **Data Type** | **Description**                                                                |
 | fiscal_year            | *\<dbl\>*     | The fiscal year during which the drug offenses were recorded.                  |
 | types_of_drug_offenses | *\<chr\>*     | The specific type or category of drug offence being reported.                  |
@@ -510,7 +510,47 @@ grid.arrange(hist_2017, hist_2018, hist_2019, hist_2020, hist_2021, hist_2022, n
 
 ![]()
 
-### 6.3 Overall Plot of Drug Cases
+### 6.3 Total Cases by Drug Case Type
+
+Next, we can take a peak into the spread of number of drug offense based on the drug case type. It appears that the highest number of drug case types involve drug use, drug possession and trafficking cases, while drug export cases is discovered to be the least in number of offenses.
+
+```{r}
+#| eval: false
+drug_cases_category_sum <- drug_cases_type %>%
+  mutate(category = case_when(
+    types_of_drug_offenses %in% c("drug_use_cases", "suspects_in_drug_use_cases") ~ "Drug Use Cases",
+    types_of_drug_offenses %in% c("possession_cases", "suspects_in_possession_cases", "possession_with_intent_to_distribute_cases", "suspects_in_possession_with_intent_to_distribute_cases") ~ "Possession Cases",
+    types_of_drug_offenses %in% c("trafficking_cases", "suspects_in_trafficking_cases") ~ "Trafficking Cases",
+    types_of_drug_offenses %in% c("production_cases", "suspects_in_production_cases") ~ "Production Cases",
+    types_of_drug_offenses %in% c("import_cases", "suspects_in_import_cases", "export_cases", "suspects_in_export_cases") ~ "Import/Export Cases",
+    types_of_drug_offenses %in% c("conspiracy_cases", "suspects_in_conspiracy_cases") ~ "Conspiracy Cases",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(category) %>%
+  summarise(total_cases_sum = sum(total_cases))
+```
+
+```{r}
+#| eval: false
+ggplot(drug_cases_type, aes(x = reorder(types_of_drug_offenses, total_cases), y = total_cases, fill = category)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = total_cases), hjust = -0.2, size = 4) +  # Add total cases labels
+  labs(title = "Total Number of Drug Cases by Drug Offense Type",
+       x = "Drug Case Type",
+       y = "Total Cases") +
+  scale_fill_brewer(palette = "Blues") + 
+  theme_minimal(base_size = 16) +  
+  theme(axis.text.y = element_text(size = 16),  
+        axis.title = element_text(size = 16),   
+        plot.title = element_text(hjust = 0.5, size = 20),
+        legend.position = "bottom") +  
+  coord_flip()  # Flip the bars horizontally
+
+```
+
+![](images/clipboard-953256980.png)
+
+### 6.4 Overall Plot of Drug Cases
 
 As such, an ***quantile*** interval will be more suitable in plotting the total number of cases for each province as shown in the tmap output below. Additionally, we can use the default break of **5** to capture a suitable level of granularity across all provinces. For comparison purposes, I will also plot the ***equal*** scale as shown.
 
@@ -571,7 +611,7 @@ Overall, we can observe that the highest number of drug cases are found in the *
 It is worth noting that smaller provinces are likely to be lighter in shade due to their smaller geographic area.
 :::
 
-### 6.4 Plot of Drug Cases by Year
+### 6.5 Plot of Drug Cases by Year
 
 When we further categorise the drug cases by year, we can see that there is an even spread of cases
 
@@ -1571,6 +1611,228 @@ Likewise, we see some statistically significant observations in the extreme sout
 Songkhla is a **key transportation hub** with its capital Hat Yai having strong transportation links by **road, rail, and air**, making it a strategic point for drug traffickers to move illicit drugs. However, we aren't sure where these drugs are illegally traded to/from since *Moran's I* is relatively low, meaning there is **low spatial dependence** with its neighbours.
 
 Si Sa Ket province **(in red)** suggests to have significant clustering of drug cases with **high** Local *Moran I's* values of 2.26. The province has high number of drugs being trafficked and is likewise surrounded by neighbouring provinces with similarly high values, suggesting **spatial dependence.**
+:::
+
+##### **4) Case Type: Import and Export**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot Moran's I and P-values
+# Moran I's (blue, green, yellow, orange, red)
+import_export_moran_i <- tm_shape(import_export_cases) +
+  tm_polygons("ii", 
+              palette = c("#E6F4FA","#c9e3d2",
+                          "#E5D96E", "#ec9a64", "#d21b1c"),
+              title = "Local Moran's I",
+              midpoint = NA) +
+  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Import & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+# p-values (red, orange, yellow, green)
+import_export_p_values <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(import_export_cases_sig) +
+  tm_polygons("p_ii_sim", 
+              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
+              title = "p-value",
+              midpoint = NA) +
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Import & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(import_export_moran_i, import_export_p_values, asp=1, ncol=2)
+```
+
+![](images/clipboard-1020581922.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Codes to plot map for statistically significant Moran's I values
+import_export_cases_sig <- import_export_cases_sig %>%
+  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
+
+tm_shape(import_export_cases) +
+  tm_polygons(id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  tm_shape(import_export_cases_sig) +
+  tm_fill("ii", 
+          palette = c("#E4F1EB","#E5D96E","#ec9a64","#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("ii_rounded", 
+          size = 0.4, 
+          col = "white",
+          bg.color = "black",
+          bg.alpha = 0.6,  
+          just = "right",  
+          id = "province_en") + 
+
+  # Adding layout elements for map styling
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Import & Export Cases in Study Area",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
+            frame = TRUE) +
+
+  # Adding a compass for orientation
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+
+  # Adding a scale bar for map accuracy
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+
+  # Adding grid with transparency
+  tm_grid(labels.size = 0.6, alpha = 0.1)
+```
+
+![](images/clipboard-4029994052.png)
+
+::: {.callout-tip title="Observations"}
+**Observations of statistically significant values**
+
+We can observe another interesting occurrence of two provinces, Satun **(red)** and Phatthalung **(blue)** being geographically close, but showing very different importing and exporting of drug patterns where the former has a **high positive** *Moran I's value* **(6 to 8)** while the latter has a **negative** observation **(-2 to 0)**. This contrast highlights a spatial disparity where one province (Phatthalung) has significantly fewer import/export of drugs, while its neighbour (Satun) is part of a import/export drug hotspot.
+:::
+
+##### **5) Case Type: Conspiracy**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot Moran's I and P-values
+
+tmap_mode("plot")
+# Moran I's (blue, green, light yellow, yellow, orange, orangered, red)
+conspiracy_moran_i <- tm_shape(conspiracy_cases) +
+  tm_polygons("ii", 
+              palette = c("#E6F4FA","green2","#c9e3d2", "#E1ECBB",
+                          "#E5D96E", "#ec9a64","#d21b1c"),
+              title = "Local Moran's I",
+              midpoint = NA) +
+  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+# p-values (red, orange, yellow, green)
+conspiracy_p_values <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(conspiracy_cases_sig) +
+  tm_polygons("p_ii_sim", 
+              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
+              title = "p-value",
+              midpoint = NA) +
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(conspiracy_moran_i, conspiracy_p_values, asp=1, ncol=2)
+```
+
+![](images/clipboard-4112380333.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Codes to plot map for statistically significant Moran's I values
+conspiracy_cases_sig <- conspiracy_cases_sig %>%
+  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
+
+tm_shape(conspiracy_cases) +
+  tm_polygons(id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  tm_shape(conspiracy_cases_sig) +
+  tm_fill("ii", 
+          palette = c("#c9e3d2", "#E1ECBB", "#E5D96E", 
+                        "#ec9a64", "orangered", "#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("ii_rounded", 
+          size = 0.4, 
+          col = "white",
+          bg.color = "black",
+          bg.alpha = 0.6,  
+          auto.placement = TRUE, 
+          just = "right",  
+          id = "province_en") + 
+
+  # Adding layout elements for map styling
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Conspiracy Cases in Study Area",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
+            frame = TRUE) +
+
+  # Adding a compass for orientation
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+
+  # Adding a scale bar for map accuracy
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+
+  # Adding grid with transparency
+  tm_grid(labels.size = 0.6, alpha = 0.1)
+```
+
+![](images/clipboard-3000597324.png)
+
+::: {.callout-tip title="Observations"}
+**Observations of statistically significant values**
+
+Cases where individuals conspire to commit drug-related offenses produces a wider spread of statistically significant observations. In North-Western Thailand, provinces like Chang Mai, Lampang and Phayao **(green)** showed **slightly higher** number of conspiracy cases than its neighbours, with **little spatial dependence** on its neighbouring provinces.
+
+On the other hand, provinces like Bangkok and Samut Prakan **(orange & red)** were found adjacent to each other and displayed **high spatial dependence** with its neighbours where both provinces are part of clusters with **similarly high** number of such conspiracy drug cases. What's interesting is these provinces are **situated beside** provinces which displayed **low spatiald dependence**, e.g. Nonthaburi, Pathum Thani and Chacheongsao **(light green)**.
+
+This reflects **spatial heterogeneity**, where we have areas of intense clustering of high drug cases **(orange & red)** adjacent to areas of intense clustering of low values. **(light green)**
 :::
 
 [Continue to Part 2 \>](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02_Part2)

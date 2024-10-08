@@ -29,228 +29,6 @@ load("spacetime_cube.RData")
 load("lisa.RData")
 ```
 
-##### **4) Case Type: Import and Export**
-
-```{r}
-#| eval: false
-#| code-fold: true
-#| code-summary: Plot Moran's I and P-values
-# Moran I's (blue, green, yellow, orange, red)
-import_export_moran_i <- tm_shape(import_export_cases) +
-  tm_polygons("ii", 
-              palette = c("#E6F4FA","#c9e3d2",
-                          "#E5D96E", "#ec9a64", "#d21b1c"),
-              title = "Local Moran's I",
-              midpoint = NA) +
-  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Import & Export)",
-            main.title.position = "center",
-            main.title.size = 0.7,
-            main.title.fontface = "bold",
-            legend.title.size = 0.6,
-            legend.text.size = 0.6,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.2)
-
-# p-values (red, orange, yellow, green)
-import_export_p_values <- tm_shape(thai_boundary)+
-  tm_polygons() +
-  tm_borders(col = "black", alpha = 0.6)+
-  tm_shape(import_export_cases_sig) +
-  tm_polygons("p_ii_sim", 
-              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
-              title = "p-value",
-              midpoint = NA) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Import & Export)",
-            main.title.position = "center",
-            main.title.size = 0.7,
-            main.title.fontface = "bold",
-            legend.title.size = 0.6,
-            legend.text.size = 0.6,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.2)
-
-tmap_arrange(import_export_moran_i, import_export_p_values, asp=1, ncol=2)
-```
-
-![](images/clipboard-1020581922.png)
-
-```{r}
-#| eval: false
-#| code-fold: true
-#| code-summary: Codes to plot map for statistically significant Moran's I values
-import_export_cases_sig <- import_export_cases_sig %>%
-  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
-
-tm_shape(import_export_cases) +
-  tm_polygons(id = "label") +
-  tm_borders(col = "black", alpha = 0.6) +
-
-  tm_shape(import_export_cases_sig) +
-  tm_fill("ii", 
-          palette = c("#E4F1EB","#E5D96E","#ec9a64","#d21b1c"),
-          title = "Local Moran's I (p < 0.05)",
-          midpoint = NA,
-          id = "label") +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_text("ii_rounded", 
-          size = 0.4, 
-          col = "white",
-          bg.color = "black",
-          bg.alpha = 0.6,  
-          just = "right",  
-          id = "province_en") + 
-
-  # Adding layout elements for map styling
-  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Import & Export Cases in Study Area",
-            main.title.position = "center",
-            main.title.size = 0.7,
-            main.title.fontface = "bold",
-            legend.title.size = 0.6,
-            legend.text.size = 0.6,
-            legend.hist.size = 0.6,
-            legend.position = c("right","bottom"),
-            asp = 1.1,
-            frame = TRUE) +
-
-  # Adding a compass for orientation
-  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-
-  # Adding a scale bar for map accuracy
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-
-  # Adding grid with transparency
-  tm_grid(labels.size = 0.6, alpha = 0.1)
-```
-
-![](images/clipboard-4029994052.png)
-
-::: {.callout-tip title="Observations"}
-**Observations of statistically significant values**
-
-We can observe another interesting occurrence of two provinces, Satun **(red)** and Phatthalung **(blue)** being geographically close, but showing very different importing and exporting of drug patterns where the former has a **high positive** *Moran I's value* **(6 to 8)** while the latter has a **negative** observation **(-2 to 0)**. This contrast highlights a spatial disparity where one province (Phatthalung) has significantly fewer import/export of drugs, while its neighbour (Satun) is part of a import/export drug hotspot.
-:::
-
-##### **5) Case Type: Conspiracy**
-
-```{r}
-#| eval: false
-#| code-fold: true
-#| code-summary: Plot Moran's I and P-values
-
-tmap_mode("plot")
-# Moran I's (blue, green, light yellow, yellow, orange, orangered, red)
-conspiracy_moran_i <- tm_shape(conspiracy_cases) +
-  tm_polygons("ii", 
-              palette = c("#E6F4FA","green2","#c9e3d2", "#E1ECBB",
-                          "#E5D96E", "#ec9a64","#d21b1c"),
-              title = "Local Moran's I",
-              midpoint = NA) +
-  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Conspiracy)",
-            main.title.position = "center",
-            main.title.size = 0.7,
-            main.title.fontface = "bold",
-            legend.title.size = 0.6,
-            legend.text.size = 0.6,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.2)
-
-# p-values (red, orange, yellow, green)
-conspiracy_p_values <- tm_shape(thai_boundary)+
-  tm_polygons() +
-  tm_borders(col = "black", alpha = 0.6)+
-  tm_shape(conspiracy_cases_sig) +
-  tm_polygons("p_ii_sim", 
-              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
-              title = "p-value",
-              midpoint = NA) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Conspiracy)",
-            main.title.position = "center",
-            main.title.size = 0.7,
-            main.title.fontface = "bold",
-            legend.title.size = 0.6,
-            legend.text.size = 0.6,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
-  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.2)
-
-tmap_arrange(conspiracy_moran_i, conspiracy_p_values, asp=1, ncol=2)
-```
-
-![](images/clipboard-4112380333.png)
-
-```{r}
-#| eval: false
-#| code-fold: true
-#| code-summary: Codes to plot map for statistically significant Moran's I values
-conspiracy_cases_sig <- conspiracy_cases_sig %>%
-  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
-
-tm_shape(conspiracy_cases) +
-  tm_polygons(id = "label") +
-  tm_borders(col = "black", alpha = 0.6) +
-
-  tm_shape(conspiracy_cases_sig) +
-  tm_fill("ii", 
-          palette = c("#c9e3d2", "#E1ECBB", "#E5D96E", 
-                        "#ec9a64", "orangered", "#d21b1c"),
-          title = "Local Moran's I (p < 0.05)",
-          midpoint = NA,
-          id = "label") +
-  tm_borders(col = "black", alpha = 0.6) +
-  tm_text("ii_rounded", 
-          size = 0.4, 
-          col = "white",
-          bg.color = "black",
-          bg.alpha = 0.6,  
-          auto.placement = TRUE, 
-          just = "right",  
-          id = "province_en") + 
-
-  # Adding layout elements for map styling
-  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Conspiracy Cases in Study Area",
-            main.title.position = "center",
-            main.title.size = 0.7,
-            main.title.fontface = "bold",
-            legend.title.size = 0.6,
-            legend.text.size = 0.6,
-            legend.hist.size = 0.6,
-            legend.position = c("right","bottom"),
-            asp = 1.1,
-            frame = TRUE) +
-
-  # Adding a compass for orientation
-  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-
-  # Adding a scale bar for map accuracy
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-
-  # Adding grid with transparency
-  tm_grid(labels.size = 0.6, alpha = 0.1)
-```
-
-![](images/clipboard-3000597324.png)
-
-::: {.callout-tip title="Observations"}
-**Observations of statistically significant values**
-
-Cases where individuals conspire to commit drug-related offenses produces a wider spread of statistically significant observations. In North-Western Thailand, provinces like Chang Mai, Lampang and Phayao **(green)** showed **slightly higher** number of conspiracy cases than its neighbours, with **little spatial dependence** on its neighbouring provinces.
-
-On the other hand, provinces like Bangkok and Samut Prakan **(orange & red)** were found adjacent to each other and displayed **high spatial dependence** with its neighbours where both provinces are part of clusters with **similarly high** number of such conspiracy drug cases. What's interesting is these provinces are **situated beside** provinces which displayed **low spatiald dependence**, e.g. Nonthaburi, Pathum Thani and Chacheongsao **(light green)**.
-
-This reflects **spatial heterogeneity**, where we have areas of intense clustering of high drug cases **(orange & red)** adjacent to areas of intense clustering of low values. **(light green)**
-:::
-
 ### 8.2 LISA Classification Categories
 
 A LISA (Local Indicators of Spatial Association) map is a visualisation tool suitable for our spatial analysis in illustrating the results of Local Moran's I. By doing so, we can identify spatial patterns, clusters, and outliers in the Thailand drug cases dataset by mapping the local statistics for each province.
@@ -346,8 +124,7 @@ Next, let's plot an animated version of the map to visualise changes in LISA cat
 
 ```{r}
 #| eval: false
-#| code-fold: true
-#| code-summary: Prepare GIFs of LISA maps by fiscal year
+# Prepare GIFs of LISA maps by fiscal year
 thailand_nb_q <- st_contiguity(drug_cases_province_year$geometry, queen=TRUE)
 thailand_wt <- st_weights(thailand_nb_q, style = "W", allow_zero = TRUE)
 wm_q <- drug_cases_province_year %>%
@@ -383,11 +160,12 @@ for (year in unique(lisa_by_year$fiscal_year)) {
                   legend.hist.z = 0.1) +
       tm_layout(main.title = paste("Overall LISA Map of Drug Cases in Thailand -", year),
                 main.title.position = "center",
-                main.title.size = 0.7,
+                main.title.size = 0.9,
                 main.title.fontface = "bold",
-                legend.title.size = 0.6,
-                legend.text.size = 0.6,
-                legend.hist.size = 0.4,
+                legend.title.size = 0.9,
+                legend.text.size = 0.7,
+                legend.hist.size = 0.7,
+                asp = 1.1,
                 frame = TRUE) +
       tm_borders(col = "black", alpha = 0.6) +
       tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
@@ -415,11 +193,11 @@ for (year in unique(lisa_by_year$fiscal_year)) {
                   legend.hist.z = 0.1) +
       tm_layout(main.title = paste("Significant LISA Map of Drug Cases in Thailand -", year),
                 main.title.position = "center",
-                main.title.size = 0.8,
+                main.title.size = 0.9,
                 main.title.fontface = "bold",
-                legend.title.size = 0.8,
-                legend.text.size = 0.8,
-                legend.hist.size = 0.6,
+                legend.title.size = 0.9,
+                legend.text.size = 0.7,
+                legend.hist.size = 0.7,
                 asp = 1.1,
                 frame = TRUE) +
       tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
@@ -436,7 +214,7 @@ temporal_cat_maps <- lisa_cat_list[!sapply(lisa_cat_list, is.null)]  # Remove NU
 
 # Create animated GIF for overall LISA classification
 if (length(temporal_cat_maps) > 0) {
-  tmap_animation(temporal_cat_maps, filename = "data/Overall_LISA_by_year.gif", delay = 150, width = 1090, height = 674)
+  tmap_animation(temporal_cat_maps, filename = "images/Overall_LISA_by_year.gif", delay = 150, width = 1090, height = 674)
 } else {
   stop("No overall LISA maps found for animation.")
 }
@@ -446,13 +224,13 @@ temporal_sig_maps <- lisa_sig_list[!sapply(lisa_sig_list, is.null)]
 
 # Create animated GIF for significant LISA classification
 if (length(temporal_sig_maps) > 0) {
-  tmap_animation(temporal_sig_maps, filename = "data/Significant_LISA_by_year.gif", delay = 150, width = 1090, height = 674)
+  tmap_animation(temporal_sig_maps, filename = "images/Significant_LISA_by_year.gif", delay = 150, width = 1090, height = 674)
 } else {
   stop("No significant LISA maps found for animation.")
 }
 ```
 
-![](images/Overall_LISA_by_year.gif){fig-align="center" width="400"}
+![](images/Overall_LISA_by_year.gif){fig-align="center" width="1093"}
 
 ::: {.callout-tip title="Observations"}
 Since 2017, provinces across Thailand have experienced a rise in drug activity where drug cases tend to **"spill-over"** into neighbouring provinces. Once a province is shown to display high number of drug cases **(i.e. high-high or high-low)**, its neighbours also become regions with heightened drug activities.
@@ -462,7 +240,7 @@ Likewise, from 2020 to 2021, we see many **low-high** provinces **(green)** deve
 Interestingly, from 2021 to 2022, several provinces that displayed **high-high** (red) has transitioned into **low-high (green)** which indicates a slow down in drug activities in these regions despite its neighbours exhibiting high number of cases.
 :::
 
-![](images/Significant_LISA_by_year.gif){fig-align="center" width="400"}
+![](images/Significant_LISA_by_year.gif){fig-align="center" width="1093"}
 
 ::: {.callout-tip title="Observations"}
 When it comes to statistically significant local *Moran I's* values, from 2017 to 2022, many **low-low** provinces that were surrounded by **high-low** and **high-high** LISA observations experienced a **"spill-over"** of drug cases into these provinces with low number of drug cases. Provinces that had **low-low** cases continued to exhibit clusters of low number of drug cases.
@@ -2667,14 +2445,20 @@ th60_coldspot_data %>%
 
 ### 9.6 Performing Emerging Hot Spot Analysis
 
-Lastly, we will perform EHSA analysis by using [`emerging_hotspot_analysis()`](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html) of the sfdep package. **Note that this is NOT recommended** since our dataset does not meet the **minimum** **10 years** of data as it requires a longer temporal span to establisih more meaningful trends. This attempt in performing EHSA using spacetime cubes in this exercise is solely for the **purposes of practising** different spatio-temporal approaches.
+Lastly, we will perform EHSA analysis by using [`emerging_hotspot_analysis()`](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html) of the sfdep package.
 
-I will utilise the spacetime object `drug_cases_spt`, and the name of the variable of interest `total_cases` for the.var argument. The k argument is used to specify the number of time lags which is set to 1 by default. Finally, `nsim` map numbers of simulation to be performed.
+::: callout-note
+**Please note** thatfor the case of our dataset that spreads across 6 years only, **performing EHSA is NOT recommended** since our dataset does not meet the **minimum** **period requirement** of the `emerging_hotspot_analysis()` function of **minimally 10 periodic intervals** in the historical data.
+
+Additionally, most literature, such as Edzer Pebesma (2012) and Skochko S et al. (2024), would suggest to keep the length of period at 10-12 intervals, since a longer temporal span can establish more meaningful trends over time. This attempt in performing EHSA using spacetime cubes in this exercise is solely for the **purposes of attempting** different spatio-temporal app
+:::
+
+With that said, I will utilise the spacetime object `drug_cases_spt`, and the name of the variable of interest `total_cases` for the.var argument. The k argument is used to specify the number of time lags which is set to 1 by default. Finally, `nsim` map numbers of simulation to be performed.
 
 The method classifies locations into different categories, such as:
 
 | Pattern Type              | Definition                                                                                                                                                                                                                                                                                                                 |
-|----------------|--------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | **No Pattern Detected**   | Does not fall into any of the hot or cold spot patterns defined below.                                                                                                                                                                                                                                                     |
 | **Sporadic Hot Spo**t     | A statistically significant hot spot for the final time-step interval with a history of also being an on-again and off-again hot spot. Less than 90 percent of the time-step intervals have been statistically significant hot spots and none of the time-step intervals have been statistically cold spots.               |
 | **Sporadic Cold Spot**    | A statistically significant cold spot for the final time-step interval with a history of also being an on-again and off-again cold spot. Less than 90 percent of the time-step intervals have been statistically significant cold spots and none of the time-step intervals have been statistically significant hot spots. |
@@ -2803,4 +2587,5 @@ With that said, I would like to extend my gratitude to **Prof. Kam Tin Seong** f
 6.  Parry, J., & Locke, D. H. (n.d.). The Basics of sfdep. Retrieved September 26, 2024, from <https://sfdep.josiahparry.com/articles/basics-of-sfdep> 
 7.  Parry, J., & Locke, D. H. (n.d.). Spacetime and spacetime cubes • sfdep. sfdep. Retrieved October 6, 2024, from <https://sfdep.josiahparry.com/articles/spacetime-s3.html> 
 8.  Peay, A. (n.d.). Spatial Regression Analysis Advanced Data Analytics. chrismgentry.github.io. <https://chrismgentry.github.io/Spatial-Regression/> 
-9.  vsp.pnnl.gov. (n.d.). Mann-Kendall Test For Monotonic Trend. Design Trend Mann-Kendall. Retrieved October 6, 2024, from <https://vsp.pnnl.gov/help/vsample/design_trend_mann_kendall.htm> 
+9.  Skochko, S. (2024, September 5). Asthma Hot Spots in New York Before and During the COVID-19 Pandemic. CDC. Retrieved October 8, 2024, from <https://www.cdc.gov/pcd/issues/2024/24_0059.htm>
+10. vsp.pnnl.gov. (n.d.). Mann-Kendall Test For Monotonic Trend. Design Trend Mann-Kendall. Retrieved October 6, 2024, from <https://vsp.pnnl.gov/help/vsample/design_trend_mann_kendall.htm> 
