@@ -1,0 +1,2804 @@
+---
+title: "Take-home Exercise 2 - Part 2"
+subtitle: "Harnessing Geospatial Methods to Analyse Drug Abuse Patterns in Thailand"
+author: "Foo Jia Yi Samantha"
+date-modified: 10/13/2024
+date: 10/13/2024
+format: 
+  html:
+    toc-depth: 5
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+[\< Back to Part 1](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02)
+
+```{r}
+pacman::p_load(sf, st, tidyverse, lubridate, sfdep, tmap, ggplot2, knitr, Kendall)
+```
+
+```{r}
+#| include: false
+# Load the file from the 'data' folder
+load("drug_cases_data.RData")
+load("thai_boundary.RData")
+load("HCSA_data.RData")
+load("spacetime_cube.RData")
+load("lisa.RData")
+```
+
+##### **4) Case Type: Import and Export**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot Moran's I and P-values
+# Moran I's (blue, green, yellow, orange, red)
+import_export_moran_i <- tm_shape(import_export_cases) +
+  tm_polygons("ii", 
+              palette = c("#E6F4FA","#c9e3d2",
+                          "#E5D96E", "#ec9a64", "#d21b1c"),
+              title = "Local Moran's I",
+              midpoint = NA) +
+  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Import & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+# p-values (red, orange, yellow, green)
+import_export_p_values <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(import_export_cases_sig) +
+  tm_polygons("p_ii_sim", 
+              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
+              title = "p-value",
+              midpoint = NA) +
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Import & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(import_export_moran_i, import_export_p_values, asp=1, ncol=2)
+```
+
+![](images/clipboard-1020581922.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Codes to plot map for statistically significant Moran's I values
+import_export_cases_sig <- import_export_cases_sig %>%
+  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
+
+tm_shape(import_export_cases) +
+  tm_polygons(id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  tm_shape(import_export_cases_sig) +
+  tm_fill("ii", 
+          palette = c("#E4F1EB","#E5D96E","#ec9a64","#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("ii_rounded", 
+          size = 0.4, 
+          col = "white",
+          bg.color = "black",
+          bg.alpha = 0.6,  
+          just = "right",  
+          id = "province_en") + 
+
+  # Adding layout elements for map styling
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Import & Export Cases in Study Area",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
+            frame = TRUE) +
+
+  # Adding a compass for orientation
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+
+  # Adding a scale bar for map accuracy
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+
+  # Adding grid with transparency
+  tm_grid(labels.size = 0.6, alpha = 0.1)
+```
+
+![](images/clipboard-4029994052.png)
+
+::: {.callout-tip title="Observations"}
+**Observations of statistically significant values**
+
+We can observe another interesting occurrence of two provinces, Satun **(red)** and Phatthalung **(blue)** being geographically close, but showing very different importing and exporting of drug patterns where the former has a **high positive** *Moran I's value* **(6 to 8)** while the latter has a **negative** observation **(-2 to 0)**. This contrast highlights a spatial disparity where one province (Phatthalung) has significantly fewer import/export of drugs, while its neighbour (Satun) is part of a import/export drug hotspot.
+:::
+
+##### **5) Case Type: Conspiracy**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot Moran's I and P-values
+
+tmap_mode("plot")
+# Moran I's (blue, green, light yellow, yellow, orange, orangered, red)
+conspiracy_moran_i <- tm_shape(conspiracy_cases) +
+  tm_polygons("ii", 
+              palette = c("#E6F4FA","green2","#c9e3d2", "#E1ECBB",
+                          "#E5D96E", "#ec9a64","#d21b1c"),
+              title = "Local Moran's I",
+              midpoint = NA) +
+  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+# p-values (red, orange, yellow, green)
+conspiracy_p_values <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(conspiracy_cases_sig) +
+  tm_polygons("p_ii_sim", 
+              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
+              title = "p-value",
+              midpoint = NA) +
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(conspiracy_moran_i, conspiracy_p_values, asp=1, ncol=2)
+```
+
+![](images/clipboard-4112380333.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Codes to plot map for statistically significant Moran's I values
+conspiracy_cases_sig <- conspiracy_cases_sig %>%
+  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
+
+tm_shape(conspiracy_cases) +
+  tm_polygons(id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  tm_shape(conspiracy_cases_sig) +
+  tm_fill("ii", 
+          palette = c("#c9e3d2", "#E1ECBB", "#E5D96E", 
+                        "#ec9a64", "orangered", "#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("ii_rounded", 
+          size = 0.4, 
+          col = "white",
+          bg.color = "black",
+          bg.alpha = 0.6,  
+          auto.placement = TRUE, 
+          just = "right",  
+          id = "province_en") + 
+
+  # Adding layout elements for map styling
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Conspiracy Cases in Study Area",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
+            frame = TRUE) +
+
+  # Adding a compass for orientation
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+
+  # Adding a scale bar for map accuracy
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+
+  # Adding grid with transparency
+  tm_grid(labels.size = 0.6, alpha = 0.1)
+```
+
+![](images/clipboard-3000597324.png)
+
+::: {.callout-tip title="Observations"}
+**Observations of statistically significant values**
+
+Cases where individuals conspire to commit drug-related offenses produces a wider spread of statistically significant observations. In North-Western Thailand, provinces like Chang Mai, Lampang and Phayao **(green)** showed **slightly higher** number of conspiracy cases than its neighbours, with **little spatial dependence** on its neighbouring provinces.
+
+On the other hand, provinces like Bangkok and Samut Prakan **(orange & red)** were found adjacent to each other and displayed **high spatial dependence** with its neighbours where both provinces are part of clusters with **similarly high** number of such conspiracy drug cases. What's interesting is these provinces are **situated beside** provinces which displayed **low spatiald dependence**, e.g. Nonthaburi, Pathum Thani and Chacheongsao **(light green)**.
+
+This reflects **spatial heterogeneity**, where we have areas of intense clustering of high drug cases **(orange & red)** adjacent to areas of intense clustering of low values. **(light green)**
+:::
+
+### 8.2 LISA Classification Categories
+
+A LISA (Local Indicators of Spatial Association) map is a visualisation tool suitable for our spatial analysis in illustrating the results of Local Moran's I. By doing so, we can identify spatial patterns, clusters, and outliers in the Thailand drug cases dataset by mapping the local statistics for each province.
+
+> **These are the key components of the LISA maps we will plot:**
+>
+> -   **High-High (HH)**: Areas with high no. of drug cases surrounded by other high values (hotspots).
+>
+> -   **Low-Low (LL)**: Areas with low no. of drug cases surrounded by other low values (cold spots).
+>
+> -   **High-Low (HL)**: Areas with high no. of drug cases surrounded by low values (outliers).
+>
+> -   **Low-High (LH)**: Areas with low no. of drug cases surrounded by high values (outliers).
+
+### 8.3 Visualising Overall LISA of Thailand Study Area
+
+```{r}
+# Let's inspect the 'mean' column
+summary(lisa$mean)
+```
+
+To plot our LISA classifications across provinces in Thailand, we'll leverage the `mean` category of the output of our `lisa` calculations, used as a reference point to determine if individual provinces have higher or lower values compared to this average. This provides a baseline for detecting these **spatial clusters** and **outliers** in the dataset based on the categories mentioned above.
+
+```{r}
+#| eval: false
+lisa_sig <- lisa  %>%
+  filter(p_ii_sim < 0.05)
+
+lisa_cat <- tm_shape(lisa) +
+  tm_polygons("mean", 
+          # blue, orange, green, red
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Overall LISA Spatial Autocorrelation\n of Drug Cases in Study Area (Thailand)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+lisa_cat_sig <- tm_shape(lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(lisa_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Statistical Signifant LISA Map of\nDrug Cases in Study Area (Thailand)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(lisa_cat, lisa_cat_sig, asp=1, ncol=2)
+```
+
+![](images/clipboard-3842221523.png)
+
+::: {.callout-tip title="Observations"}
+**Statistically significant LISA classification**
+
+Across all drug cases in Thailand, we tend to observe **strong** **spatial dependence** of provinces, i.e. **low-low** and **high-high** spatial autocorrelation, where they display similar number of drug cases with its neighbours clustered together.
+
+Low-low LISA clusters **(blue)** found in the western regions of Thailand indicate low number of drug activities surrounded by neighbours with similarly low values. On the other hand, high-high LISA clusters **(red)** can be found in the **lower central** region of Thailand with high drug cases in these provinces and its neighbours.
+
+This indicates that **high drug activity is geographically concentrated** where neighbouring provinces influence each other. In this study, **high-low** and **low-high** outliers might be more interesting as a study, so let's move on with further analysis.
+:::
+
+### 8.4 Visualising LISA of Thailand Study Area by *Fiscal Year*
+
+Next, let's plot an animated version of the map to visualise changes in LISA categorisation of drug cases by the year, namely between 2017 to 2022.
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Prepare GIFs of LISA maps by fiscal year
+thailand_nb_q <- st_contiguity(drug_cases_province_year$geometry, queen=TRUE)
+thailand_wt <- st_weights(thailand_nb_q, style = "W", allow_zero = TRUE)
+wm_q <- drug_cases_province_year %>%
+  mutate(nb = thailand_nb_q,
+         wt = thailand_wt,
+         .before = 1) 
+lisa_by_year <- wm_q %>% 
+  mutate(local_moran = local_moran(total_cases, nb, wt, 
+                                   zero.policy = TRUE, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_by_year_sig <- lisa_by_year  %>%
+  filter(p_ii_sim < 0.05)
+
+# Prepare lists for storing significant and overall LISA maps
+lisa_cat_list <- list()
+lisa_sig_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(lisa_by_year$fiscal_year)) {
+  # Filter the data for the current year for overall LISA
+  year_data_cat <- lisa_by_year %>% filter(fiscal_year == year)
+  
+  # Create the overall LISA map
+  if (nrow(year_data_cat) > 0) {
+    lisa_cat_map <- tm_shape(year_data_cat) +
+      tm_polygons("mean", 
+                  palette = c("lightblue1", "#ec9a64", "lightgreen", "#d21b1c"),
+                  title = "Overall LISA Classification",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Overall LISA Map of Drug Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 0.7,
+                main.title.fontface = "bold",
+                legend.title.size = 0.6,
+                legend.text.size = 0.6,
+                legend.hist.size = 0.4,
+                frame = TRUE) +
+      tm_borders(col = "black", alpha = 0.6) +
+      tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+      tm_grid(alpha = 0.2)
+
+    # Store the overall LISA map in the list
+    lisa_cat_list[[year]] <- lisa_cat_map
+  }
+
+  # Filter the data for the current year for significant LISA
+  year_data_sig <- lisa_by_year_sig %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data_sig) > 0) {
+    lisa_sig_map <- tm_shape(thai_boundary) +  # Use the Thailand boundary
+      tm_borders(col = "black", lwd = 1) +  # Outline for the boundary
+      tm_shape(year_data_sig) +  # Add significant LISA data
+      tm_polygons("mean", 
+                  palette = c("lightblue1", "#ec9a64", "lightgreen", "#d21b1c"),
+                  title = "Significant LISA Classification",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Significant LISA Map of Drug Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 0.8,
+                main.title.fontface = "bold",
+                legend.title.size = 0.8,
+                legend.text.size = 0.8,
+                legend.hist.size = 0.6,
+                asp = 1.1,
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant LISA map in the list
+    lisa_sig_list[[year]] <- lisa_sig_map
+  }
+}
+
+# Combine the overall LISA maps for animation
+temporal_cat_maps <- lisa_cat_list[!sapply(lisa_cat_list, is.null)]  # Remove NULL entries if any
+
+# Create animated GIF for overall LISA classification
+if (length(temporal_cat_maps) > 0) {
+  tmap_animation(temporal_cat_maps, filename = "data/Overall_LISA_by_year.gif", delay = 150, width = 1090, height = 674)
+} else {
+  stop("No overall LISA maps found for animation.")
+}
+
+# Combine the significant LISA maps for animation
+temporal_sig_maps <- lisa_sig_list[!sapply(lisa_sig_list, is.null)]
+
+# Create animated GIF for significant LISA classification
+if (length(temporal_sig_maps) > 0) {
+  tmap_animation(temporal_sig_maps, filename = "data/Significant_LISA_by_year.gif", delay = 150, width = 1090, height = 674)
+} else {
+  stop("No significant LISA maps found for animation.")
+}
+```
+
+![](images/Overall_LISA_by_year.gif){fig-align="center" width="400"}
+
+::: {.callout-tip title="Observations"}
+Since 2017, provinces across Thailand have experienced a rise in drug activity where drug cases tend to **"spill-over"** into neighbouring provinces. Once a province is shown to display high number of drug cases **(i.e. high-high or high-low)**, its neighbours also become regions with heightened drug activities.
+
+Likewise, from 2020 to 2021, we see many **low-high** provinces **(green)** develop into **high-high** provinces since there is tendency for these provinces to become influenced by their neighbours with high drug activities.
+
+Interestingly, from 2021 to 2022, several provinces that displayed **high-high** (red) has transitioned into **low-high (green)** which indicates a slow down in drug activities in these regions despite its neighbours exhibiting high number of cases.
+:::
+
+![](images/Significant_LISA_by_year.gif){fig-align="center" width="400"}
+
+::: {.callout-tip title="Observations"}
+When it comes to statistically significant local *Moran I's* values, from 2017 to 2022, many **low-low** provinces that were surrounded by **high-low** and **high-high** LISA observations experienced a **"spill-over"** of drug cases into these provinces with low number of drug cases. Provinces that had **low-low** cases continued to exhibit clusters of low number of drug cases.
+
+Interestingly, there are provinces that developed from a **high-low** outlier to **low-high** outlier - in west Thailand (2018-2022) and north of Thailand (2021-2022). Over time, these provinces showed **improvements in local conditions** of drug activities that were once hotspots. At the same time, neighbouring provinces that once had low values **experienced a diffusion of drug cases** from the previously high isolated number of cases.
+:::
+
+### 8.5 Visualising LISA of Thailand Study Area by *Drug Case Type*
+
+Previously, we categorised the Thailand drug cases dataset by **drug case type**. To present another side of the LISA categories, let's break it down by drug case types and seek to identify more interesting cluster and outlier spatial patterns.
+
+```{r}
+#| eval: false
+# Prepare Moran I's calculations by province and year
+compute_morans_I_year <- function(filtered_data) {
+  thailand_nb_q <- st_contiguity(filtered_data$geometry, queen = TRUE)
+  thailand_wt <- st_weights(thailand_nb_q, style = "W", allow_zero = TRUE)
+  
+  filtered_data <- filtered_data %>%
+    mutate(nb = thailand_nb_q, wt = thailand_wt) %>%
+    mutate(local_moran = local_moran(total_cases, nb, wt, 
+                                     zero.policy = TRUE,
+                                     nsim = 99)) %>%
+    unnest(local_moran)
+  
+  return(filtered_data)
+}
+
+# Function to group data by province, fiscal year, and compute Moran's I
+compute_drug_cases_moran_year <- function(drug_cases, offense_types) {
+  filtered_data <- drug_cases %>%
+    filter(types_of_drug_offenses %in% offense_types) %>%
+    group_by(province_en, fiscal_year) %>%
+    summarise(
+      total_cases = sum(no_cases),
+      ADM1_PCODE = first(ADM1_PCODE),
+      geometry = first(geometry),
+      .groups = "drop"
+    ) %>%
+    st_as_sf() %>%
+    compute_morans_I_year()
+  
+  return(filtered_data)
+}
+
+# Function for filtering significant cases by year
+significant_cases_year <- function(data) {
+  data %>%
+    filter(p_ii_sim < 0.05) %>% 
+    mutate(label = paste(ADM1_PCODE, province_en))
+}
+
+# Specify the offense types for each category and compute Moran's I by year
+drug_use_cases_year <- compute_drug_cases_moran_year(
+  drug_cases,
+  c("drug_use_cases", "suspects_in_drug_use_cases")
+)
+
+possession_cases_year <- compute_drug_cases_moran_year(
+  drug_cases,
+  c("possession_cases", "suspects_in_possession_cases", 
+    "possession_with_intent_to_distribute_cases", 
+    "suspects_in_possession_with_intent_to_distribute_cases")
+)
+
+trafficking_cases_year <- compute_drug_cases_moran_year(
+  drug_cases,
+  c("trafficking_cases", "suspects_in_trafficking_cases")
+)
+
+import_export_cases_year <- compute_drug_cases_moran_year(
+  drug_cases,
+  c("import_cases", "suspects_in_import_cases", 
+    "export_cases", "suspects_in_export_cases")
+)
+
+conspiracy_cases_year <- compute_drug_cases_moran_year(
+  drug_cases,
+  c("conspiracy_cases", "suspects_in_conspiracy_cases")
+)
+
+# Filter significant cases for each offense type and fiscal year
+drug_use_cases_sig_year <- significant_cases_year(drug_use_cases_year)
+possession_cases_sig_year <- significant_cases_year(possession_cases_year)
+trafficking_cases_sig_year <- significant_cases_year(trafficking_cases_year)
+import_export_cases_sig_year <- significant_cases_year(import_export_cases_year)
+conspiracy_cases_sig_year <- significant_cases_year(conspiracy_cases_year)
+```
+
+##### **1) Case Type: Drug Use**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Code to visualise LISA categories
+drug_use_lisa_cat <- tm_shape(drug_use_cases) +
+  tm_polygons("mean", 
+          # blue, orange, green, red
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"), 
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Overall LISA Spatial Autocorrelation\n of Drug Cases in Thailand (Drug Use)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+drug_use_lisa_cat_sig <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(drug_use_cases_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Statistical Signifant LISA Map of\nDrug Cases in Thailand (Drug Use)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(drug_use_lisa_cat, drug_use_lisa_cat_sig, asp=1, ncol=2)
+```
+
+![](images/clipboard-3076002639.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly drug use cases
+library(dplyr)
+library(tmap)
+library(sf)
+
+tmap_mode("plot")
+drug_use_sig_maps_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(drug_use_cases_sig_year$fiscal_year)) {
+  # Filter the data for the current year for significant drug use cases
+  year_data_sig <- drug_use_cases_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data_sig) > 0) {
+    drug_use_sig_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_shape(year_data_sig) + 
+      tm_polygons("mean", 
+                  palette = c("lightblue1", "#ec9a64", "lightgreen", "#d21b1c"),
+                  title = "Significant LISA Classification",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Significant LISA Map of Drug Use Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    drug_use_sig_maps_list[[year]] <- drug_use_sig_map
+  }
+}
+
+# Remove any NULL entries from the list if no maps were generated for certain years
+temporal_sig_maps <- drug_use_sig_maps_list[!sapply(drug_use_sig_maps_list, is.null)]
+tmap_animation(temporal_sig_maps, filename = "images/Drug_Use_LISA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/Drug_Use_LISA_Year.gif){fig-align="center" width="500"}
+
+::: {.callout-tip title="Observations"}
+**Observations of Western Thailand**
+
+In Western Thailand, there is a persistence of **low-high** spatial outliers **(green)** in which low number of drug use cases continues to be low, both locally and in its surrounding neighbours from 2017 to 2022. Interestingly, a single province in the West had experienced increased drug use activity locally from **2018 to** **2019** which developed from a **low-high** **outlier** **(green)** to a **high-low** **outlier** **(orange).**
+
+Despite that, its neighbours (low-high) continue to remain **uninfluenced** by the higher occurrence of drug use cases. Hence, indicating **spatial independence** between this province and its neighbours. However, effective interventions via law enforcements and control measures are criticial to **prevent spillover** of cases from surrounding provinces.
+
+**Observations of** **South-Central Thailand**
+
+Looking at southern regions of central Thailand, we can observe a gradual spread of drug use cases in which **high-high (red)** clusters continue to form. Particularly from **2017 to 2021**, we can observe two outlying provinces with **low-high (green)** spatial autocorrelation developing into **high-high** clusters, demonstrating a concerning spread of cases where more provinces had individuals found using drugs illegally.
+
+**Observations of Central Thailand**
+
+Interestingly, a province in central Thailand displayed patterns of fluctuating drug cases. From **2018 to 2019**, there's a temporary sharp increase in drug use-related cases **(high-high)** but becomes a **low-low** clustering case in **2020,** possibly due to the **onset of COVID-19**. From 2020 till 2022, the province returns to its original **high-high** which means high drug use activities has resumed. Hence, intensive localised measures could potentially break the cycle of recurrence of drug use.
+:::
+
+##### **2) Case Type: Possession**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Code to visualise LISA categories
+possession_lisa_cat <- tm_shape(possession_cases) +
+  tm_polygons("mean", 
+          # blue, orange, green, red
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Overall LISA Spatial Autocorrelation\n of Drug Cases in Thailand (Possession)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+possession_lisa_cat_sig <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(possession_cases_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Statistical Signifant LISA Map of\nDrug Cases in Thailand (Possession)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(possession_lisa_cat, possession_lisa_cat_sig, asp=1, ncol=2)
+```
+
+![](images/clipboard-1676418973.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly possession cases
+library(dplyr)
+library(tmap)
+library(sf)
+tmap_mode("plot")
+possession_sig_maps_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(possession_cases_sig_year$fiscal_year)) {
+  # Filter the data for the current year for significant possession cases
+  year_data_sig <- possession_cases_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data_sig) > 0) {
+    possession_sig_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_shape(year_data_sig) + 
+      tm_polygons("mean", 
+                  palette = c("lightblue1", "#ec9a64", "lightgreen", "#d21b1c"),
+                  title = "Significant LISA Classification",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Significant LISA Map of Possession Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    possession_sig_maps_list[[year]] <- possession_sig_map
+  }
+}
+
+# Remove any NULL entries from the list if no maps were generated for certain years
+temporal_sig_maps <- possession_sig_maps_list[!sapply(possession_sig_maps_list, is.null)]
+tmap_animation(temporal_sig_maps, filename = "images/Possession_LISA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/Possession_LISA_Year.gif){fig-align="center" width="500"}
+
+::: {.callout-tip title="Observations"}
+Throughout 2017 to 2022, there has been a stable **low–low** clustering **(blue)** of cases involving the possession of drugs in several central and western provinces. Interestingly, low drug activity **continues to persist locally** and in its neighbours despite the spike in drug possession cases of surrounding **high-low** outliers **(orange)** found around these clusters in 2017 and 2018. However, early interventions of health and law enforcements can be integral for **curbing potential spillover** of drug possessions.
+
+Nonetheless, we see some positive development of **high-high clusters (red)** evolving into **low-high outliers (green),** from 2017 to 2022, in the extreme south of Thailand. However, existing high-high clusters poses a potentially threat of **spreading** the possession of drugs especially if there is **movement of people** from nearby provinces.
+:::
+
+##### **3) Case Type: Trafficking**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Code to visualise LISA categories
+trafficking_lisa_cat <- tm_shape(trafficking_cases) +
+  tm_polygons("mean", 
+          # blue, orange, green, red
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Overall LISA Spatial Autocorrelation\n of Drug Cases in Thailand (Trafficking)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+trafficking_lisa_cat_sig <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(possession_cases_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Statistical Signifant LISA Map of\nDrug Cases in Thailand (Trafficking)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(trafficking_lisa_cat, trafficking_lisa_cat_sig, asp=1, ncol=2)
+```
+
+![](images/clipboard-3333323570.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly trafficking cases
+tmap_mode("plot")
+
+trafficking_sig_maps_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(trafficking_cases_sig_year$fiscal_year)) {
+  # Filter the data for the current year for significant trafficking cases
+  year_data_sig <- trafficking_cases_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data_sig) > 0) {
+    trafficking_sig_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_shape(year_data_sig) + 
+      tm_polygons("mean", 
+                  palette = c("lightblue1", "#ec9a64", "lightgreen", "#d21b1c"),
+                  title = "Significant LISA Classification",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Significant LISA Map of Trafficking Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    trafficking_sig_maps_list[[year]] <- trafficking_sig_map
+  }
+}
+
+# Remove any NULL entries from the list if no maps were generated for certain years
+temporal_sig_maps <- trafficking_sig_maps_list[!sapply(trafficking_sig_maps_list, is.null)]
+tmap_animation(temporal_sig_maps, filename = "images/Trafficking_LISA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/Trafficking_LISA_Year.gif){fig-align="center" width="500"}
+
+::: {.callout-tip title="Observations"}
+Throughout 2017 to 2022, the South of Thailand generally indicated **low-low (blue)** class provinces when it comes to drug trafficking. This means that drug trafficking in Southern provinces is likely more well under control, limiting the rise of **high-low** and **high-high** cases. This could stem from effective public health or law interventions, or other underlying factors, limiting the opportunities for drug trafficking or transmission of drug cases between provinces.
+
+However, there are several **high-high (red)** drug trafficking cases observed in Northen and Eastern parts of Thailand. From 2017 to 2018, a **low-high (green)** class province in North-Western Thailand had evolved into a **high-high** drug trafficking cluster. This happens again from 2018 to 2019 in a province in East Thailand. Hence, this proves great potential for currently low-high value areas to experience an **inflow of drug trafficking cases** and case counts without proper control measures in place.
+:::
+
+##### **4) Case Type: Import and Export**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Code to visualise LISA categories
+import_export_lisa_cat <- tm_shape(import_export_cases) +
+  tm_polygons("mean", 
+          # blue, orange, green, red
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Overall LISA Spatial Autocorrelation\n of Drug Cases in Thailand (Impmort & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+import_export_lisa_cat_sig <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(import_export_cases_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Statistical Signifant LISA Map of\nDrug Cases in Thailand (Import & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(import_export_lisa_cat, import_export_lisa_cat_sig, asp=1, ncol=2)
+```
+
+![](images/clipboard-2663040492.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly import & export cases
+
+tmap_mode("plot")
+import_export_sig_maps_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(import_export_cases_sig_year$fiscal_year)) {
+  # Filter the data for the current year for significant import export cases
+  year_data_sig <- import_export_cases_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data_sig) > 0) {
+    import_export_sig_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_shape(year_data_sig) + 
+      tm_polygons("mean", 
+                  palette = c("lightblue1", "#ec9a64", "lightgreen", "#d21b1c"),
+                  title = "Significant LISA Classification",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Significant LISA Map of Import Export Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    import_export_sig_maps_list[[year]] <- import_export_sig_map
+  }
+}
+
+# Remove any NULL entries from the list if no maps were generated for certain years
+temporal_sig_maps <- import_export_sig_maps_list[!sapply(import_export_sig_maps_list, is.null)]
+tmap_animation(temporal_sig_maps, filename = "images/Import_Export_LISA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/Import_Export_LISA_Year.gif){fig-align="center" width="500"}
+
+::: {.callout-tip title="Observations"}
+Interestingly, **high-low (orange)** and **high-high (red)** import and export cases of drugs tend to occur along the **borders of Thailand** as seen above. This means that provinces located along the coasts of Thailand has a higher tendency of being impacted by high import and export drug activities.
+
+From 2017 to 2022, in the central and western parts of Thailand, we can observe two provinces that displayed **sporadic** patterns where they transform from **low-low (blue)** to **high-low (orange) class**, and then back the **low-low** in the next year. This presents a concerning issue where there is poor control of import and export of drugs in these two provinces.
+
+From 2021 to 2022, several **high-high (red)** province in Southern end of Thailand had evolved into **low-high (green)** outliers, indicating that there is an improvement in the control of drug import and export where these provinces experience a **decline** in such drug activities. However, without sustained control efforts, there is a risk of these **low-high** provinces reverting back to **high drug activity clusters** since **high-high (red)** clusters continue to surround these provinces.
+:::
+
+##### **5) Case Type: Conspiracy**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Code to visualise LISA categories
+conspiracy_lisa_cat <- tm_shape(conspiracy_cases) +
+  tm_polygons("mean", 
+          # blue, orange, green, red
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Overall LISA Spatial Autocorrelation\n of Drug Cases in Thailand (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+conspiracy_lisa_cat_sig <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(conspiracy_cases_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64","lightgreen", "#d21b1c"),
+          title = "LISA Classification",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_layout(main.title = "Statistical Signifant LISA Map of\nDrug Cases in Thailand (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(conspiracy_lisa_cat, conspiracy_lisa_cat_sig, asp=1, ncol=2)
+```
+
+![](images/clipboard-4095362620.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly conspiracy cases
+
+tmap_mode("plot")
+conspiracy_sig_maps_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(conspiracy_cases_sig_year$fiscal_year)) {
+  # Filter the data for the current year for significant conspiracy cases
+  year_data_sig <- conspiracy_cases_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data_sig) > 0) {
+    conspiracy_sig_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_shape(year_data_sig) + 
+      tm_polygons("mean", 
+                  palette = c("lightblue1", "#ec9a64", "lightgreen", "#d21b1c"),
+                  title = "Significant LISA Classification",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Significant LISA Map of Conspiracy Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    conspiracy_sig_maps_list[[year]] <- conspiracy_sig_map
+  }
+}
+
+# Remove any NULL entries from the list if no maps were generated for certain years
+temporal_sig_maps <- conspiracy_sig_maps_list[!sapply(conspiracy_sig_maps_list, is.null)]
+tmap_animation(temporal_sig_maps, filename = "images/Conspiracy_LISA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/Conspiracy_LISA_Year.gif){fig-align="center" width="500"}
+
+::: {.callout-tip title="Observations"}
+Lastly, we see an overall decline in **high-low (orange)** and **high-high (red)** conspiracy-related drug cases in 2021 as ocmpared to previous years. In particular, we see that many of cases where individuals/groups were found scheming to partake in drug offenses has transformed into **low-low (blue)** and **low-high (green)** classes.
+
+This is a positive sign of **better control** over people with an intent to take part in illegal drug activities. However, the persistence of low-high areas highlights the need for **continued vigilance**, particularly in addressing neighbouring provinces with high drug cases to prevent future spillovers and ensure long-term success in controlling drug activity.
+:::
+
+## 9. Emerging Hot Spot Analysis (EHSA)
+
+As mentioned in the Methods Used section, **Emerging Hot Spot Analysis** is a useful technique to identify trends and changes in spatial patterns over time, particularly for identifying evolving intensifying or diminishing clusters (hot spots or cold spots) over time.
+
+The main idea of ESHA is that it integrates the **Getis-Ord Gi\* statistic** to identify hotspots with the **Mann-Kendall test** to assess trends over time. In our study, we will begin by calculating the Getis-Ord Gi\* statistic, followed by the Mann-Kendall trend test. Finally, we will perform the EHSA to complete the analysis.
+
+### **9.1 Local Getis-Ord `Gi*`** for **Hot Spot and Cold Spot Area Analysis (HSCA)**
+
+#### 9.1.1 A Brief Introduction
+
+The concept of hot spot analysis originated in the field of **spatial statistics** during the late 20th century, with contributions from statisticians such as Arthur Getis and J. Keith Ord, who developed the **Getis-Ord G and G**\* statistics in the early 1990s.
+
+The **Gi\* statistic** is calculated as the ratio of the **weighted average of value**s from neighboring locations to the total sum of all values, excluding the value at the specific location in question. In contrast, the **G statistic** includes the value from the focal (or self) location within the neighborhood. Both G and Gi\* statistics employ a **distance-based approach** for spatial weights, meaning that the spatial weights identify statistically significant hot and cold spots by evaluating nearby locations within a defined distance.
+
+#### 9.1.2 Compute Spatial Weight Matrix
+
+With that said, I will employ the the local **Gi\* statistics** but before we compute it, we need to calculate the spatial weight matrix. To do so, I will employ `st_contiguity()` to create a neighbour list and use `include_self()` to include the focal observation in the neighbour list. Next, we use the neighbour list to create a weight list using `st_inverse_distance()` function.
+
+**1) For Drug Cases by Province**
+
+```{r}
+#| eval: false
+wm_idw_province <- drug_cases_province %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+```
+
+**2) For Drug Cases by Province and Year**
+
+```{r}
+#| eval: false
+wm_idw_year <- drug_cases_province_year %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+```
+
+**3) For Drug Cases by Province and Case Type**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| Code-summary: Function for spatial weight matrix calculation after filtering
+compute_spatial_weight <- function(filtered_data) {
+  spatial_weight <- filtered_data %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+  
+  return(spatial_weight)
+}
+
+# Filter by offense type and then group by province_en
+drug_use_cases_gi <- drug_cases %>%
+  filter(types_of_drug_offenses %in% c("drug_use_cases", "suspects_in_drug_use_cases")) %>%
+  group_by(province_en) %>%
+  summarise(
+    total_cases = sum(no_cases),
+    ADM1_PCODE = first(ADM1_PCODE),
+    geometry = first(geometry),
+    .groups = "drop"
+  ) %>%
+  st_as_sf() %>%
+  compute_spatial_weight()
+
+possession_cases_gi <- drug_cases %>%
+  filter(types_of_drug_offenses %in% c("possession_cases", "suspects_in_possession_cases", 
+                                       "possession_with_intent_to_distribute_cases", 
+                                       "suspects_in_possession_with_intent_to_distribute_cases")) %>%
+  group_by(province_en) %>%
+  summarise(
+    total_cases = sum(no_cases),
+    ADM1_PCODE = first(ADM1_PCODE),
+    geometry = first(geometry),
+    .groups = "drop"
+  ) %>%
+  st_as_sf() %>%
+  compute_spatial_weight()
+
+trafficking_cases_gi <- drug_cases %>%
+  filter(types_of_drug_offenses %in% c("trafficking_cases", "suspects_in_trafficking_cases")) %>%
+  group_by(province_en) %>%
+  summarise(
+    total_cases = sum(no_cases),
+    ADM1_PCODE = first(ADM1_PCODE),
+    geometry = first(geometry),
+    .groups = "drop"
+  ) %>%
+  st_as_sf() %>%
+  compute_spatial_weight()
+
+import_export_cases_gi <- drug_cases %>%
+  filter(types_of_drug_offenses %in% c("import_cases", "suspects_in_import_cases", 
+                                       "export_cases", "suspects_in_export_cases")) %>%
+  group_by(province_en) %>%
+  summarise(
+    total_cases = sum(no_cases),
+    ADM1_PCODE = first(ADM1_PCODE),
+    geometry = first(geometry),
+    .groups = "drop"
+  ) %>%
+  st_as_sf() %>%
+  compute_spatial_weight()
+
+conspiracy_cases_gi <- drug_cases %>%
+  filter(types_of_drug_offenses %in% c("conspiracy_cases", "suspects_in_conspiracy_cases")) %>%
+  group_by(province_en) %>%
+  summarise(
+    total_cases = sum(no_cases),
+    ADM1_PCODE = first(ADM1_PCODE),
+    geometry = first(geometry),
+    .groups = "drop"
+  ) %>%
+  st_as_sf() %>%
+  compute_spatial_weight()
+```
+
+#### 9.1.3 Compute Local *`Gi*`* Statistics
+
+Next, we will compute the local *Gi\** statistic using the `local_gstart_perm()` function from the **sfdep** package. This function takes a neighbor list (`nb`) and a weight list (`wt`) as inputs and generates Gi\* statistics through a Monte Carlo permutation with a specified number of simulations (`nsim`). The results will be saved into a new object named `HCSA__province` and `HCSA_year`.
+
+**1) For Drug Cases by Province**
+
+```{r}
+#| eval: false
+HCSA_province <- wm_idw_province %>% 
+  mutate(local_Gi_star = local_gstar_perm(
+    total_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi_star)
+```
+
+**2) For Drug Cases by Province and Year**
+
+```{r}
+#| eval: false
+HCSA_year <- wm_idw_year %>% 
+  mutate(local_Gi_star = local_gstar_perm(
+    total_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi_star)
+```
+
+**3) For Drug Cases by Province and Case Type**
+
+```{r}
+#| eval: false
+#| Code-fold: true
+#| Code-summary: Function for Significant Gi* calculation after filtering
+compute_gi_star <- function(filtered_data) {
+  gi_star_results <- filtered_data %>% 
+                    mutate(local_Gi_star = local_gstar_perm(
+                      total_cases, nb, wt, nsim = 99),
+                           .before = 1) %>%
+                      unnest(local_Gi_star) %>%
+                      filter(p_sim < 0.05) %>% 
+                      mutate(label = paste(ADM1_PCODE, province_en))
+    
+  return(gi_star_results)
+}
+
+# Filter by offense type and then group by province_en
+drug_use_cases_gi_sig <- drug_use_cases_gi %>%
+  compute_gi_star()
+
+possession_cases_gi_sig <- possession_cases_gi %>%
+  compute_gi_star()
+
+trafficking_cases_gi_sig <- trafficking_cases_gi %>%
+  compute_gi_star() 
+
+import_export_cases_gi_sig <- import_export_cases_gi %>%
+  compute_gi_star()
+
+conspiracy_cases_gi_sig <- conspiracy_cases_gi %>%
+  compute_gi_star()
+```
+
+#### 9.1.4 Create a New `label` Column
+
+Similar to what we did in Moran I's computations, we'll create a new `label` column to assist us with our visualisations later.
+
+```{r}
+#| eval: false
+HCSA_province <- HCSA_province %>%
+  mutate(label = paste(ADM1_PCODE, province_en))
+```
+
+```{r}
+#| eval: false
+HCSA_year <- HCSA_year %>%
+  mutate(label = paste(ADM1_PCODE, province_en))
+```
+
+### 9.2 Visualising Local Getis-Ord `Gi*` Results
+
+#### **1) Overall Local `Gi*` Results**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot overall hotspots and coldspots
+tmap_mode("plot")  
+gi_star_plot <- tm_shape(HCSA_province)+
+  tm_fill("gi_star", 
+          # blue, yellow, orange, red
+          palette = c("#87CEFA","#fcd34d", "#f7a87d", "#ff6b6b"),
+          colorNA = "#FFFFFF",
+          title = "Gi*",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Hotspots & Coldspots of Drug Cases\n in Study Area (Using Gi*)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+cluster_plot <- tm_shape(HCSA_province)+
+  tm_fill("cluster", 
+          title = "Cluster Category") +
+  tm_borders(alpha = 0.6)+
+  tm_layout(main.title = "Hotspots & Coldspots of Drug Cases\n in Study Area (Using Cluster Category)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+tmap_arrange(gi_star_plot, cluster_plot, asp=1, ncol=2)
+```
+
+![](images/clipboard-2192504222.png)
+
+::: {.callout-tip title="Observations"}
+There is a majority of negative local Gi\* values **(-2 to 0)** found interspersed across the central and western provinces of Thailand **(blue)** which coincides with **low cluster** categories, suggesting that these are clusters of provinces that have well-controlled the spread of drug offenses.
+
+On the other hand, out of all hotspots found on the right chart **(yellow)**, majority of the positive Gi\* values were found to be in the lower range **(0 to 2).** The implication here is that while these provinces are classified as hotspots, they aren't showing **statistically significant** or **intensely concentrated** drug activity, especially compared to areas with Gi\* values higher than 2. These provinces may still be of concern for law enforcement, but the clustering of drug cases isn't as severe as in other regions.
+
+In contrast, of all the **high cluster** categories **(blue)**, there are four provinces in south-central Thailand **(orange & red)** marked with a **higher Gi**\* value (i.e., \> 2) which indicates much stronger clustering of drug offenses, suggesting more serious or widespread drug-related issues in those locations.
+:::
+
+#### **2) Statistically Significant Local** `Gi*` Results
+
+```{r}
+#| eval: false
+# Retrieve statistically significant data
+HCSA_province_sig <- HCSA_province %>%
+  filter(p_sim < 0.05)
+```
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot statistically significant hotspots and coldspots
+tmap_mode("plot")
+sig_gi_star_plot <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5")+
+tm_shape(HCSA_province_sig)+
+  tm_fill("gi_star", 
+          # blue, yellow, orange, red
+          palette = c("#87CEFA","#fcd34d", "#f7a87d", "#ff6b6b"),
+          title = "Gi*",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area (Using Gi*)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+sig_cluster_plot <- tm_shape(thai_boundary) + 
+      tm_borders(alpha = 0.6) + 
+      tm_fill()+
+tm_shape(HCSA_province_sig)+
+  tm_fill("cluster", 
+          title = "Cluster Category") +
+  tm_borders(alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area (Using Cluster Type)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+tmap_arrange(sig_gi_star_plot, sig_cluster_plot, asp=1, ncol=2)
+```
+
+![](images/clipboard-2386267957.png)
+
+::: {.callout-tip title="Observations"}
+Of all statistically significant local Gi\* observed (left chart), there are four provinces in the West of Thailand with negative Gi\* values **(blue)** which coincides with **coldspots** areas **(blue)** on the right chart where low observations of drug offenses are spatially clustered.
+
+In contrast, there are two provinces displaying **positive Gi**\* values in **south-central** **(red)** and **southern** **(orange)** Thailand. The former (south-central) shows a statistically stronger clustering of high drug offenses compared to the latter (southern Thailand), where the clustering of high offenses is less significant.
+
+However, the province in the **south of Thailand** on the **right chart** tells a different story. Instead of high values, it shows a statistically significant clustering of **low drug offenses**. This indicates a **coldspot**, where drug offenses are **less frequent** than expected, signaling an area where drug-related activities are significantly **lower** compared to other regions. This could happen as the **cluster type** takes a broader spatial context into account.
+:::
+
+#### **3) Top 3 *Hotspots* Observed**
+
+In the context of **Getis-Ord Gi**\* statistics, hotspots and cold spots are generally identified based on the values of the Gi\* statistic calculated for spatial data as such:
+
+-   **Hotspot:** Gi\* \> 2 (high concentration of high values)
+
+-   **Cold Spot:** Gi\* \< -2 (high concentration of low values)
+
+However, with reference to the histogram below, we can see that the spread of Gi\* values range from -2 to 0 and 0 to 10, with only a few values exceeding **2**. Hence, I will adjust the definitions accordingly.
+
+-   **Hotspot:** Gi\* \> 0 (high concentration of high values)
+
+-   **Cold Spot:** Gi\* \< 0 (high concentration of low values)
+
+```{r}
+#| eval: false
+ggplot(HCSA_province, aes(x = gi_star)) + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue2") + 
+  labs(x = "Gi*", y = "Count", title = "Histogram of Local Gi* Statistics") +
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold")
+  )
+```
+
+![](images/clipboard-4275990065.png)
+
+Hence, let's retrieve the three provinces with highest local Gi\* values and lowest local Gi\* values respectively. These provinces will highlight areas that need further investigation via the **Mann-Kendall Trend Test** later.
+
+```{r}
+set.seed(123)
+```
+
+::: panel-tabset
+###### **Overall Hotspots**
+
+By identifying all provinces with **Gi\* \> 0,** we discovered the top 3 provinces with the greatest clustering of drug cases are found in Amnat Charoen, Bangkok and Buri Ram **(red)**. In other words, these provinces showed to be the **greatest hotspot** for drug offenses to occur both locally and in its surrounding provinces. Such high concentration of drug crimes suggest a need for interventions of stricter law enforcement to curb the further spread of drug cases to its neighbours.
+
+```{r}
+three_hotspots_overall <- (head((HCSA_province[HCSA_province$gi_star > 0,]), 3)$label)
+three_hotspots_overall
+```
+
+```{r}
+#| code-fold: true
+#| eval: false
+HCSA_three_hotspots_overall <- HCSA_province %>% filter(label %in% three_hotspots_overall)
+
+tmap_mode("plot")
+tm_shape(thai_boundary) + 
+  tm_borders(col = "black", lwd = 1) + 
+  tm_fill(col = "#F5F5F5")+
+tm_shape(HCSA_three_hotspots_overall)+
+  tm_fill("gi_star", 
+          palette = c("#ff6b6b")) + # red
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("label",size = 0.5, col = "white", just = c("RIGHT","bottom"),
+          bg.color = "black", bg.alpha = 0.7, fontface = "bold",
+          remove.overlap = TRUE) +
+  tm_layout(main.title = "Top 3 Overall Hotspots\nof Drug Cases in Study Area (Thailand)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.show = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+```
+
+![](images/clipboard-24530355.png)
+
+###### **Statistically Significant Hotspots**
+
+With that said, we can observe that statistically significant hotspots (i.e. p-value \< 0.05) resulted in a different set of provinces, namely Nonthaburi, Phatthalung and Samut Prakan. As indicated in the **red regions** below, Nonthaburi and Samut Prakan provinces are relatively close to each other and are likely part of a **larger cluster of drug hotspots** with the potential risk of causing a **spill-over effect** to its neighbours.
+
+```{r}
+three_hotspots_sig <- (head((HCSA_province_sig[HCSA_province_sig$gi_star > 0,]), 3)$label)
+three_hotspots_sig
+```
+
+```{r}
+#| code-fold: true
+#| eval: false
+HCSA_three_hotspots_sig <- HCSA_province_sig %>% filter(label %in% three_hotspots_sig)
+
+tmap_mode("plot")
+tm_shape(thai_boundary) + 
+  tm_borders(col = "black", lwd = 1) + 
+  tm_fill(col = "#F5F5F5")+
+tm_shape(HCSA_three_hotspots_sig)+
+  tm_fill("gi_star", 
+          palette = c("#ff6b6b")) + # red
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("label",size = 0.5, col = "black", just = c("left","bottom"),
+          fontface = "bold") +
+  tm_layout(main.title = "Top 3 Most Statistically Significant Hotspots\nof Drug Cases in Study Area (Thailand)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.show = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+```
+
+![](images/clipboard-2811724003.png)
+:::
+
+#### **4) Top 3 *Coldspots* Observed**
+
+::: panel-tabset
+###### **Overall Coldspots**
+
+By filtering all observations where **Gi\* \< 0**, we identified that the top three provinces with the strongest signs of clustering of **low** number of drug cases are found in Ang Thong, Bueng Kan and Chai Nat provinces **(blue)**. The provinces Ang Thong and Chai Nat are relatively close to each other which indicates a region where strong clusters of low number of drug cases are located together.
+
+```{r}
+three_coldpots_overall <- (head((HCSA_province[HCSA_province$gi_star < 0,]), 3)$label)
+three_coldpots_overall
+```
+
+```{r}
+#| code-fold: true
+#| eval: false
+HCSA_three_coldpots_overall <- HCSA_province %>% filter(label %in% three_coldpots_overall)
+
+tmap_mode("plot")
+tm_shape(thai_boundary) + 
+  tm_borders(col = "black", lwd = 1) + 
+  tm_fill(col = "#F5F5F5")+
+tm_shape(HCSA_three_coldpots_overall)+
+  tm_fill("gi_star", 
+          palette = c("#87CEFA")) + # blue
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("label",size = 0.5, col = "black", just = c("right","bottom"),
+          fontface = "bold") +
+  tm_layout(main.title = "Top 3 Overall Coldspots\nof Drug Cases in Study Area (Thailand)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.show = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+```
+
+![](images/clipboard-1521675171.png)
+
+###### **Statistically Significant Coldspots**
+
+We are more interested in the statistically significant coldspots (i.e., p-value \< 0.05) as we can more confidently say that these provinces are clusters of low number of drug offenses. In particular, the top three provinces with lowest Gi\* values are Chai Nat, Kamphaeng Phet and Nakhon Sawan.
+
+```{r}
+three_coldpots_sig <- (head((HCSA_province_sig[HCSA_province_sig$gi_star < 0,]), 3)$label)
+three_coldpots_sig
+```
+
+```{r}
+#| code-fold: true
+#| eval: false
+HCSA_three_coldspots_sig <- HCSA_province_sig %>% filter(label %in% three_coldpots_sig)
+
+tmap_mode("plot")
+tm_shape(thai_boundary) + 
+  tm_borders(col = "black", lwd = 1) + 
+  tm_fill(col = "#F5F5F5")+
+tm_shape(HCSA_three_coldspots_sig)+
+  tm_fill("gi_star", 
+          palette = c("#87CEFA")) + # blue
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("label",size = 0.5, col = "black", just = c("center","right"),
+          fontface = "bold",remove.overlap = TRUE) +
+  tm_layout(main.title = "Top 3 Most Statistically Significant Coldspots\nof Drug Cases in Study Area (Thailand)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.show = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+```
+
+![](images/clipboard-74309679.png)
+:::
+
+### 9.3 Visualising Local Getis-Ord `Gi*` by *Fiscal Year*
+
+#### **1) Overall Local `Gi*` Results**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly hot and cold spots
+tmap_mode("plot")
+HCSA_maps_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(HCSA_year$fiscal_year)) {
+  # Filter the data for the current year
+  year_data <- HCSA_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data) > 0) {
+    HCSA_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_shape(year_data) + 
+      tm_polygons("gi_star", 
+                  palette = c("#87CEFA","#fcd34d", "#f7a87d", "#ff6b6b"),
+                  colorNA = "#FFFFFF",
+                  title = "Statistically Significant Gi*",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Overall Hotspots & Coldspots of Drug Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    HCSA_maps_list[[year]] <- HCSA_map
+  }
+}
+temporal_maps <- HCSA_maps_list[!sapply(HCSA_maps_list, is.null)]
+tmap_animation(temporal_maps, filename = "images/HCSA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/HCSA_Year.gif)
+
+::: {.callout-tip title="Observations"}
+Across 2017 to 2022, we see a consistent mapping of local Gi\* values for each province, meaning there is no difference in the spatial distribution of drug offense hotspots **(yellow, orange & red)** and coldspots **(blue)** in Thailand during these periods.
+
+Since provinces identified as hotspots for drug offenses have not shifted over time, this could indicate **persistent problems** in certain provinces **(orange & red)**, where drug-related activities remain high year after year.
+
+Hence, the lack of variation in hotspots and coldspots may suggest that any interventions or law enforcement efforts aimed at reducing drug offenses have not had a **substantial impact**. Additionally, there could be underlying socio-economic or environmental factors that continue to **perpetuate** these drug offenses year on year.
+:::
+
+#### **2) Statistically Significant Local** `Gi*` Results
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated statistically significant yearly hot and cold spots
+tmap_mode("plot")
+HCSA_year_sig <- HCSA_year %>%
+  filter(p_sim < 0.05)
+
+HCSA_maps_list <- list()
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(HCSA_year_sig$fiscal_year)) {
+  # Filter the data for the current year
+  year_data <- HCSA_year_sig %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data) > 0) {
+    HCSA_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5")+
+      tm_shape(year_data) + 
+      tm_polygons("gi_star", 
+                  palette = c("#87CEFA","#fcd34d", "#f7a87d", "#ff6b6b"),
+                  title = "Statistically Significant Gi*",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Statistically Significant Hotspots & Coldspots of Drug Cases in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    HCSA_maps_list[[year]] <- HCSA_map
+  }
+}
+temporal_maps <- HCSA_maps_list[!sapply(HCSA_maps_list, is.null)]
+tmap_animation(temporal_maps, filename = "images/HCSA_Sig_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/HCSA_Sig_Year.gif)
+
+::: {.callout-tip title="Observations"}
+The statisitcally significant Gi\* results (i.e. p-value \< 0.05) show us similar spatial trends where there is low to no shifts in drug hotspots and coldspots in Thailand.
+
+Overall, the **lack of significant change in Gi\* values** across the years underscores the ongoing challenges in managing and mitigating drug-related issues in Thailand, requiring sustained efforts to tackle these persistent hotspots.
+:::
+
+### 9.3 Visualising Local Getis-Ord `Gi*` by *Drug Case Type*
+
+With that said, it will be more interesting to delve into the five drug case types previously discussed for a more nuanced analysis of drug hotspots and coldspots, measured by local Gi\* values, across Thailand's provinces. I will also delve into the spatio-temporal changes in patterns observed from 2017 to 2022.
+
+```{r}
+#| eval: false
+# Prepare local Gi* computations by case type and year
+summarize_cases <- function(filtered_data, offense_types) {
+  filtered_data %>%
+    filter(types_of_drug_offenses %in% offense_types) %>%
+    group_by(province_en, fiscal_year) %>%
+    summarise(
+      total_cases = sum(no_cases),
+      ADM1_PCODE = first(ADM1_PCODE),
+      geometry = first(geometry),
+      .groups = "drop"
+    ) %>%
+    st_as_sf() %>%
+    compute_spatial_weight()
+}
+
+# General function to compute the Gi* statistic
+compute_gi_star <- function(filtered_data) {
+  filtered_data %>%
+    mutate(local_Gi_star = local_gstar_perm(total_cases, nb, wt, nsim = 99), .before = 1) %>%
+    unnest(local_Gi_star) %>%
+    filter(p_sim < 0.05) %>%
+    mutate(label = paste(ADM1_PCODE, province_en))
+}
+
+# Offense types categories
+offense_types_list <- list(
+  drug_use = c("drug_use_cases", "suspects_in_drug_use_cases"),
+  possession = c("possession_cases", "suspects_in_possession_cases", 
+                 "possession_with_intent_to_distribute_cases", 
+                 "suspects_in_possession_with_intent_to_distribute_cases"),
+  trafficking = c("trafficking_cases", "suspects_in_trafficking_cases"),
+  import_export = c("import_cases", "suspects_in_import_cases", 
+                    "export_cases", "suspects_in_export_cases"),
+  conspiracy = c("conspiracy_cases", "suspects_in_conspiracy_cases")
+)
+
+# Apply the summarize_cases and compute_gi_star functions for each offense type
+gi_star_results_list <- lapply(offense_types_list, function(offense_types) {
+  summarize_cases(drug_cases, offense_types) %>% compute_gi_star()
+})
+
+# Access results for each offense type
+drug_use_cases_gi_sig_year <- gi_star_results_list$drug_use
+possession_cases_gi_sig_year <- gi_star_results_list$possession
+trafficking_cases_gi_sig_year <- gi_star_results_list$trafficking
+import_export_cases_gi_sig_year <- gi_star_results_list$import_export
+conspiracy_cases_gi_sig_year <- gi_star_results_list$conspiracy
+```
+
+##### **1) Case Type: Drug Use**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot statistically significant hotspots and coldspots
+tmap_mode("plot")
+sig_gi_star_plot <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5")+
+tm_shape(drug_use_cases_gi_sig)+
+  tm_fill("gi_star", 
+          # blue, yellow, orange, red
+          palette = c("#87CEFA","#fcd34d", "#f7a87d", "#ff6b6b"),
+          title = "Gi*",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Gi* (Drug Use)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+sig_cluster_plot <- tm_shape(thai_boundary) + 
+      tm_borders(alpha = 0.6) + 
+      tm_fill()+
+tm_shape(drug_use_cases_gi_sig)+
+  tm_fill("cluster", 
+          title = "Cluster Category") +
+  tm_borders(alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Cluster (Drug Use)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+tmap_arrange(sig_gi_star_plot, sig_cluster_plot, asp=1, ncol=2)
+```
+
+![](images/clipboard-3263724512.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly drug use cases
+tmap_mode("plot")
+drug_use_maps_list <- list()
+
+# Define the case type for the title
+case_type <- "Drug Use Cases"
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(drug_use_cases_gi_sig_year$fiscal_year)) {
+  # Filter the data for the current year
+  year_data <- drug_use_cases_gi_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data) > 0) {
+    drug_use_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5") +
+      tm_shape(year_data) + 
+      tm_polygons("gi_star", 
+                  palette = c("#87CEFA", "#fcd34d", "#f7a87d", "#ff6b6b"),
+                  title = "Statistically Significant Gi*",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Statistically Significant Hotspots & Coldspots of", case_type, "in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    drug_use_maps_list[[year]] <- drug_use_map
+  }
+}
+
+# Filter out null maps and create the animation
+temporal_maps <- drug_use_maps_list[!sapply(drug_use_maps_list, is.null)]
+tmap_animation(temporal_maps, filename = "images/Drug_Use_HCSA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/Drug_Use_HCSA_Year.gif)
+
+::: {.callout-tip title="Observations"}
+From 2017 to 2022, there are consistently negative significant Gi\* values observed in the western provinces and a province found in the extreme south **(blue)**. These provinces have proved to be effective in their control of **drug use** cases as they persist as regions of coldspots. Similarly, there is a **strong presence** of statistically significant hotspots that has formed near the boundary of Thailand **(orange & red)** which is worrying as this shows **no improvement** in curbing the spread of drug use cases. In other words, these provinces continue to be concentrated with high drug use activities.
+:::
+
+##### **2) Case Type: Possession**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot statistically significant hotspots and coldspots
+tmap_mode("plot")
+sig_gi_star_plot <- tm_shape(thai_boundary) + 
+  tm_borders(col = "black", lwd = 1) + 
+  tm_fill(col = "#F5F5F5") +
+
+  tm_shape(possession_cases_gi_sig) +
+  tm_fill("gi_star", 
+          palette = c("#87CEFA", "#4682B4"),  # Light blue and darker blue
+          breaks = c(-Inf, -2, -1.5, 0),      
+          title = "Gi*",
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+
+  tm_borders(col = "black", alpha = 0.6) +
+  
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Gi* (Possession)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(labels.size = 0.5, alpha = 0.2)
+
+sig_cluster_plot <- tm_shape(thai_boundary) + 
+      tm_borders(alpha = 0.6) + 
+      tm_fill()+
+tm_shape(possession_cases_gi_sig)+
+  tm_fill("cluster", 
+          title = "Cluster Category") +
+  tm_borders(alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Cluster (Possession)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+tmap_arrange(sig_gi_star_plot, sig_cluster_plot, asp=1, ncol=2)
+
+```
+
+![](images/clipboard-1935051200.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly possession cases
+tmap_mode("plot")
+possession_maps_list <- list()
+
+# Define the case type for the title
+case_type <- "Possession Cases"
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(possession_cases_gi_sig_year$fiscal_year)) {
+  # Filter the data for the current year
+  year_data <- possession_cases_gi_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data) > 0) {
+    possession_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5") +
+      tm_shape(year_data) + 
+      tm_polygons("gi_star", 
+                  palette = c("#87CEFA", "#fcd34d", "#f7a87d", "#ff6b6b"),
+                  title = "Statistically Significant Gi*",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Statistically Significant Hotspots & Coldspots of", case_type, "in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    possession_maps_list[[year]] <- possession_map
+  }
+}
+
+# Filter out null maps and create the animation
+temporal_maps <- possession_maps_list[!sapply(possession_maps_list, is.null)]
+tmap_animation(temporal_maps, filename = "images/Possession_HCSA_Year.gif", delay = 150, width = 1090, height = 674)
+
+```
+
+![](images/Possession_HCSA_Year.gif)
+
+::: {.callout-tip title="Observations"}
+When it comes to drug possession cases, it follows the general trend where **coldspots** (i.e. low negative Gi\* values) of drug possession offenses persist in the **Western** provinces of Thailand **(blue)** while **hotspots** for drug possession activities are more concentrated in the Southern provinces **(orange)** with the highest offenses found in a south-central province **(red).**
+
+Likewise, the stability of Gi\* values across each year indicates that the spatial distribution of drug offenses remains **relatively unchanged over time**. This consistency may imply that the underlying factors contributing to the clustering of offenses are persistent. Similarly, areas that consistently exhibit negative Gi\* values are coldspots, indicating lower spread and incidences of drug offenses.
+:::
+
+##### **3) Case Type: Trafficking**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot statistically significant hotspots and coldspots
+tmap_mode("plot")
+sig_gi_star_plot <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5")+
+tm_shape(trafficking_cases_gi_sig)+
+  tm_fill("gi_star", 
+          # blue, yellow, orange, orange-red, red
+          palette = c("#87CEFA","#fcd34d","#f7a87d","#f88379", "#ff6b6b"),
+          breaks = c(-2, 0, 1, 2, 3, 4),   
+          title = "Gi*",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Gi* (Trafficking)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+sig_cluster_plot <- tm_shape(thai_boundary) + 
+      tm_borders(alpha = 0.6) + 
+      tm_fill()+
+tm_shape(trafficking_cases_gi_sig)+
+  tm_fill("cluster", 
+          title = "Cluster Category") +
+  tm_borders(alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Cluster (Trafficking)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+tmap_arrange(sig_gi_star_plot, sig_cluster_plot, asp=1, ncol=2)
+```
+
+![](images/clipboard-1982224130.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly trafficking cases
+tmap_mode("plot")
+trafficking_maps_list <- list()
+
+# Define the case type for the title
+case_type <- "Trafficking Cases"
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(trafficking_cases_gi_sig_year$fiscal_year)) {
+  # Filter the data for the current year
+  year_data <- trafficking_cases_gi_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data) > 0) {
+    trafficking_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5") +
+      tm_shape(year_data) + 
+      tm_polygons("gi_star", 
+                  # dark blue, blue, light yellow,
+                  # yellow, orange, orange-red, red
+                  palette = c("skyblue2","#87CEFA","lightyellow","#fcd34d",
+                              "#f7a87d", "#f88379", "#ff6b6b"),
+                  breaks = c(-5,-2.5,0,2.5,5,7.5,10),  
+                  title = "Statistically Significant Gi*",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Statistically Significant Hotspots & Coldspots of", case_type, "in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    trafficking_maps_list[[year]] <- trafficking_map
+  }
+}
+
+# Filter out null maps and create the animation
+temporal_maps <- trafficking_maps_list[!sapply(trafficking_maps_list, is.null)]
+tmap_animation(temporal_maps, filename = "images/Trafficking_HCSA_Year.gif", delay = 150, width = 1090, height = 674)
+
+```
+
+![](images/Trafficking_HCSA_Year.gif)
+
+::: {.callout-tip title="Observations"}
+Throughout 2017 to 2022, the western provinces **(dark blue)** has stayed relatively consistent as a stiatistically significant coldspot, which are great signs of **low** trafficking of drugs. However, there are two provinces in North-Western and Eastern Thailand **(red)** that displayed **consistently high** positive Gi\* values across multiple years. These locations may require targeted interventions especially along **maritime routes** or other **transport routes** to address the ongoing issue.
+:::
+
+##### **4) Case Type: Import and Export**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot statistically significant hotspots and coldspots
+tmap_mode("plot")
+sig_gi_star_plot <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5")+
+tm_shape(import_export_cases_gi_sig)+
+  tm_fill("gi_star", 
+          # blue, yellow, orange, orange-red, red
+          palette = c("#87CEFA","#fcd34d","#f7a87d","#f88379", "#ff6b6b"),
+          breaks = c(-2, 0, 2, 4, 6, 8),
+          title = "Gi*",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Gi* (Import & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+sig_cluster_plot <- tm_shape(thai_boundary) + 
+      tm_borders(alpha = 0.6) + 
+      tm_fill()+
+tm_shape(import_export_cases_gi_sig)+
+  tm_fill("cluster", 
+          title = "Cluster Category") +
+  tm_borders(alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Cluster (Import & Export)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+tmap_arrange(sig_gi_star_plot, sig_cluster_plot, asp=1, ncol=2)
+```
+
+![](images/clipboard-1811779937.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly import & export cases
+tmap_mode("plot")
+import_export_maps_list <- list()
+
+# Define the case type for the title
+case_type <- "Import & Export Cases"
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(import_export_cases_gi_sig_year$fiscal_year)) {
+  # Filter the data for the current year
+  year_data <- import_export_cases_gi_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data) > 0) {
+    import_export_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5") +
+      tm_shape(year_data) + 
+      tm_polygons("gi_star", 
+                  # blue, yellow, orange, red
+                  palette = c("#87CEFA","#fcd34d","#f7a87d", "#ff6b6b"),
+                  breaks = c(-4, 0, 4, 8, 12),
+                  title = "Statistically Significant Gi*",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Statistically Significant Hotspots & Coldspots of", case_type, "in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    import_export_maps_list[[year]] <- import_export_map
+  }
+}
+
+# Filter out null maps and create the animation
+temporal_maps <- import_export_maps_list[!sapply(import_export_maps_list, is.null)]
+tmap_animation(temporal_maps, filename = "images/Import_Export_HCSA_Year.gif", delay = 150, width = 1090, height = 674)
+
+```
+
+![](images/Import_Export_HCSA_Year.gif)
+
+::: {.callout-tip title="Observations"}
+Interestingly, the plots reveal that majority of provinces, particularly in central and western Thailand, indicated consistently low import and export drug activities **(blue).** However, from 2018 to 2021, there is a **spill over** of import and exprt drug cases into provinces in the southern part of Thailand, meaning there are increased levels of drug imports and exports into these provinces and its surrounding provinces. **Strong road, rail and air transport links** can allow for high volumes of legitimate cross-border trade which could easily conceal illegal drug operations within normal trading activities.
+
+Another interesting observation is shown in how some coldspots are located **adjacent** to mild hotspot regions, especially in 2017 and 2022. This contrast could be explained by stricter law enforcement in one province over another, and could also be due to other underlying socio–economic factors.
+:::
+
+##### **5) Case Type: Conspiracy**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot statistically significant hotspots and coldspots
+tmap_mode("plot")
+sig_gi_star_plot <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5")+
+tm_shape(conspiracy_cases_gi_sig)+
+  tm_fill("gi_star", 
+          # blue, yellow, orange, red
+          palette = c("#87CEFA","#fcd34d","#f7a87d","#f88379", "#ff6b6b"),
+          title = "Gi*",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Gi* (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+sig_cluster_plot <- tm_shape(thai_boundary) + 
+      tm_borders(alpha = 0.6) + 
+      tm_fill()+
+tm_shape(conspiracy_cases_gi_sig)+
+  tm_fill("cluster", 
+          title = "Cluster Category") +
+  tm_borders(alpha = 0.6)+
+  tm_layout(main.title = "Statistically Significant Hotspots & Coldspots\nof Drug Cases in Study Area by Cluster (Conspiracy)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.outside = FALSE,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", text.size = 0.7, size = 2, position=c("RIGHT", "TOP")) +
+  tm_scale_bar(position=c("LEFT", "BOTTOM"), text.size=0.5) +
+  tm_grid(labels.size = 0.5, alpha =0.2)
+
+tmap_arrange(sig_gi_star_plot, sig_cluster_plot, asp=1, ncol=2)
+```
+
+![](images/clipboard-1241733855.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot animated yearly conspiracy cases
+tmap_mode("plot")
+conspiracy_maps_list <- list()
+
+# Define the case type for the title
+case_type <- "Conspiracy Cases"
+
+# Loop over each unique fiscal year to create maps
+for (year in unique(conspiracy_cases_gi_sig_year$fiscal_year)) {
+  # Filter the data for the current year
+  year_data <- conspiracy_cases_gi_sig_year %>% filter(fiscal_year == year)
+  
+  # Only create the map if there are significant results
+  if (nrow(year_data) > 0) {
+    conspiracy_map <- tm_shape(thai_boundary) + 
+      tm_borders(col = "black", lwd = 1) + 
+      tm_fill(col = "#F5F5F5") +
+      tm_shape(year_data) + 
+      tm_polygons("gi_star", 
+                  # blue, yellow, orange, red
+                  palette = c("#87CEFA","#fcd34d","#f7a87d", "#ff6b6b"),
+                  breaks = c(-4, 0, 4, 8, 12),
+                  title = "Statistically Significant Gi*",
+                  midpoint = NA,
+                  legend.hist = TRUE, 
+                  legend.is.portrait = TRUE,
+                  legend.hist.z = 0.1) +
+      tm_layout(main.title = paste("Statistically Significant Hotspots & Coldspots of", case_type, "in Thailand -", year),
+                main.title.position = "center",
+                main.title.size = 1,
+                main.title.fontface = "bold",
+                legend.title.size = 1,
+                legend.text.size = 1,
+                legend.hist.size = 1,
+                legend.outside = TRUE,
+                legend.outside.position = "right",
+                frame = TRUE) +
+      tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
+      tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 1) +
+      tm_grid(alpha = 0.2)
+
+    # Store the significant map in the list
+    conspiracy_maps_list[[year]] <- conspiracy_map
+  }
+}
+
+# Filter out null maps and create the animation
+temporal_maps <- conspiracy_maps_list[!sapply(conspiracy_maps_list, is.null)]
+tmap_animation(temporal_maps, filename = "images/Conspiracy_HCSA_Year.gif", delay = 150, width = 1090, height = 674)
+```
+
+![](images/Conspiracy_HCSA_Year.gif)
+
+::: {.callout-tip title="Observations"}
+Across all years, drug-related conspiracy cases seem to be the **least widespread** as compared to other drug case types.
+
+Conspiracy laws in Thailand require proof of intent and agreement between two or more parties to commit an illegal act. However, proving such intent in court requires more than just suspicion, which can make conspiracy cases **more challenging** than straightforward drug offenses, like possession or trafficking.
+
+Hence, it is not surprising that conspiracy cases are more **localised** to certain provinces, e.g. south-central region **(red),** and with little to no improvements/worsening of drug cases across each year. These provinces coincides with the **high cluster category (yellow)** observed above. However, the complexity of uncovering and prosecuting drug conspiracy cases in Thailand may mean drug conspiracy cases can be more under-represented than we expect.
+:::
+
+### 9.4 Local Getis-Ord `Gi*` for Each Fiscal Year
+
+In this section, I will focus on preparing data that delves into the **yearly** drug cases found at the province level which will provide us insights into the spatial and temporal aspects of drug offenses in Thailand's provinces. I will employ the `drug_cases_spt` spacetime object we previously created.
+
+```{r}
+#| eval: false
+drugs_nb <- drug_cases_spt %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                  scale = 1,
+                                  alpha = 1),
+         .before = 1) %>%
+    set_nbs("nb") %>%
+    set_wts("wt")
+```
+
+```{r}
+head(drugs_nb)
+```
+
+Next, I will harness `group_by()` to group our data by the **fiscal_year** variable since we are interested in understanding the spatio-temporal dynamics of drug cases across each year from 2017 to 2022.
+
+```{r}
+#| eval: false
+gi_stars_year <- drugs_nb %>%
+  group_by(fiscal_year) %>%
+  mutate(gi_star = local_gstar_perm(total_cases, nb, wt)) %>%
+  unnest(gi_star)
+```
+
+```{r}
+head(gi_stars_year)
+```
+
+### 9.5 Mann-Kendall Test for Trends
+
+The next phase of our analysis involves applying the **Mann-Kendall Trend** **Test**. This test helps determine whether a dataset shows a statistically significant **upward or downward trend** over time. Being a non-parametric test, it doesn't require the data to follow a specific distribution and instead **compares the relative magnitudes** of data points rather than the actual values (Gilbert, 1987).
+
+The Mann-Kendall test produces two main results: Kendall’s Tau `(τ)` and the Kendall Score `(S)`. Kendall’s Tau (τ) is a **correlation measure** that assesses the strength of association between two variables, ranging between 0 and 1. It is calculated using the formula `τ = (C - D) / (C + D)`, where **C** is the count of concordant pairs and **D** is the count of discordant pairs. The hypotheses for Kendall’s Tau are:
+
+-   **Null Hypothesis**: τ = 0 (No correlation exists.)
+
+-   **Alternative Hypothesis**: τ ≠ 0 (A correlation exists.)
+
+As described by Kendall M.G. (1975), the Kendall Score (S) starts at **zero**, with the assumption of no trend. For each data point that is higher than a previous one, S is incremented, and for each point that is lower, S is decremented. A **high positive** S indicates an **increasing** trend, while a **strongly negative S** suggests a **decreasing** trend. The p-value is used to determine the statistical significance of the trend.
+
+For this study, the `MannKendall()` function from the **Kendall** package is used to conduct this test. We will apply the Mann-Kendall test to the three key hotspots and three key coldspots identified in our HCSA analysis.
+
+#### 9.5.1 Trend Test of Top 3 Statistically Significant *Hotspots*
+
+Previously, we identified that Amnat Charoen TH37), Bangkok (TH10) and Buri Ram (TH31) are the top provinces with most significant hotspots.
+
+```{r}
+#| eval: false
+th37_hotspot_data <- gi_stars_year %>%
+                     ungroup() %>%
+                     filter(province_en == "Amnat Charoen") %>%
+                     select(province_en, fiscal_year, gi_star)
+
+th10_hotspot_data <- gi_stars_year %>%
+                     ungroup() %>%
+                     filter(province_en == "Bangkok") %>%
+                     select(province_en, fiscal_year, gi_star)
+
+th31_hotspot_data <- gi_stars_year %>%
+                     ungroup() %>%
+                     filter(province_en == "Buri Ram") %>%
+                     select(province_en, fiscal_year, gi_star)
+```
+
+Next, we can visualise the trend of Gi\* values for the three hotspot provinces identified above, namely using the `plotly()` function as shown.
+
+```{r}
+top_hotspots <- ggplot() +
+  geom_line(data = th37_hotspot_data, mapping = aes(x = fiscal_year, y = gi_star, color = "Amnat Charoen Province")) +
+  geom_line(data = th10_hotspot_data, mapping = aes(x = fiscal_year, y = gi_star, color = "Bangkok Special Admin Area")) +
+  geom_line(data = th31_hotspot_data, mapping = aes(x = fiscal_year, y = gi_star, color = "Buri Ram Province")) +
+  labs(x = "Fiscal Year", y = "Gi* Value",
+       title = "Gi* of Three Most Significant Hotspots From 2017 to 2022",
+       color = "Province")
+
+plotly::ggplotly(top_hotspots)
+```
+
+::: {.callout-tip title="Observations"}
+It is interesting to see that two provinces **(Bangkok and Buri Ram)** share a similar **upward** moving trend from **2017 to 2022** - though the latter experiences some **fluctuations**. The Gi\* values peaked once in **2019**, followed by a dip in 2020 (presumably due to COVID-19) and peaked once again in **2021**.
+
+On the other hand, the **Amnat Charoen province** experiences a **downward** moving trend with the biggest drop in Gi\* values from **2020 to 2021**. This results is particularly surprising since Amnat Charoen started as the **most concentrated hotspot** for drug activities in 2017. By the end of 2022, we see that Bangkok has even surpassed it in Gi\* values, meaning Amnat Charoen had **improved** **drastically** in its drug control efforts!
+
+It's worth noting that these provinces were identified as significant hotspots due to the **cumulative count** of drug cases. However, just identifying hotspots can overlook the temporal dynamics and shifts in drug clustering over time. If not for the **Mann-Kendall trend test**, we would have not have realised these provinces have been stable or somewhat better in their control of drug cases, except for Bangkok.
+:::
+
+We will now calculate the Kendall’s **tau** and Kendall score **S** for each province using `MannKendall()` function from **Kendall** package.
+
+::: panel-tabset
+###### Amnat Charoen Province
+
+Anmat Charoen shows a **weak upward** trend in the data (`tau = 0.2, S > 0`). This is surprising as the graph earlier indicated a **downward** moving trend in the number of drug cases.
+
+Recall that we previously decided the threshold for statistically significant results is Gi\* \> 0 instead of Gi\* \> 2, since only two hotspots fall under the p-value \< 0.05 (Bangkok and Buri Ram). Hence, it is unsurprising that the `sl` returned is \> 0.05, i.e. the test does not find sufficient evidence to claim a **clear upward or downward trend** in the data.
+
+```{r}
+th37_hotspot_data %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+
+###### Bangkok Special Admin Area
+
+The results shows a **very strong downward** trend in Bangkok (`tau = -0.999, S < 0`), and the p-value confirms that this trend is statistically significant. This suggests a significant decrease in the measured number of drug cases over time.
+
+```{r}
+th10_hotspot_data %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+
+###### Buri Ram Province
+
+This province showed a **strong upward trend** (`tau = 0.733, S > 0`), but the p-value is slightly above 0.05, meaning this trend is not statistically significant at the 5% level. However, it is close to being significant, suggesting some evidence of an increasing trend.
+
+```{r}
+th31_hotspot_data %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+:::
+
+#### 9.5.2 Trend Test of Top 3 Statistically Significant *Coldspots*
+
+Previously, we also identified that Chai Nat (TH18), Kamphaeng Phet (TH62) and Nakhon Sawan (TH60) are the top provinces with most significant coldspots.
+
+```{r}
+#| eval: false
+th18_coldspot_data <- gi_stars_year %>%
+                     ungroup() %>%
+                     filter(province_en == "Chai Nat") %>%
+                     select(province_en, fiscal_year, gi_star)
+
+th62_coldspot_data <- gi_stars_year %>%
+                     ungroup() %>%
+                     filter(province_en == "Kamphaeng Phet") %>%
+                     select(province_en, fiscal_year, gi_star)
+
+th60_coldspot_data <- gi_stars_year %>%
+                     ungroup() %>%
+                     filter(province_en == "Nakhon Sawan") %>%
+                     select(province_en, fiscal_year, gi_star)
+```
+
+```{r}
+top_hotspots <- ggplot() +
+  geom_line(data = th18_coldspot_data, mapping = aes(x = fiscal_year, y = gi_star, color = "Chai Nat Province")) +
+  geom_line(data = th62_coldspot_data, mapping = aes(x = fiscal_year, y = gi_star, color = "Kamphaeng Phet Province")) +
+  geom_line(data = th60_coldspot_data, mapping = aes(x = fiscal_year, y = gi_star, color = "Nakhon Sawan Province")) +
+  labs(x = "Fiscal Year", y = "Gi* Value",
+       title = "Gi* of Three Most Significant Coldspots From 2017 to 2022",
+       color = "Province")
+
+plotly::ggplotly(top_hotspots)
+```
+
+::: {.callout-tip title="Observations"}
+Across 2017 to 2022, we see a **very similar downward trend** in Gi\* values for the three provinces we identified to be the most significant coldspots for drug cases. In fact, from 2017 to 2018, Kamphaeng Phet and Nakhon Sawan showed **weakening** **of clusters of low drug cases** as observed from the rise in Gi\* values. This is followed by a dip in Gi\* values over time where these provinces had evolved into **stronger** **coldspots** with a much lower concentration of drug cases compared to other provinces.
+
+The Chai Nat province shares a similar negative trend in Gi\* values, suggesting stronger clustering of low drug cases. However, we see a slight increase in Gi\* values from 2021.
+:::
+
+Similarly, we can calculate the Kendall’s **tau** and Kendall score **S** for each province
+
+::: panel-tabset
+###### Chai Nat Province
+
+There is a **very strong downward** trend in the clustering of low drug cases as observed from `tau = -0.866` and `S > 0`. These results are also statistically significant as seen from `sl < 0.05`, meaning that there was sufficient evidence in the test to prove this negative trend.
+
+```{r}
+th18_coldspot_data %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+
+###### Kamphaeng Phet Province
+
+The results shows a **somewhat weak downward** trend in Kamphaeng Phet province as seen from `tau = -0.466`, meaning it is closer to 0 than -1. The `S < 0` results just confirms the negative trends observed. However, since `sl` returned is **greater** than 0.05, the trends observed here could be due to **random** chance.
+
+```{r}
+th62_coldspot_data %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+
+###### Nakhon Sawan Province
+
+This time, we see a **relatively strong negative** associations where the `tau` value returned is **-0.733** and `S < 0`. Additionally, a `sl` of 0.06 is returned, that is slightly higher than the threshold for statistical significance. This means that the observations from Nakhon Sawan province could also be due to **random chance.**
+
+```{r}
+th60_coldspot_data %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+```
+:::
+
+### 9.6 Performing Emerging Hot Spot Analysis
+
+Lastly, we will perform EHSA analysis by using [`emerging_hotspot_analysis()`](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html) of the sfdep package. We will utilise the spacetime object `drug_cases_spt`, and the name of the variable of interest `total_cases` for the.var argument. The k argument is used to specify the number of time lags which is set to 1 by default. Finally, `nsim` map numbers of simulation to be performed.
+
+The method classifies locations into different categories, such as:
+
+| Pattern Type              | Definition                                                                                                                                                                                                                                                                                                                 |
+|-------------|-----------------------------------------------------------|
+| **No Pattern Detected**   | Does not fall into any of the hot or cold spot patterns defined below.                                                                                                                                                                                                                                                     |
+| **Sporadic Hot Spo**t     | A statistically significant hot spot for the final time-step interval with a history of also being an on-again and off-again hot spot. Less than 90 percent of the time-step intervals have been statistically significant hot spots and none of the time-step intervals have been statistically cold spots.               |
+| **Sporadic Cold Spot**    | A statistically significant cold spot for the final time-step interval with a history of also being an on-again and off-again cold spot. Less than 90 percent of the time-step intervals have been statistically significant cold spots and none of the time-step intervals have been statistically significant hot spots. |
+| **Persistent Cold Spot**  | A location that has been a statistically significant cold spot for 90 percent of the time-step intervals with no discernible trend in the intensity of clustering of counts over time.                                                                                                                                     |
+| **New Cold Spot**         | A location that is a statistically significant cold spot for the final time step and has never been a statistically significant cold spot before.                                                                                                                                                                          |
+| **Consecutive Cold Spot** | A location with a single uninterrupted run of at least two statistically significant cold spot bins in the final time-step intervals. The location has never been a statistically significant cold spot prior to the final cold spot run and less than 90 percent of all bins are statistically significant cold spots.    |
+| **Consecutive Hot Spot**  | A location with a single uninterrupted run of at least two statistically significant hot spot bins in the final time-step intervals. The location has never been a statistically significant hot spot prior to the final hot spot run and less than 90 percent of all bins are statistically significant hot spots.        |
+
+This classification helps in identifying regions that require immediate attention, those where trends are improving or deteriorating, and areas where consistent patterns persist.
+
+```{r}
+#| eval: false
+ehsa <- emerging_hotspot_analysis(
+  x = drug_cases_spt,
+  .var = "total_cases",
+  k = 1,
+  nsim = 99
+)
+
+thailand_ehsa <- drug_cases_province_year %>%
+  left_join(ehsa,
+            by = join_by(ADM1_PCODE == location)) %>%
+  mutate(label = paste(ADM1_PCODE,province_en))
+```
+
+We are now ready to plot the bar charts of each category type.
+
+```{r}
+#| eval: false
+library(gridExtra)
+thailand_ehsa_sig <- thailand_ehsa  %>%
+  filter(p_value < 0.05)
+
+plot1 <- ggplot(data = ehsa,
+                aes(y = classification, fill = classification)) +
+  geom_bar(show.legend = FALSE) +
+  labs(title = "Overall EHSA Classification") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 12, face = "bold"))  # Reducing size and bolding the title
+
+plot2 <- ggplot(data = thailand_ehsa_sig,
+                aes(y = classification, fill = classification)) +
+  geom_bar(show.legend = FALSE) +
+  labs(title = "Statistically Significant EHSA Classification") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 12, face = "bold"))  # Reducing size and bolding the title
+
+grid.arrange(plot1, plot2, ncol = 2)
+```
+
+![](images/clipboard-1516116801.png)
+
+::: {.callout-tip title="Observations"}
+When analysing the overall classification of EHSA concerning drug cases, it appears that the majority of observed patterns **do not distinctly categorise** areas as hotspots (regions with a high concentration of drug cases) or cold spots (regions with a low concentration). This may suggest that many regions do not experience pronounced issues related to drug activities, or it could indicate potential limitations in the data or the methods used for analysis.
+
+Additionally, we can see that **sporadic coldspots** and **consecutive coldspots** constitute the highest EHSA class for both overall and statistically significant respectively. These two results are rather contrasting since one shows fluctuations in low drug case offenses while the other suggests consistently low drug cases observed.
+
+On the other hand, among the hotspot classifications, **sporadic hotspots** and **consecutive hotspots** account for the highest counts in both the overall and statistically significant datasets, respectively. This indicates that certain regions experience **occasional peaks** in drug cases, while others maintain a more stable pattern of **elevated drug activity**. These results underscore the complexity of drug offenses in the studied areas, revealing both **variability** and **consistency** in patterns of drug-related incidents.
+:::
+
+We can also plot these ESHA classes onto our map of Thailand for visualisation of province-level dynamics of drug cases. This plot revealed that there is a **consecutive hotspot** found in a Southern province **(red)** which could be due to underlying socio-economic factors causing such high intensity of drug cluster. Interestingly, there is also a **conseutive coldspot (purple)** found adjacent to a **new coldspot (green)** province. The proximity of these coldspots implies that **effective interventions** in one area could have a positive impact on adjacent regions, potentially leading to a broader reduction in drug-related issues.
+
+```{r}
+#| eval: false
+library(tmap)
+palette <- c(
+  consecutive_coldspot = "#C9DAF8",     # Light Purple
+  consecutive_hotspot = "#D74B32",    # Orange-Red
+  new_coldspot = "#D9EAD3",           # Light Green
+  no_patterns_detected = "#FFFFFF",    # White
+  persistent_coldspot = "#4F81BD",    # Medium Blue
+  sporadic_coldspot = "#A6C8E0"      # Light Blue
+)
+
+# Plot with your specifications
+tm_shape(thailand_ehsa) +
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6) +
+tm_shape(thailand_ehsa_sig) +
+  tm_fill("classification", 
+          palette = palette,
+          title = "ESHA Classification",
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.5) +
+  tm_layout(main.title = "Emerging Statistically Significant Hotspots &\n Coldspots of Drug Cases in Thailand",
+            main.title.position = "center",
+            main.title.size = 0.7,  # Increased size for better visibility
+            main.title.fontface = "bold",
+            legend.title.size = 0.5,  # Increased for better visibility
+            legend.text.size = 0.4,
+            legend.hist.size = 0.4,
+            legend.outside = TRUE,
+            legend.outside.position = "right",
+            frame = TRUE) +
+  tm_compass(type = "8star", text.size = 0.5, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(labels.size = 0.4, alpha = 0.1)
+
+```
+
+![](images/clipboard-3005476208.png)
+
+## 10. Conclusion and Reflections
+
+As I come to the end of this study, I have successfully uncovered deeper insights into Thailand's drug abuse via spatial and spatio-temporal autocorrelation for the period of 2017 to 2022, namely using global Moran's I, global Geary's C, local Moran's I, LISA classifications, local Getis-Ord Gi\* and emerging hot spot analysis.
+
+This study reveals a compelling need for greater intervention for drug control and law enforcement since a majority of **high drug case clusters** continue remaining high across the years. We also observed a tendency for **low-low and low-high** clusters to evolve into **high-high** drug clusters, meaning that the presence of drug rings / networks in neighbour provinces increases the potential of such drug cases **spilling over** into provinces that were once less affected by drug offenses. This could be due to strong transport networks and the movement of goods and people through these transport routes.
+
+Interestingly, there were some provinces that are geographically close but exhibited starkly different patterns in drug case distribution, e.g. **hotspots** and **coldspots** found adjacent to each other. Such disparities can be due to various factors, e.g. differences in local governance, law enforcement and socio-economic conditions. Though these are beyond the take-home exercise, I believe that including factors **(e.g. GDPPC)** could act as potentially interesting future analyses.
+
+Through this study, it is evident that the analysis of drug cases reveals a complex landscape where **sporadic cold spots** and **consecutive cold spots** highlight fluctuations and consistency in low drug offenses, while **sporadic and consecutive hotspots** indicate varying intensities of drug-related activity across different regions.
+
+However, there is an interconnectedness of drug dynamics across different provinces, where the **presence of coldspot** regions can influence **low drug cases in its surroundings** too. Hence, this highlights the importance of coordinated strategies in addressing drug challenges in a national context and the need for greater targeted interventions with a deeper understanding of underlying factors influencing these patterns.
+
+With that said, I would like to extend my gratitude to **Prof. Kam Tin Seong** for his valuable guidance and mentorship throughout this process! :) This exercise requires some intensive computational load, depending on the level of granularity of this analysis. Therefore, it is most recommended to begin the take-home exercise early to make room for processing time and debugging. This marks the end of my study and I thank you for taking the time to read till here! 🎉🎉🎉
+
+## 11. References
+
+1.  CRAN. (2024, September 5). Classes and Methods for Spatio-Temporal Data.
+2.  Crawley, M. J. (2007). The R Book. Wiley.
+3.  Handbook of Spatial Analysis. (2018). Insee. <https://www.insee.fr/en/information/3635545> 
+4.  Kanato, M., Sarasiri, R., & Leyatikul, P. (2022). ASEAN Drug Monitoring Report.
+5.  Nguyen, K.-B., Choi, J., & Yang, J.-S. (2022). Checkerboard Dropout: A Structured Dropout With Checkerboard Pattern for Convolutional Neural Networks.
+6.  Parry, J., & Locke, D. H. (n.d.). The Basics of sfdep. Retrieved September 26, 2024, from <https://sfdep.josiahparry.com/articles/basics-of-sfdep> 
+7.  Parry, J., & Locke, D. H. (n.d.). Spacetime and spacetime cubes • sfdep. sfdep. Retrieved October 6, 2024, from <https://sfdep.josiahparry.com/articles/spacetime-s3.html> 
+8.  Peay, A. (n.d.). Spatial Regression Analysis Advanced Data Analytics. chrismgentry.github.io. <https://chrismgentry.github.io/Spatial-Regression/> 
+9.  vsp.pnnl.gov. (n.d.). Mann-Kendall Test For Monotonic Trend. Design Trend Mann-Kendall. Retrieved October 6, 2024, from <https://vsp.pnnl.gov/help/vsample/design_trend_mann_kendall.htm> 

@@ -1,9 +1,9 @@
 ---
-title: "Take-home Exercise 2"
+title: "Take-home Exercise 2 - Part 1"
 subtitle: "Harnessing Geospatial Methods to Analyse Drug Abuse Patterns in Thailand"
 author: "Foo Jia Yi Samantha"
-date-modified: 10/06/2024
-date: 10/06/2024
+date-modified: 10/13/2024
+date: 10/13/2024
 format: 
   html:
     toc-depth: 5
@@ -21,11 +21,16 @@ This underscores the importance of drug treatment in addressing the complex prob
 
 In this exercise, I will utilise geospatial analysis methods to explore the province-level dynamics of drug abuse in Thailand. This will involve preparing a study area layer as `sf` polygon features at the province level, including Bangkok, and creating a drug abuse indicators layer within this study area. Using these extracted data layers, I will conduct **global spatial autocorrelation analysis** using `sfdep` methods, followed by **local spatial autocorrelation analysis.** Finally, I will describe the spatial patterns revealed by determining whether key indicators are spatially dependent, and identifying trends of clusters, outliers and hotspots over time.
 
+> **This take-home exercise consists of two parts:**
+>
+> 1.  [Take-home Ex 2 - Part 1](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02)
+> 2.  [Take-home Ex 2 - Part 2](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02_part2)
+
 ## **2. Methods Used**
 
 ### **2.1 Spatial Autocorrelation**
 
-![](images/clipboard-1506008753.png){fig-align="center"}
+![](images/clipboard-2006676839.png){fig-align="center" width="524"}
 
 This quote from Tobler (1970) highlights the essence of spatial autocorrelation, emphasising the importance of studying how values of the same variable are interconnected across space. By examining spatial dependence, we can better understand local and global patterns and variations. This law suggests that phenomena that are geographically close to each other are more likely to be similar or have some kind of spatial relationship compared to phenomena that are farther apart. 
 
@@ -37,9 +42,9 @@ It is also important to note that spatial structure and spatial autocorrelation 
 
 Thus, the observed spatial distribution is regarded as a reflection of the underlying spatial process. When spatial autocorrelation is present, the value of a variable at a given observation is connected to the values of that same variable at neighbouring observations:
 
-![](images/clipboard-3880014486.png){fig-align="center" width="500"}
-
 Configuration of areas showing different types of autocorrelation (Nguyen K. et al., 2022)
+
+![](images/clipboard-3880014486.png){fig-align="center" width="544"}
 
 -   **Positive Spatial Autocorrelation** occurs when similar values of the variable cluster geographically.
 
@@ -57,13 +62,13 @@ Cluster and Outlier Analysis can be effectively applied using Local Moran's I, L
 
 -   **Local Geary's C**: Similar to Local Moran's I, Local Geary's C focuses on differences rather than similarities. It quantifies the spatial variation between nearby locations, emphasising dissimilarity. This method can help detect spatial competition, where nearby areas have contrasting values. By using Local Geary's C, we can uncover regions that may experience conflicting trends or behaviours, providing insights into localised dynamics.
 
-#### **2.22. Moran Scatterplot**
+#### **2.2.2 Moran Scatterplot**
 
 -   The **Moran scatterplot** visualises the relationship between the value of a variable at a location and the average value of its neighbours. We can plot scatterplot to represent a location, with the x-axis showing the local mean of neighbouring values and the y-axis showing the local value. 
 
 -   Plots like this can help us in identifying clusters (high-high or low-low) and outliers (high-low or low-high). The scatterplot can reveal spatial patterns that are not immediately obvious.
 
-#### **2.2.3. LISA Cluster Map**
+#### **2.2.3 LISA Cluster Map**
 
 -   A **LISA Cluster Map** visually represents the results of Local Indicators of Spatial Association, indicating the spatial clusters of similar values (hotspots) and outliers. 
 
@@ -74,20 +79,6 @@ Cluster and Outlier Analysis can be effectively applied using Local Moran's I, L
 There are different methods for analysing spatial patterns and detecting hotspots including spatial autocorrelation and cluster analysis. **Emerging Hot Spot Analysis (EHSA)** is a specific spatio-temporal method used to examine hotspots over a designated **observation period**. It integrates two well-known techniques: the traditional **Getis-Ord Gi\* statistic** for hotspot detection and the **Mann-Kendall test** for assessing monotonic trends over time. The main goal of EHSA is to analyse how hot and cold spots change over time, focusing on whether these areas are increasing in intensity, decreasing, or remaining constant.
 
 ## **3. Importing Packages into R**
-
-```{r}
-#| include: false
-# load_dir <- "data/rds_files/"
-# 
-# # List all the .rds files in the folder
-# rds_files <- list.files(path = load_dir, pattern = "*.rds")
-# 
-# # Load each .rds file and assign to a variable
-# for (rds_file in rds_files) {
-#   var_name <- gsub(".rds", "", rds_file)  # Remove the .rds extension
-#   assign(var_name, readRDS(paste0(load_dir, rds_file)))  # Load the data
-# }
-```
 
 Let's load all the required packages for conducting our analysis.
 
@@ -106,7 +97,7 @@ pacman::p_load(sf, st, tidyverse, lubridate, sfdep, tmap, ggplot2, knitr, Kendal
 
 ## **4. Importing Datasets into R**
 
-![](images/clipboard-2233382775.png){fig-align="center" width="528"}
+![](images/clipboard-3730540943.png){fig-align="center" width="531"}
 
 We will be leveraging two datasets in this exercise. The first dataset to be used is Thailand’s provincial boundary is `tha_admbnda_adm1_rtsd_20220121` which exists in **ESRI .shp** **format** and is based on the Thailand geographic coordinate system. This dataset is extracted from [Thailand - Subnational Administrative Boundaries](https://data.humdata.org/dataset/cod-ab-tha?) via the HDX portal.
 
@@ -138,20 +129,15 @@ Before we delve into further data analysis, it is crucial that we first understa
 We can visualise the structure of our geospatial object as such.
 
 ```{r}
-#| eval: false
-tmap_mode("plot")
-
-# Plot the provinces of Thailand with labels
-tm_shape(thai_boundary) +
-  tm_borders(col = "black", lwd = 0.3, alpha = 0.6) + 
+#| eval: false 
+tmap_mode("plot")  
+# Plot the provinces of Thailand with labels 
+tm_shape(thai_boundary) +   
+  tm_borders(col = "black", lwd = 0.3, alpha = 0.6) +    
   tm_polygons()+
-  tm_layout(
-    main.title = "Provinces of Thailand",
-    main.title.size = 1,
-    main.title.position = "center",
-    legend.show = FALSE,
-    frame = FALSE
-  ) +
+  tm_layout(main.title = "Provinces of Thailand",main.title.size = 1,    
+            main.title.position = "center", legend.show = FALSE, 
+            frame = FALSE   ) +   
   tm_text("ADM1_EN", size = 0.2)
 ```
 
@@ -162,12 +148,12 @@ tm_shape(thai_boundary) +
 In this section, `read_csv()` of **sf** package will be used to import the csv file into the R environment. The output is a R dataframe class containing 5 unique columns of drug offences in Thailand from 2017 - 2022.
 
 ```{r}
-drug_cases <- read_csv("data/aspatial/thai_drug_offenses_2017_2022.csv")
+drug_cases <- read_csv("data/aspatial/thai_drug_offenses_2017_2022.csv") 
 head(drug_cases)
 ```
 
 |                        |               |                                                                                |
-|----------------|----------------|---------------------------------------|
+|---------------|---------------|-------------------------------------------|
 | **Column Name**        | **Data Type** | **Description**                                                                |
 | fiscal_year            | *\<dbl\>*     | The fiscal year during which the drug offenses were recorded.                  |
 | types_of_drug_offenses | *\<chr\>*     | The specific type or category of drug offence being reported.                  |
@@ -213,14 +199,15 @@ glimpse(drug_cases)
 To reduce the memory load, we can drop the province names in Thai from our aspatial dataset as it is not relevant for this study.
 
 ```{r}
-drug_cases <- subset(drug_cases, select = c(-province_th))
+drug_cases <- subset(drug_cases, select = c(-province_th)) 
 head(drug_cases)
 ```
 
 We'll also only retain columns that are most useful from `thai_boundary`.
 
 ```{r}
-thai_boundary <- subset(thai_boundary, select = c(Shape_Leng, Shape_Area, ADM1_EN, ADM1_PCODE, geometry))
+thai_boundary <- subset(thai_boundary, select = c(Shape_Leng, Shape_Area, ADM1_EN, ADM1_PCODE, geometry)) 
+
 head(thai_boundary)
 ```
 
@@ -230,7 +217,6 @@ There are no troublesome rows in the `drug_cases` dataframe.
 
 ```{r}
 any(is.na(thai_boundary))
-#thai_boundary[!complete.cases(st_drop_geometry(thai_boundary)), ]
 ```
 
 ```{r}
@@ -313,11 +299,6 @@ We have successfully removed all NA values found in `drug_cases`.
 any(is.na(drug_cases))
 ```
 
-```{r}
-# Check the updated drug_cases
-drug_cases[!complete.cases(st_drop_geometry(drug_cases)), ]
-```
-
 ### 5.3 Create New `total_cases` Column
 
 Next, I create a new dataframe `drug_cases_province` to count the total number of cases per province.
@@ -328,7 +309,7 @@ drug_cases_province <- drug_cases %>%
   summarise(
     total_cases = sum(no_cases), 
     ADM1_PCODE = first(ADM1_PCODE),              
-    geometry = first(geometry), 
+    geometry = first(geometry),
     .groups = "drop"                           
   ) %>%
   st_as_sf()
@@ -345,13 +326,113 @@ drug_cases_province_year <- drug_cases %>%
     fiscal_year = first(fiscal_year),
     total_cases = sum(no_cases), 
     ADM1_PCODE = first(ADM1_PCODE),              
-    geometry = first(geometry), 
+    geometry = first(geometry),
     .groups = "drop"                           
   ) %>%
   st_as_sf()
 
 print(drug_cases_province_year)
 ```
+
+### 5.4 Create Spacetime Cubes
+
+We will also utilise the new s3 class introduced by Edzer Pebesma (2012) from the `sfdep` package to better represent spatio-temporal data (source code can be found [here](https://github.com/edzer/spacetime)).
+
+A **spacetime object** is considered a **spacetime cube** when each location in the dataset has a corresponding value for every point in time. In other words, the dataset contains a regular time series for each location. Hence, the concept of a `spacetime` cube can be valuable for understanding how the spatial patterns of these drug cases evolve over time.
+
+-   In ESRI terminology, the basic unit of a spacetime cube is called a **bin** which represents a unique combination of a specific geographic location and a particular time index.
+
+-   The collection of all locations for a given time point forms a **time slice**.
+
+-   Similarly, for a single location, the set of bins across all time points is referred to as a **bin time-series**.
+
+![](images/clipboard-431442936.png){fig-align="center" width="396"}
+
+Before we construct our `spacetime` cube object, we need to carry out data wrangling to prepare the requred data. It is worth noting that geometries are currently stored as `Multipolygon` rather than `Polygon` data. Hence, for the creation of the space-time object, I will need to split the `Multipolygon` geometries into individual `Polygon` components, then retain the largest polygon for each province.
+
+-   **Split Multipolygon into Polygon**: we will use `st_cast` to convert `Multipolygon` geometries into `Polygon` geometries.
+-   **Retain the Largest Polygon**: For each province, we can calculate the area of each polygon and retain only the polygon with the largest area into `geo`.
+-   **Convert the sf Attribute Data to a Dataframe**: The `spacetime()` function will require useful attributes from `drug_cases_province_year` (e.g. total_cases) which will also require the geometry column to be dropped.
+-   **Create the Space-Time Cube**: After preparing the data, I'll be able to use this for space-time analysis.
+
+```{r}
+#| include: false
+#save(df_drug_cases, geo, drug_cases_spt, drugs_nb, gi_stars_year, th37_hotspot_data, th10_hotspot_data, th31_hotspot_data, th18_coldspot_data, th62_coldspot_data, th60_coldspot_data, file = "spacetime_cube.RData")
+load("spacetime_cube.RData")
+```
+
+```{r}
+#| eval: false
+library(sf)
+library(dplyr)
+
+# Step 1: Split multipolygon into individual polygons and compute area
+provinces_split <- thai_boundary %>%
+  st_cast("POLYGON") %>%
+  mutate(area = st_area(geometry))
+
+# Step 2: Retain the largest polygon for each province
+geo <- provinces_split %>%
+  group_by(ADM1_PCODE) %>%
+  filter(area == max(area)) %>%
+  ungroup() %>%
+  select(ADM1_PCODE, geometry)  
+
+# Step 3: Prepare the data without geometry for analysis
+df_drug_cases <- st_drop_geometry(drug_cases_province_year) %>%
+  select(ADM1_PCODE, province_en, fiscal_year, total_cases)
+
+# Step 4: Ensure there are no duplicate rows in the data
+df_drug_cases <- distinct(df_drug_cases)
+```
+
+```{r}
+# Inspect the result
+head(df_drug_cases)
+```
+
+```{r}
+# Ensure output is an sf object
+class(geo)
+```
+
+```{r}
+# Ensure output is a dataframe object
+class(df_drug_cases)
+```
+
+With the data prepared, we can now create the `spacetime` object called `drug_cases_spt` using the following data:
+
+-   **data:** `df_drug_cases`
+
+-   **geometry:** `st_data`
+
+-   **location identifier:** `ADM1_PCODE`
+
+-   **time:** `fiscal_year`
+
+```{r}
+#| eval: false
+# Create the spacetime object
+drug_cases_spt <- spacetime(
+  .data = df_drug_cases,      
+  .geometry = geo, 
+  .loc_col = "ADM1_PCODE",     
+  .time_col = "fiscal_year",    
+  active = "data"               
+)
+```
+
+```{r}
+# Check if it's a valid spacetime cube
+is_spacetime_cube(drug_cases_spt)
+```
+
+::: callout-note
+A key takeaway and something to note, we need to dissolve the `MULTIPOLYGON` data to a `GEOMETRY` spatial object, else it will lead to an error where duplicated geometry is found. Additionally, after multiple trials and errors, I figured out that this error will also surface if the .data and .geometry parameters don't receive a **dataframe** and **sf** object respectively.
+
+![](images/clipboard-317917080.png){fig-align="center" width="498"}
+:::
 
 ## 6. Exploratory Geospatial Data Analysis
 
@@ -362,14 +443,17 @@ I employed the `geom_histogram` function of the `ggplot` package to plot histogr
 Overall, the number of cases appears to be relatively right-skewed with some outliers indicating a significantly high number of drug cases.
 
 ```{r}
+#| eval: false
 ggplot(drug_cases, aes(x = no_cases)) + 
-  geom_histogram(bins = 20, color = "white", fill = "skyblue3") + 
+  geom_histogram(bins = 20, color = "white", fill = "skyblue2") + 
   labs(x = "Number of Cases", y = "Count", title = "Histogram of Total Drug Cases in Thailand (2017-2022)") +
   theme_minimal() + 
   theme(
     plot.title = element_text(hjust = 0.5, size = 12, face = "bold")
   )
 ```
+
+![](images/clipboard-1063489729.png)
 
 ### 6.2 Histogram of Drug Cases by Year
 
@@ -423,6 +507,8 @@ grid.arrange(hist_2017, hist_2018, hist_2019, hist_2020, hist_2021, hist_2022, n
 ```
 
 ![](images/clipboard-1227396748.png)
+
+![]()
 
 ### 6.3 Overall Plot of Drug Cases
 
@@ -525,7 +611,7 @@ temporal_maps <- tm_shape(drug_cases_province_year) +
               title = "Drug Cases") + 
   tm_borders(col = "black", alpha = 0.6) +
   tm_layout(legend.title.size = 1.8,
-            legend.text.size = 1.5) +
+            legend.text.size = 1.1) +
   tm_facets(along = "fiscal_year", free.coords = FALSE)
 
 # Generate animation
@@ -533,10 +619,7 @@ tmap_animation(temporal_maps, filename = "thailand_drugs_temporal.gif",
                delay = 150, width = 1000, height = 1200)
 ```
 
-```{r}
-# Include the generated GIF
-knitr::include_graphics("thailand_drugs_temporal.gif")
-```
+![](images/thailand_drugs_temporal.gif){width="664"}
 
 ## 7. Global Measures of Spatial Autocorrelation
 
@@ -548,7 +631,7 @@ This section delves into analysing the spatial autocorrelation of our drug cases
 
 Spatial relationships are characterised by their **multidirectional** and **multilateral** nature, setting them apart from temporal relationships, which are linear and follow a past-present-future sequence. The **codifying process of spatial relationships,** illustrated in the figure below, enables the transformation of complex geographic space into a structured dataset suitable for computer analysis.
 
-![](images/clipboard-550850738.png){fig-align="center" width="389"}
+![](images/clipboard-2507849526.png){fig-align="center" width="454"}
 
 There are multiple approaches to defining spatial neighbours. Two most common methods are:
 
@@ -560,7 +643,7 @@ There are multiple approaches to defining spatial neighbours. Two most common me
     -   **Bishop Criterion**: Neighbours are areas that share a common corner but not necessarily an edge. This approach is similar to the diagonal movements.
     -   **Queen Criterion**: Neighbours are areas that share either an edge or corner, which includes both vertical, horizontal, and diagonal connections.
 
-![](images/clipboard-1656372088.png){fig-align="center" width="454"}
+![](images/clipboard-1656372088.png){fig-align="center" width="500"}
 
 ### 7.2 Computing Contiguity Neighbours
 
@@ -619,6 +702,7 @@ wm_q
 Let's also visualise the Queen's neighbour map. Here, we retrieve the centroid coordinates of each province by combining the longitude and latitude into a single object via `st_centroid()`. The outputs of the coordinate looks correct as shown.
 
 ```{r}
+#| warning: false
 # Extract centroid geometries
 centroids <- st_centroid(drug_cases_province)
 head(centroids)
@@ -651,7 +735,7 @@ for (i in seq_along(thailand_nb_q)) {
 }
 ```
 
-![](images/Untitled design (1).png){fig-align="center"}
+![](images/clipboard-1805425517.png){fig-align="center"}
 
 ::: {.callout-tip title="Observations"}
 We cam observe that most connections between the centroids of each province is found at the **lower central regions** of Thailand which shows signs of higher interactivity between provinces here. Surprisingly, there are fewer connecting relationships between provinces in the central parts of Thailand.
@@ -742,7 +826,7 @@ Now, we can analyse the spatial distribution of drug cases in a histogram and it
 #| eval: false
 ggplot() + 
   aes(gmoran_MC$res[1:999]) + 
-  geom_histogram(colour="black", fill="skyblue3") + 
+  geom_histogram(colour="black", fill="skyblue") + 
   geom_vline(aes(xintercept = mean(gmoran_MC$res)), color = 'red') +
   labs(title = "Histogram of Simulated Moran's I For Thailand's Drug Cases",
        x = "Simulated Moran's I",
@@ -753,7 +837,7 @@ ggplot() +
   )
 ```
 
-![](images/clipboard-3719881788.png)
+![](images/clipboard-2351023385.png)
 
 ```{r}
 # Summary Statistics
@@ -806,7 +890,7 @@ global_c_test(wm_q$total_cases,
 ::: {.callout-tip title="Observations"}
 After performing the Geary C test, we can observe that...
 
--   **Geary’s C statistic** is close to **1**, suggesting **little or no spatial autocorrelation**.
+-   **Geary’s C statistic** is close to **1**, suggesting **little or no global spatial autocorrelation**.
 
 -   The **p-value of 0.41** indicates that the observed pattern is **not significantly different from random**.
 
@@ -828,10 +912,15 @@ ggeary_MC
 We can see that the distribution of drug cases resulting from the Geary's C permutation test has a **much higher** **mean (0.9851)** and **median (0.9860) t**han what was outputted by the Global Moran's I test. Likewise, the observed Geary's C statistics of 0.97488 suggests that the data does not show strong clustering/dispersed, but is random.
 
 ```{r}
+# Summary Statistics
+summary(ggeary_MC$res[1:999])
+```
+
+```{r}
 #| eval: false
 ggplot() + 
   aes(ggeary_MC$res[1:999]) + 
-  geom_histogram(colour="black", fill="skyblue3") + 
+  geom_histogram(colour="black", fill="skyblue") + 
   geom_vline(aes(xintercept = mean(ggeary_MC$res)), color = 'red') +
   labs(title = "Histogram of Simulated Geary's C For Thailand's Drug Cases",
        x = "Simulated Geary's C",
@@ -842,15 +931,10 @@ ggplot() +
   )
 ```
 
-![](images/clipboard-1581274930.png)
-
-```{r}
-# Summary Statistics
-summary(ggeary_MC$res[1:999])
-```
+![](images/clipboard-4160189896.png)
 
 ::: {.callout-tip title="Observations"}
-As shown, Geary’s C indeed indicate randomness since it doesn’t detect the **global pattern** of spatial clustering, even when such a pattern is present. This local focus of Geary's C could make it **miss larger clusters** and conclude that the spatial distribution is more random than it actually is.
+As shown, Geary’s C indeed indicated randomness since it doesn’t detect the **global pattern** of spatial clustering very well, even when such a pattern is present. Geary's C sensitivity to local differences between pairs of neighbours could make it **miss larger, global clustering patterns** and conclude that the spatial distribution is more random than it actually is. Hence, the Global Moran's I test is more relevant in identifying overall clustering on a global-scale, i.e at a national scale, rather than by provinces.
 :::
 
 ## 8. Local Indicators of Spatial Association (LISA)
@@ -866,6 +950,11 @@ However, I would also like to perform local spatial autocorrelation to identify 
 **Local Moran’s I~i~** is an extension of **Global Moran’s I**, designed to identify **local clusters** and **spatial outliers** within a dataset. **Local Moran’s I~i~** provides a measure of autocorrelation at individual locations, identifying where significant clustering or outliers exist.
 
 Let's utilise the `local_moran()` function of **sfdep** to handle the computations. Once again, we'll set `zero.policy` to **TRUE** to allow the analysis to continue despite the one province with 0 neighbours.
+
+```{r}
+#| include: false
+load("wm_q.RData")
+```
 
 ```{r}
 lisa <- wm_q %>% 
@@ -904,22 +993,23 @@ tm_shape(lisa) +
           legend.hist = TRUE, 
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
-  tm_borders(col = "black", alpha = 0.6) +
+  tm_borders(col = "black", alpha = 0.5) +
   tm_layout(main.title = "Province-Level Spatial Autocorrelation \nof Drug Cases in Study Area (Thailand)",
             main.title.position = "center",
             main.title.size = 0.7,
             main.title.fontface = "bold",
-            legend.title.size = 0.4,
-            legend.text.size = 0.4,
-            legend.hist.size = 0.3,
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
             frame = TRUE) +
-  tm_borders(alpha = 0.5) +
   tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7) +
-  tm_grid(labels.size = 0.5, alpha = 0.2)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(labels.size = 0.6, alpha = 0.2)
 ```
 
-![](images/8.1.2.png){fig-align="center" width="500"}
+![](images/clipboard-3631018759.png)
 
 ::: {.callout-tip title="Observations"}
 The local spatial autocorrelation using *Moran's I* outputs a total of **4 different regions**, each with a different range of Moran's I value.
@@ -947,28 +1037,29 @@ lisa_clean <- lisa %>% filter(!is.na(p_ii_sim))
 
 tm_shape(lisa_clean) +
   tm_fill("p_ii_sim", 
-          palette = c("lightyellow1","green1","orange","orange4","red"),
+          palette = c("green3","lightyellow","orange","orange4","red"),
           title = "p-value",
           midpoint = NA,
           legend.hist = TRUE, 
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
-  tm_borders(col = "black", alpha = 0.6) +
+  tm_borders(col = "black", alpha = 0.5) +
   tm_layout(main.title = "Statistical Signifance of Spatial Autocorrelation\n of Drug Cases in Study Area (Thailand)",
             main.title.position = "center",
-            main.title.size = 0.6,
+            main.title.size = 0.7,
             main.title.fontface = "bold",
-            legend.title.size = 0.4,
-            legend.text.size = 0.4,
-            legend.hist.size = 0.3,
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
             frame = TRUE) +
-  tm_borders(alpha = 0.5) +
   tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7) +
-  tm_grid(labels.size = 0.5, alpha = 0.2)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(labels.size = 0.6, alpha = 0.2)
 ```
 
-![](images/8.1.3.png){fig-align="center" width="500"}
+![](images/clipboard-2441982802.png)
 
 ::: {.callout-tip title="Observations"}
 From the map above, not every province exhibits statistically significant Local *Moran I's* value (i.e. p-value \< 0.05)
@@ -976,7 +1067,7 @@ From the map above, not every province exhibits statistically significant Local 
 
 #### 8.1.4 Visualising Statistically Significant Local *Moran's I~i~*
 
-With that said, it will be interesting to switch our focus to provinces that display statistically significant local *Moran's I* values. To execute this, I will attempt to remove all local *Moran's I* values with **p-values greater than 0.05**. Subsequently, I will use the `tmap` function to plot the choropleth of statistically significant local spatial autocorrelation on the map of Thailand.
+With that said, I would like to switch our focus to provinces that display statistically significant local *Moran's I* values. To execute this, I will attempt to **remove** all local *Moran's I* values with **p-values greater than 0.05**. Subsequently, I will use the `tmap` function to plot the choropleth of statistically significant local spatial autocorrelation on the map of Thailand.
 
 ```{r}
 #| eval: false
@@ -988,54 +1079,498 @@ tm_shape(lisa)+
   tm_borders(col = "black", alpha = 0.6)+
 tm_shape(lisa_sig) +
   tm_fill("ii", 
-          palette = c("#B3EBF2","lightyellow","green3","orange","orange4","orangered2","red"),
+          palette = c("skyblue4","skyblue","lightblue1","yellow",
+                      "orange","orange4","red"),
           title = "Local Moran's I (p-value < 0.05)",
           midpoint = NA,
           legend.hist = TRUE, 
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
-  tm_borders(col = "black", alpha = 0.6) +
+  tm_borders(col = "black", alpha = 0.5) +
   tm_layout(main.title = "Statistical Signifance of Spatial Autocorrelation\n of Drug Cases in Study Area (Thailand)",
             main.title.position = "center",
-            main.title.size = 0.6,
+            main.title.size = 0.7,
             main.title.fontface = "bold",
-            legend.title.size = 0.4,
-            legend.text.size = 0.4,
-            legend.hist.size = 0.3,
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
             frame = TRUE) +
-  tm_borders(alpha = 0.5) +
   tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7) +
-  tm_grid(labels.size = 0.5, alpha = 0.2)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(labels.size = 0.6, alpha = 0.2)
 ```
 
-![](images/8.1.4.png){fig-align="center" width="500"}
+![](images/clipboard-1697590140.png)
 
 ::: {.callout-tip title="Observations"}
-**Low-high spatial association**
+Previously, we mentioned that spatial autocorrelation of drug cases is widespread across provinces in Thailand, particularly in the provinces, Samut Prakan and Nakhon Si Thammarat. However, we can see that majority of provinces in Thailand is in fact **not statistically significant**. As such, we cannot conclude that most of these provinces are **high-risk regions** for the spread of drug cases.
 
--   The Nonthaburi province indicated in blue (southern part of central Thailand) suggests to have a **low-high** spatial association as shown from its negative local *Moran's I* values ranging from **-0.5 to 0.**
+**Potential Spill-over of Drug Cases in Central Thailand**
 
-**High-high spatial association**
+-   Central provinces **(in orange)**, Kamphaeng-Phet and Nakhon Sawan, suggests to have some levels of high drug clusters, as shown from its low local *Moran's I* values ranging from **0.2 to 0.4.**
 
--   Central provinces **(in yellow)**, Phitsanulok and Nakhon Sawan, show a low positive local *Moran's I* value of 0 to 0.5, indicating some levels of clustering.
+-   Moreover, a neighbouring province **(in red)** has an even higher local *Moran's I* observed **(0.6 to 0.8)**,indicating that it has the strongest association with its neighbours where both itself and its neighbours exhibit strong clustering of high number of drug cases.
 
--   Chainat province **(in green)**, located in Western Thailand has a local *Moran's I value* between 1 and 1.5
+-   This poses a significant risk of drug cases spreading into other neighbouring provinces without adequate law enforcements and control, since this region has already become concentrated with high drug activites cumulatively across the years.
 
--   Samut Prakan province **(in red)** has the strongest association with its neighbours in which, like itself, its neighbours also exhibit high drug cases.
+-   On the other hand, a province located in further down in southern Thailand **(dark blue)** displayed high clustering of low drug cases, as observed from its strongly negative local *Moran's I* of **-0.6 to -0.4**.
+
+**Other interesting findings**
+
+We can also observe that the provinces **in gray** are not statistically signifcant enough, especially provinces which displayed **negative autocorrelation** (i.e. **\< 0** Moran's I) previously. This means that a **low-high** spatial association is, in reality, not observable in the spread of drug cases in Thailand.
 :::
+
+#### 8.1.5 Visualising Statistically Significant Local *Moran's I~i~* (By Drug Case)
+
+I will categorise the dataset by the following drug case type to ease my analysis of how varying types of drug offense might display spatial dependence/independence from one province to another.
+
+> **Drug Use Cases:** Instances of individuals using drugs.
+>
+> -   `drug_use_cases`
+> -   `suspects_in_drug_use_cases`
+>
+> **Possession Cases**: Instances where individuals are found with drugs and/or evidence suggesting intent to sell or distribute.
+>
+> -   `possession_cases`
+> -   `suspects_in_possession_cases`
+> -   `possession_with_intent_to_distribute_cases`
+> -   `suspects_in_possession_with_intent_to_distribute_cases`
+>
+> **Trafficking Cases:** Instances related to the illegal trade of drugs.
+>
+> -   `trafficking_cases`
+> -   `suspects_in_trafficking_cases`
+>
+> **Production Cases:** Instances involving the manufacture or cultivation of drugs.
+>
+> -   `production_cases`
+> -   `suspects_in_production_cases`
+>
+> **Import/Export Cases:** Instances related to the illegal importation & exportation of drugs.
+>
+> -   `import_cases`
+> -   `suspects_in_import_cases`
+> -   `export_cases`
+> -   `suspects_in_export_cases`
+>
+> **Conspiracy Cases:** Instances where individuals conspire to commit drug-related offenses.
+>
+> -   `conspiracy_cases`
+> -   `suspects_in_conspiracy_cases`
 
 ```{r}
 #| include: false
-# save_dir <- "data/rds_files/"
-# if (!dir.exists(save_dir)) {
-#   dir.create(save_dir)
-# }
-# 
-# vars <- ls()
-# 
-# # Save each variable as an RDS file
-# for (var in vars) {
-#   saveRDS(get(var), file = paste0(save_dir, var, ".rds"))
-# }
+# Load the file from the 'data' folder
+load("drug_cases_data.RData")
 ```
+
+```{r}
+#| eval: false
+# Compute Moran I's by Drug Case
+library(dplyr)
+library(sf)
+library(sfdep)
+
+# Function for Moran's I calculation after filtering
+compute_morans_I <- function(filtered_data) {
+  thailand_nb_q <- st_contiguity(filtered_data$geometry, queen = TRUE)
+  thailand_wt <- st_weights(thailand_nb_q, style = "W", allow_zero = TRUE)
+  
+  filtered_data <- filtered_data %>%
+    mutate(nb = thailand_nb_q, wt = thailand_wt) %>%
+    mutate(local_moran = local_moran(total_cases, nb, wt, 
+                                     zero.policy = TRUE,
+                                     nsim = 99)) %>%
+    unnest(local_moran)
+  
+  return(filtered_data)
+}
+
+# General function to process different types of drug offenses
+process_cases <- function(offense_types) {
+  drug_cases %>%
+    filter(types_of_drug_offenses %in% offense_types) %>%
+    group_by(province_en) %>%
+    summarise(
+      total_cases = sum(no_cases),
+      ADM1_PCODE = first(ADM1_PCODE),
+      geometry = first(geometry),
+      .groups = "drop"
+    ) %>%
+    st_as_sf() %>%
+    compute_morans_I()
+}
+
+# Define offense types for each category
+drug_use_offenses <- c("drug_use_cases", "suspects_in_drug_use_cases")
+possession_offenses <- c("possession_cases", "suspects_in_possession_cases", 
+                         "possession_with_intent_to_distribute_cases", 
+                         "suspects_in_possession_with_intent_to_distribute_cases")
+trafficking_offenses <- c("trafficking_cases", "suspects_in_trafficking_cases")
+import_export_offenses <- c("import_cases", "suspects_in_import_cases", 
+                            "export_cases", "suspects_in_export_cases")
+conspiracy_offenses <- c("conspiracy_cases", "suspects_in_conspiracy_cases")
+
+# Process each type of offense
+drug_use_cases <- process_cases(drug_use_offenses)
+possession_cases <- process_cases(possession_offenses)
+trafficking_cases <- process_cases(trafficking_offenses)
+import_export_cases <- process_cases(import_export_offenses)
+conspiracy_cases <- process_cases(conspiracy_offenses)
+
+# For significant cases
+significant_cases <- function(data) {
+  data %>%
+    filter(p_ii_sim < 0.05) %>% mutate(label = paste(ADM1_PCODE, province_en))
+}
+
+# Filter significant cases for each offense type
+drug_use_cases_sig <- significant_cases(drug_use_cases)
+possession_cases_sig <- significant_cases(possession_cases)
+trafficking_cases_sig <- significant_cases(trafficking_cases)
+import_export_cases_sig <- significant_cases(import_export_cases)
+conspiracy_cases_sig <- significant_cases(conspiracy_cases)
+```
+
+##### **1) Case Type: Drug Use**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot Moran's I and P-values
+# Moran I's (red to green)
+drug_use_moran_i <- tm_shape(drug_use_cases) +
+  tm_polygons("ii", 
+              palette = c("#FF0000", "#FF4D4D", "#FF6666",
+                          "#CCFFCC", "#66CC66", "#4CAF50"),
+              title = "Local Moran's I",
+              midpoint = NA) +
+  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Drug Use)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+# p-values (red, orange, yellow, green)
+drug_use_p_values <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(drug_use_cases_sig) +
+  tm_polygons("p_ii_sim", 
+              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
+              title = "p-value",
+              midpoint = NA) +
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Drug Use)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(drug_use_moran_i, drug_use_p_values, asp=1, ncol=2)
+```
+
+![](images/clipboard-2820920240.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Codes to plot map for statistically significant Moran's I values
+drug_use_cases_sig <- drug_use_cases_sig %>%
+  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
+
+tm_shape(drug_use_cases) +
+  tm_polygons(id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  tm_shape(drug_use_cases_sig) +
+  tm_fill("ii", 
+          palette = c("#E4F1EB", "#F5F3A6", "#E5D96E",
+                      "#ec9a64", "#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("ii_rounded", 
+          size = 0.4, 
+          col = "white",
+          bg.color = "black",
+          bg.alpha = 0.6,  
+          auto.placement = TRUE, 
+          just = "right",  
+          id = "province_en") + 
+
+  # Adding layout elements for map styling
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Drug Use Cases in Study Area",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
+            frame = TRUE) +
+
+  # Adding a compass for orientation
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+
+  # Adding a scale bar for map accuracy
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+
+  # Adding grid with transparency
+  tm_grid(labels.size = 0.6, alpha = 0.1)
+```
+
+![](images/clipboard-1434275424.png)
+
+::: {.callout-tip title="Observations"}
+**Overall Observations**
+
+When it comes to cases where individuals were found using drugs illegally, we can see that majority of these provinces did not display statistically significant (p\<0.05) Local *Moran I's* values.
+
+**Observations of statistically significant values**
+
+On the higher range of Local *Moran's I* values, we can see that **Samut Prakan province in red** (top right plot) displayed a **strong** **p-value of 0.020 to 0.025** which corresponds with a **high positive** Local *Moran's I* value of 0.7 to 0.8 (bottom plot). This indicates that the province is indeed distinctly part of a group of similar high-value neighbours, hinting at a pronounced hotspot.
+
+In the same bottom plot, we see that adjacent to the red region mentioned above, is a province in **light green**. To me, this is interesting as it suggests that this province has **weaker clustering effects**, meaning that its location has slightly higher number of drug cases than its neighbours but not as high as the province in red. There is a possibility that the spread of drug cases has not spilled to its other neighbours.
+:::
+
+##### **2) Case Type: Possession**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot Moran's I and P-values
+# Moran I's (blue, green, light yellow, yellow, orange, red)
+possession_moran_i <- tm_shape(possession_cases) +
+  tm_polygons("ii", 
+              palette = c("#E6F4FA","#c9e3d2", "#E1ECBB",
+                          "#E5D96E", "#ec9a64", "#d21b1c"),
+              title = "Local Moran's I",
+              midpoint = NA) +
+  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Possession)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+# p-values (red, orange, yellow, green)
+possession_p_values <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(possession_cases_sig) +
+  tm_polygons("p_ii_sim", 
+              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
+              title = "p-value",
+              midpoint = NA) +
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Possession)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(possession_moran_i, possession_p_values, asp=1, ncol=2)
+```
+
+![](images/clipboard-3254231149.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Codes to plot map for statistically significant Moran's I values
+possession_cases_sig <- possession_cases_sig %>%
+  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
+
+tm_shape(possession_cases) +
+  tm_polygons(id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  tm_shape(possession_cases_sig) +
+  tm_fill("ii", 
+          palette = c("#E4F1EB", "#F5F3A6", "#E5D96E",
+                      "#ec9a64", "#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_text("ii_rounded", 
+          size = 0.4, 
+          col = "white",
+          bg.color = "black",
+          bg.alpha = 0.6,  
+          just = "right",  
+          id = "province_en") + 
+
+  # Adding layout elements for map styling
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Drug Possession Cases in Study Area",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
+            frame = TRUE) +
+
+  # Adding a compass for orientation
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+
+  # Adding a scale bar for map accuracy
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+
+  # Adding grid with transparency
+  tm_grid(labels.size = 0.6, alpha = 0.1)
+```
+
+![](images/clipboard-1055200682.png)
+
+::: {.callout-tip title="Observations"}
+**Observations of statistically significant values**
+
+For drug cases found to be in possession and/or with the intent of distributing drugs, there are **high levels of clustering** of such cases in provinces located at the **West** of Thailand as observed from their higher Local *Moran I's* values **(in orange & red regions)**, ranging from 0.2 to 0.6.
+
+Interestingly, the Nakhon Pathom province displayed a low Local *Moran's I* value of **-0.247**, meaning it has **significantly lower** number of drug cases than its neighbours **(light green)**. Ironically, it is situated beside the Nonthaburi province **(red)** which has a **high** Local *Moran's I* value of **0.464**, indicating that Nakhon Pathom province is not part of the significantly high clustering of drug cases observed by its neighbour. This could signal signs of ***boundary effects*** where there is **no** **spill-over effect** found in Nakkon Pathom.
+:::
+
+##### **3) Case Type: Trafficking**
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Plot Moran's I and P-values
+# Moran I's (blue, green, yellow, orange, red)
+trafficking_moran_i <- tm_shape(trafficking_cases) +
+  tm_polygons("ii", 
+              palette = c("#E6F4FA","#c9e3d2",
+                          "#E5D96E", "#ec9a64", "#d21b1c"),
+              title = "Local Moran's I",
+              midpoint = NA) +
+  tm_layout(main.title = "Overall Spatial Autocorrelation\nof Drug Cases (Trafficking)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+# p-values (red, orange, yellow, green)
+trafficking_p_values <- tm_shape(thai_boundary)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+  tm_shape(trafficking_cases_sig) +
+  tm_polygons("p_ii_sim", 
+              palette = c("#d21b1c","#ec9a64","#E5D96E","#c9e3d2"),
+              title = "p-value",
+              midpoint = NA) +
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation\nof Drug Cases (Trafficking)",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(trafficking_moran_i, trafficking_p_values, asp=1, ncol=2)
+```
+
+![](images/clipboard-3403556708.png)
+
+```{r}
+#| eval: false
+#| code-fold: true
+#| code-summary: Codes to plot map for statistically significant 
+trafficking_cases_sig <- trafficking_cases_sig %>%
+  mutate(ii_rounded = paste(province_en, ":", round(ii, 3)))
+
+tm_shape(trafficking_cases) +
+  tm_polygons(id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  tm_shape(trafficking_cases_sig) +
+  tm_fill("ii", 
+          palette = c("#E6F4FA", "#c9e3d2", "#ec9a64", "#d21b1c"),
+          breaks = c(-1, 0, 1, 2, 3),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          id = "label") +
+  tm_borders(col = "black", alpha = 0.6) +
+
+  # Adding text labels for the 'ii' values over the provinces with a black background
+  tm_text("ii_rounded", 
+          size = 0.4, 
+          col = "white",
+          bg.color = "black",
+          bg.alpha = 0.6,  
+          just = "right",  
+          id = "province_en") + 
+
+  # Adding layout elements for map styling
+  tm_layout(main.title = "Statistical Significance of Spatial Autocorrelation\nof Trafficking Cases in Study Area",
+            main.title.position = "center",
+            main.title.size = 0.7,
+            main.title.fontface = "bold",
+            legend.title.size = 0.6,
+            legend.text.size = 0.6,
+            legend.hist.size = 0.6,
+            legend.position = c("right","bottom"),
+            asp = 1.1,
+            frame = TRUE) +
+
+  # Adding a compass for orientation
+  tm_compass(type = "8star", text.size = 0.7, size = 2, position = c("RIGHT", "TOP")) +
+
+  # Adding a scale bar for map accuracy
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
+
+  # Adding grid with transparency
+  tm_grid(labels.size = 0.6, alpha = 0.1)
+```
+
+![](images/clipboard-3336495180.png)
+
+::: {.callout-tip title="Observations"}
+**Observations of statistically significant values**
+
+Likewise, we see some statistically significant observations in the extreme south of Thailand **(light green)** in the Songkhla province which appears to have **slightly higher** number of drug trafficking cases than its neighbours.
+
+Songkhla is a **key transportation hub** with its capital Hat Yai having strong transportation links by **road, rail, and air**, making it a strategic point for drug traffickers to move illicit drugs. However, we aren't sure where these drugs are illegally traded to/from since *Moran's I* is relatively low, meaning there is **low spatial dependence** with its neighbours.
+
+Si Sa Ket province **(in red)** suggests to have significant clustering of drug cases with **high** Local *Moran I's* values of 2.26. The province has high number of drugs being trafficked and is likewise surrounded by neighbouring provinces with similarly high values, suggesting **spatial dependence.**
+:::
+
+[Continue to Part 2 \>](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02_Part2)
