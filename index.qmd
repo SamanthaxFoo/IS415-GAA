@@ -79,6 +79,14 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                |                                                   |
 | </p>                |                                                                                                                |                                                   |
 +---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Hands-on Exercise 8**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex8/hands-on_ex8)      | ![](images/clipboard-3637343720.png){width="201"} |
+|                     |                                                                                                                |                                                   |
+| Oct 11, 2024        | Geographical Segmentation with Spatially Constrained Clustering Techniques                                     |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
 | <p id="contents">   | ## [**In-class Exercise 1**](https://is415-samanthafoo.netlify.app/in-class_ex/in-class_ex1/in-class_ex1)      | ![](images/clipboard-3012753143.png){width="201"} |
 |                     |                                                                                                                |                                                   |
 | Aug 19, 2024        | Set up RStudio and Create a Quarto Document                                                                    |                                                   |
