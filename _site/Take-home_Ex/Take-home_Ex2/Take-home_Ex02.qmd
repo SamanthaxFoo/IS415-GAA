@@ -153,7 +153,7 @@ head(drug_cases)
 ```
 
 |                        |               |                                                                                |
-|------------------------|---------------|--------------------------------------------------------------------------------|
+|------------------|------------------|-------------------------------------|
 | **Column Name**        | **Data Type** | **Description**                                                                |
 | fiscal_year            | *\<dbl\>*     | The fiscal year during which the drug offenses were recorded.                  |
 | types_of_drug_offenses | *\<chr\>*     | The specific type or category of drug offence being reported.                  |
