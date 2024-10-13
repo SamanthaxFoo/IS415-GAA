@@ -1,9 +1,9 @@
 ---
-title: "Hands-on Exercise 8"
+title: "Hands-on Exercise 9"
 subtitle: "Geographical Segmentation with Spatially Constrained Clustering Techniques"
 author: "Foo Jia Yi Samantha"
-date-modified: 10/11/2024
-date: 10/11/2024
+date-modified: 10/13/2024
+date: 10/13/2024
 execute: 
   eval: true
   echo: true
