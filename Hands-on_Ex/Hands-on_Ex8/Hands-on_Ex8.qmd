@@ -51,16 +51,21 @@ The R packages needed for this exercise are as follows:
     -   **ClustGeo**
 
 ```{r}
-pacman::p_load(rgdal, spdep, tmap, sf, ClustGeo, 
+#| warning: false
+pacman::p_load(spdep, tmap, sf, ClustGeo, 
                ggpubr, cluster, factoextra, NbClust,
                heatmaply, corrplot, psych, tidyverse, GGally)
 ```
+
+::: callout-note
+Note: With **tidyverse**, we do not have to install **readr**, **ggplot2** and **dplyr** packages separately. In fact, **tidyverse** also installs other very useful R packages such as **tidyr**.
+:::
 
 ### 2.2 Import Data and Set Up Folders
 
 ![](images/clipboard-1437169584.png){fig-align="center" width="739"}
 
-Two data sets will be used in this study. They are:
+Two data sets I will be using in this study are as follows:
 
 -   Myanmar Township Boundary Data (i.e. *myanmar_township_boundaries*) : This is a GIS data in ESRI shapefile format. It consists of township boundary information of Myanmar. The spatial data are captured in polygon features.
 
