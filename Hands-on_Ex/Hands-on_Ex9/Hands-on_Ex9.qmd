@@ -2,8 +2,8 @@
 title: "Hands-on Exercise 9"
 subtitle: "Geographical Segmentation with Spatially Constrained Clustering Techniques"
 author: "Foo Jia Yi Samantha"
-date-modified: 10/13/2024
-date: 10/13/2024
+date-modified: 10/18/2024
+date: 10/18/2024
 execute: 
   eval: true
   echo: true
@@ -15,16 +15,29 @@ execute:
 ```
 ## 1. Overview
 
-In this hands-on exercise, I will focus on the application of clustering techniques to perform geographical segmentation. There are two major types of techniques:
+In this hands-on exercise, I will learn more on performing how to delineate homogeneous region by using geographically referenced multivariate data. There are two major analysis, namely:
 
 -   hierarchical cluster analysis; and
+
 -   spatially constrained cluster analysis.
 
-It is a common practice to use clustering techniques to segment the market or planning area into different zones. In this exercise, we will try to delineate [Shan State](https://en.wikipedia.org/wiki/Shan_State), [Myanmar](https://en.wikipedia.org/wiki/Myanmar), into different zones based on multiple Information and Communication technology (ICT) measures, namely: Radio, Television, Land line phone, Mobile phone, Computer, and Internet at home.
+### **1.1 Learning Outcome**
 
-## 2. Getting Started
+By the end of this hands-on exercise, I aim to accomplish the following learning:
 
-### 2.1 Install Required Packages
+-   to convert GIS polygon data into R’s simple feature data.frame by using appropriate functions of **sf** package of R;
+
+-   to convert simple feature data.frame into R’s SpatialPolygonDataFrame object by using appropriate **sf** of package of R;
+
+-   to perform custer analysis by using *hclust()* of Base R;
+
+-   to perform spatially constrained cluster analysis using *skater()* of Base R; and
+
+-   to visualise the analysis output by using **ggplot2** and **tmap** package.
+
+### 1.2 Installing Required Packages
+
+Before we get started, it is important for us to install the necessary R packages into R and launch these R packages into R environment.
 
 The R packages needed for this exercise are as follows:
 
@@ -51,15 +64,26 @@ The R packages needed for this exercise are as follows:
     -   **ClustGeo**
 
 ```{r}
-#| warning: false
 pacman::p_load(spdep, tmap, sf, ClustGeo, 
                ggpubr, cluster, factoextra, NbClust,
                heatmaply, corrplot, psych, tidyverse, GGally)
 ```
 
 ::: callout-note
-Note: With **tidyverse**, we do not have to install **readr**, **ggplot2** and **dplyr** packages separately. In fact, **tidyverse** also installs other very useful R packages such as **tidyr**.
+With **tidyverse**, we do not have to install **readr**, **ggplot2** and **dplyr** packages separately. In fact, **tidyverse** also installs other very useful R packages such as **tidyr**.
 :::
+
+### 1.3 Preparing the Datasets
+
+![](images/clipboard-1279116226.png)
+
+Two data sets will be used in this study. They are:
+
+-   **Myanmar Township Boundary Data** (i.e. *myanmar_township_boundaries*) : This is a GIS data in ESRI shapefile format. It consists of township boundary information of Myanmar. The spatial data are captured in polygon features.
+
+-   ***Shan-ICT.csv*****:** This is an extract of [**The 2014 Myanmar Population and Housing Census Myanmar**](https://myanmar.unfpa.org/en/publications/2014-population-and-housing-census-myanmar-data-sheet) at the township level.
+
+Both data sets are download from [Myanmar Information Management Unit (MIMU)](http://themimu.info/)
 
 ### 2.2 Import Data and Set Up Folders
 
@@ -122,103 +146,62 @@ The new variables are calculated per 1000 households. The new variables are name
 
 ```{r}
 ict_derived <- ict %>%
-  mutate(`RADIO_PR` = `Radio`/`Total households`*1000) |>
-  mutate(`TV_PR` = `Television`/`Total households`*1000) |>
-  mutate(`LLPHONE_PR` = `Land line phone`/`Total households`*1000) |>
-  mutate(`MPHONE_PR` = `Mobile phone`/`Total households`*1000) |>
-  mutate(`COMPUTER_PR` = `Computer`/`Total households`*1000) |>
-  mutate(`INTERNET_PR` = `Internet at home`/`Total households`*1000) |>
+  mutate(`RADIO_PR` = `Radio`/`Total households`*1000) %>%
+  mutate(`TV_PR` = `Television`/`Total households`*1000) %>%
+  mutate(`LLPHONE_PR` = `Land line phone`/`Total households`*1000) %>%
+  mutate(`MPHONE_PR` = `Mobile phone`/`Total households`*1000) %>%
+  mutate(`COMPUTER_PR` = `Computer`/`Total households`*1000) %>%
+  mutate(`INTERNET_PR` = `Internet at home`/`Total households`*1000) %>%
   rename(`DT_PCODE` =`District Pcode`,`DT`=`District Name`,
          `TS_PCODE`=`Township Pcode`, `TS`=`Township Name`,
          `TT_HOUSEHOLDS`=`Total households`,
          `RADIO`=`Radio`, `TV`=`Television`, 
          `LLPHONE`=`Land line phone`, `MPHONE`=`Mobile phone`,
-         `COMPUTER`=`Computer`, `INTERNET`=`Internet at home`) 
+         `COMPUTER`=`Computer`, `INTERNET`=`Internet at home`)
+```
+
+```{r}
+summary(ict_derived)
 ```
 
 ## 3. Exploratory Data Analysis (EDA)
 
 ### 3.1 Statistical Graphics
 
-Now we will conduct univariate analysis to understand the distribution of each variable. We will use histograms to visualise the distribution of each variable. We will use boxplots as well to detect if there are outliers.
+Now we will conduct univariate analysis to understand the distribution of each variable. We can plot the distribution of the variables (i.e. Number of households with radio) by using appropriate Exploratory Data Analysis (EDA) as shown in the code chunk below.
 
-```{r, fig.width=5, fig.height=8}
-#| code-fold: true
-#| code-summary: "Plot original variables"
-radio_hist <- ggplot(data=ict_derived, 
-             aes(x= `RADIO`)) +
+Histogram is useful to identify the overall distribution of the data values (i.e. left skew, right skew or normal distribution)
+
+```{r}
+ggplot(data=ict_derived, 
+       aes(x=`RADIO`)) +
   geom_histogram(bins=20, 
                  color="black", 
                  fill="light blue")
+```
 
-radio_box <- ggplot(data=ict_derived, 
-                    aes(x=`RADIO`)) +
+We will use boxplots as well to detect if there are outliers.
+
+```{r}
+ggplot(data=ict_derived, 
+       aes(x=`RADIO`)) +
   geom_boxplot(color="black", 
                fill="light blue")
+```
 
-tv_hist <- ggplot(data=ict_derived, 
-             aes(x= `TV`)) +
+Next, we will also plotting the distribution of the newly derived variables (i.e. Radio penetration rate) by using the code chunk below.
+
+```{r}
+ggplot(data=ict_derived, 
+       aes(x=`RADIO_PR`)) +
   geom_histogram(bins=20, 
                  color="black", 
                  fill="light blue")
 
-tv_box <- ggplot(data=ict_derived, 
-                    aes(x=`TV`)) +
-  geom_boxplot(color="black",
+ggplot(data=ict_derived, 
+       aes(x=`RADIO_PR`)) +
+  geom_boxplot(color="black", 
                fill="light blue")
-
-llphone_hist <- ggplot(data=ict_derived, 
-             aes(x= `LLPHONE`)) +
-  geom_histogram(bins=20, 
-                 color="black", 
-                 fill="light blue")
-
-llphone_box <- ggplot(data=ict_derived, 
-                    aes(x=`LLPHONE`)) +
-  geom_boxplot(color="black",
-               fill="light blue")
-
-mphone_hist <- ggplot(data=ict_derived, 
-             aes(x= `MPHONE`)) +
-  geom_histogram(bins=20, 
-                 color="black", 
-                 fill="light blue")
-
-mphone_box <- ggplot(data=ict_derived, 
-                    aes(x=`MPHONE`)) +
-  geom_boxplot(color="black",
-               fill="light blue")
-
-computer_hist <- ggplot(data=ict_derived, 
-             aes(x= `COMPUTER`)) +
-  geom_histogram(bins=20, 
-                 color="black", 
-                 fill="light blue")
-
-computer_box <- ggplot(data=ict_derived, 
-                    aes(x=`COMPUTER`)) +
-  geom_boxplot(color="black",
-               fill="light blue")
-
-internet_hist <- ggplot(data=ict_derived, 
-             aes(x= `INTERNET`)) +
-  geom_histogram(bins=20, 
-                 color="black", 
-                 fill="light blue")
-
-internet_box <- ggplot(data=ict_derived, 
-                    aes(x=`INTERNET`)) +
-  geom_boxplot(color="black",
-               fill="light blue")
-
-ggarrange(radio_hist, radio_box,
-          tv_hist, tv_box,
-          llphone_hist, llphone_box,
-          mphone_hist, mphone_box,
-          computer_hist, computer_box,
-          internet_hist, internet_box,
-          ncol = 2, 
-          nrow = 6)
 ```
 
 As you can see, most of the variables are right-skewed. Luckily, we have addressed this issue in the previous section. Let's now plot the newly derived variables.
@@ -302,6 +285,14 @@ ggarrange(radio_hist, radio_box,
           nrow = 6)
 ```
 
+Next, the [*ggarrange()*](https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html) function of [**ggpubr**](https://rpkgs.datanovia.com/ggpubr/index.html) package is used to group these histograms together.
+
+```{r}
+ggarrange(radio_hist, tv_hist, llphone_hist, mphone_hist, computer_hist, internet_hist, 
+          ncol = 3, 
+          nrow = 2)
+```
+
 ### 3.2 Choropleth
 
 #### 3.2.1 Joinning geospatial data with aspatial data
@@ -309,7 +300,6 @@ ggarrange(radio_hist, radio_box,
 Before we can proceed with the choropleth mapping, we need to join the geospatial data with the aspatial data. We will use the `left_join` function from the **dplyr** package to join the two data sets. The join key is the township code. The joined data set is called shan_sf.
 
 ```{r}
-#| eval: false
 shan_sf <- left_join(shan_sf, 
                      ict_derived, by=c("TS_PCODE"="TS_PCODE"))
   
@@ -520,7 +510,6 @@ proxmat <- dist(shan_ict, method = 'euclidean')
 The code chunk below can then be used to list the content of *proxmat* for visual inspection.
 
 ```{r}
-#| eval: false
 proxmat
 ```
 
@@ -638,7 +627,6 @@ shan_ict_mat <- data.matrix(shan_ict)
 In the code chunk below, the [*heatmaply()*](https://talgalili.github.io/heatmaply/reference/heatmaply.html) of [heatmaply](https://talgalili.github.io/heatmaply/) package is used to build an interactive cluster heatmap.
 
 ```{r}
-#| eval: false
 heatmaply(normalize(shan_ict_mat),
           Colv=NA,
           dist_method = "euclidean",
@@ -655,7 +643,7 @@ heatmaply(normalize(shan_ict_mat),
           )
 ```
 
-### **5.9 Mapping the clusters formed**
+### **5.10 Mapping the clusters formed**
 
 With closed examination of the dendragram above, we have decided to retain six clusters.
 
@@ -717,13 +705,18 @@ We can plot the neighbours list on shan_sp by using the code chunk below. Since 
 
 ```{r}
 #| eval: false
-plot(shan_sp, 
-     border=grey(0.5))
-plot(shan.nb, 
-     coordinates(shan_sp), 
+coords <- st_coordinates(
+  st_centroid(st_geometry(shan_sf)))
+
+plot(st_geometry(shan_sf), 
+     border=grey(.5))
+plot(shan.nb,
+     coords, 
      col="blue", 
      add=TRUE)
 ```
+
+![](images/clipboard-569396787.png)
 
 Note that if you plot the network first and then the boundaries, some of the areas will be clipped. This is because the plotting area is determined by the characteristics of the first plot. In this example, because the boundary map extends further than the graph, we plot it first.
 
@@ -793,6 +786,8 @@ plot.mst(shan.mst,
          add=TRUE)
 ```
 
+![](images/clipboard-3081720885.png)
+
 ### **6.5 Computing spatially constrained clusters using SKATER method**
 
 The code chunk below compute the spatially constrained cluster using [*skater()*](https://r-spatial.github.io/spdep/reference/skater.html) of **spdep** package.
@@ -830,8 +825,9 @@ table(ccs6)
 Lastly, we can also plot the pruned tree that shows the five clusters on top of the townshop area.
 
 ```{r}
-#| eval: false
-plot(shan_sp, border=gray(.5))
+library(sp)
+plot(st_geometry(shan_sf), 
+     border=gray(.5))
 plot(clust6, 
      coordinates(shan_sp), 
      cex.lab=.7,
@@ -953,9 +949,9 @@ We can now plot the map of the newly delineated spatially constrained clusters.
 qtm(shan_sf_Gcluster, "CLUSTER")
 ```
 
-## **7.4 Visual Interpretation of Clusters**
+### **7.4 Visual Interpretation of Clusters**
 
-### **7.4.1 Visualising individual clustering variable**
+#### **7.4.1 Visualising individual clustering variable**
 
 Code chunk below is used to reveal the distribution of a clustering variable (i.e RADIO_PR) by cluster.
 
@@ -967,7 +963,7 @@ ggplot(data = shan_sf_ngeo_cluster,
 
 The boxplot reveals Cluster 3 displays the highest mean Radio Ownership Per Thousand Household. This is followed by Cluster 2, 1, 4, 6 and 5.
 
-### **7.4.2 Multivariate Visualisation**
+#### **7.4.2 Multivariate Visualisation**
 
 Past studies shown that parallel coordinate plot can be used to reveal clustering variables by cluster very effectively. In the code chunk below, [`ggparcoord()`](https://ggobi.github.io/ggally/reference/ggparcoord.html) of [**GGally**](https://ggobi.github.io/ggally/) package
 

@@ -79,9 +79,17 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                |                                                   |
 | </p>                |                                                                                                                |                                                   |
 +---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**Hands-on Exercise 8**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex8/hands-on_ex8)      | ![](images/clipboard-3637343720.png){width="201"} |
+| <p id="contents">   | ## [**Hands-on Exercise 8**](https://is415-samanthafoo.netlify.app/Hands-on_Ex/Hands-on_Ex8/Hands-on_Ex8.html) | ![](images/clipboard-3637343720.png){width="201"} |
 |                     |                                                                                                                |                                                   |
-| Oct 11, 2024        | Geographical Segmentation with Spatially Constrained Clustering Techniques                                     |                                                   |
+| Oct 13, 2024        | Geographical Segmentation with Spatially Constrained Clustering Techniques (Part 1)                            |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Hands-on Exercise 9**](https://is415-samanthafoo.netlify.app/Hands-on_Ex/Hands-on_Ex9/Hands-on_Ex9.html) | ![](images/clipboard-569396787.png){width="201"}  |
+|                     |                                                                                                                |                                                   |
+| Oct 18, 2024        | Geographical Segmentation with Spatially Constrained Clustering Techniques (Part 2)                            |                                                   |
 |                     |                                                                                                                |                                                   |
 | Foo Jia Yi Samantha |                                                                                                                |                                                   |
 |                     |                                                                                                                |                                                   |
