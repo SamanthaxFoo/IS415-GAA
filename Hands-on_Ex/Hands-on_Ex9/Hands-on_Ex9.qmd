@@ -85,19 +85,9 @@ Two data sets will be used in this study. They are:
 
 Both data sets are download from [Myanmar Information Management Unit (MIMU)](http://themimu.info/)
 
-### 2.2 Import Data and Set Up Folders
+## 2. Import Data and Set Up Folders
 
-![](images/clipboard-1437169584.png){fig-align="center" width="739"}
-
-Two data sets I will be using in this study are as follows:
-
--   Myanmar Township Boundary Data (i.e. *myanmar_township_boundaries*) : This is a GIS data in ESRI shapefile format. It consists of township boundary information of Myanmar. The spatial data are captured in polygon features.
-
--   *Shan-ICT.csv*: This is an extract of [**The 2014 Myanmar Population and Housing Census Myanmar**](https://myanmar.unfpa.org/en/publications/2014-population-and-housing-census-myanmar-data-sheet) at the township level.
-
-Both data sets are download from [Myanmar Information Management Unit (MIMU)](http://themimu.info/)
-
-#### 2.2.1 Importing Aspatial Data
+### 2.1 Importing Aspatial Data
 
 InfoComm variables extracted from [The 2014 Myanmar Population and Housing Census Myanmar](https://myanmar.unfpa.org/en/publications/2014-population-and-housing-census-myanmar-data-sheet) at the township level. The attribute data set is called ict. It is saved in R’s **tibble data.frame** format.
 
@@ -116,7 +106,7 @@ summary(ict)
 The attribute data set is called *`ict`* as shown above. It is saved in R’s `tibble data.frame` format. The code chunk below reveal the summary statistics of *ict* data.frame.
 :::
 
-#### 2.2.2 Importing Geospatial Data
+### 2.2 Importing Geospatial Data
 
 Myanmar township boundaries are downloaded from [Myanmar Information Management Unit (MIMU)](http://themimu.info/). The geospatial data set is called myanmar_township_boundaries. It is saved in ESRI shapefile format. Let's import it into R environment by using the [*st_read()*](https://www.rdocumentation.org/packages/sf/versions/0.7-2/topics/st_read) function of **sf**.
 

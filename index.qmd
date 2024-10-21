@@ -151,3 +151,11 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                |                                                   |
 | </p>                |                                                                                                                |                                                   |
 +---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 9**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex9/In-class_Ex9.html) | ![](images/clipboard-34635331.png){width="234"}   |
+|                     |                                                                                                                |                                                   |
+| Oct 21, 2024        | Geographical Segmentation with Spatially Constrained Clustering Techniques                                     |                                                   |
+|                     |                                                                                                                |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                |                                                   |
+|                     |                                                                                                                |                                                   |
+| </p>                |                                                                                                                |                                                   |
++---------------------+----------------------------------------------------------------------------------------------------------------+---------------------------------------------------+

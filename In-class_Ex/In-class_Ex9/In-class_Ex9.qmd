@@ -1,0 +1,360 @@
+---
+title: "In-class Exercise 9"
+subtitle: "Geographical Segmentation with Spatially Constrained Clustering Techniques"
+author: "Foo Jia Yi Samantha"
+date-modified: 10/21/2024
+date: 10/21/2024
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{=html}
+<button>Hands-on Exercise</button> <button>R</button> <button>coorplot</button> <button>ggpubr</button> <button>heatmaply</button><button>ClustGeo</button>
+```
+## 1. Overview
+
+In this hands-on exercise, I will learn more on performing how to delineate homogeneous region by using geographically referenced multivariate data. There are two major analysis, namely:
+
+-   hierarchical cluster analysis; and
+
+-   spatially constrained cluster analysis.
+
+### **1.1 Learning Outcome**
+
+By the end of this hands-on exercise, I aim to accomplish the following learning:
+
+-   to convert GIS polygon data into R’s simple feature data.frame by using appropriate functions of **sf** package of R;
+
+-   to convert simple feature data.frame into R’s SpatialPolygonDataFrame object by using appropriate **sf** of package of R;
+
+-   to perform custer analysis by using *hclust()* of Base R;
+
+-   to perform spatially constrained cluster analysis using *skater()* of Base R; and
+
+-   to visualise the analysis output by using **ggplot2** and **tmap** package.
+
+### 1.2 Installing Required Packages
+
+Before we get started, it is important for us to install the necessary R packages into R and launch these R packages into R environment.
+
+The R packages needed for this exercise are as follows:
+
+-   Spatial data handling
+
+    -   **sf**, **rgdal** and **spdep**
+
+-   Attribute data handling
+
+    -   **tidyverse**, especially **readr**, **ggplot2** and **dplyr**
+
+-   Choropleth mapping
+
+    -   **tmap**
+
+-   Multivariate data visualisation and analysis
+
+    -   **coorplot**, **ggpubr**, and **heatmaply**
+
+-   Cluster analysis
+
+    -   **cluster**
+
+    -   **ClustGeo**
+
+```{r}
+pacman::p_load(spdep, tmap, sf, ClustGeo, 
+               ggpubr, cluster, factoextra, NbClust,
+               heatmaply, corrplot, psych, tidyverse, GGally)
+```
+
+::: callout-note
+With **tidyverse**, we do not have to install **readr**, **ggplot2** and **dplyr** packages separately. In fact, **tidyverse** also installs other very useful R packages such as **tidyr**.
+:::
+
+### 1.3 Preparing the Datasets
+
+Two data sets will be used in this study. They are:
+
+-   **Myanmar Township Boundary Data** (i.e. *myanmar_township_boundaries*) : This is a GIS data in ESRI shapefile format. It consists of township boundary information of Myanmar. The spatial data are captured in polygon features.
+
+-   ***Shan-ICT.csv*****:** This is an extract of [**The 2014 Myanmar Population and Housing Census Myanmar**](https://myanmar.unfpa.org/en/publications/2014-population-and-housing-census-myanmar-data-sheet) at the township level.
+
+Both data sets are download from [Myanmar Information Management Unit (MIMU)](http://themimu.info/)
+
+### 2.2 Import Data and Set Up Folders
+
+Two data sets I will be using in this study are as follows:
+
+-   **Shan_sf.Rds:** Myanmar Township Boundary Data (i.e. *myanmar_township_boundaries*) : This is a GIS data in ESRI shapefile format. It consists of township boundary information of Myanmar. The spatial data are captured in polygon features.
+
+-   ***Shan_ICT.Rds***: This is an extract of [**The 2014 Myanmar Population and Housing Census Myanmar**](https://myanmar.unfpa.org/en/publications/2014-population-and-housing-census-myanmar-data-sheet) at the township level.
+
+-   ***shan_sf_cluster.Rds***: this variable combines the shan_ict and shan_sf dataframes which leads to some redundant variables like dt.x
+
+Both data sets are download from [Myanmar Information Management Unit (MIMU)](http://themimu.info/)
+
+```{r}
+shan_ict <- readRDS(file = "data/rds/shan_ict.Rds")
+shan_sf <- readRDS(file = "data/rds/shan_sf.Rds")
+Hsan_sf_cluster <- readRDS(file = "data/rds/shan_sf_cluster.Rds")
+```
+
+The imported InfoComm variables are extracted from **The 2014 Myanmar Population and Housing Census Myanmar**.
+
+```{r}
+# Let's inspect
+glimpse(Hsan_sf_cluster)
+```
+
+::: {.callout-tip title="Observations"}
+The resulting output of the `shan_ict_cluster` variabble includes attribute data as well as geometry variables which consists of multipolygons. This *simple feature* output has a total of **55** **rows** and **19 columns,** which has been tidied for our in-class exercise.
+:::
+
+## 2. Conventional Hierarchical Clustering
+
+::: panel-tabset
+## Hierarchical Clustering
+
+Take note that the **hclust()** function must first be used before the **k** value can be selected. In this case, hclust_ward is not a simple output data, but a hierarchical clustering object class. We have used **k = 6** to output the number of groups based on our analysis of the optimal k-value in the chart
+
+```{r}
+proxmat <- dist(shan_ict, method = "euclidean")
+hclust_ward <- hclust(proxmat, method = "ward.D")
+groups <- as.factor(cutree(hclust_ward, k = 6))
+```
+
+\*Recall our analysis of the optimal k-value as discovered in Hands-on Exercise 9
+
+![](images/clipboard-3412230221.png){width="560" height="400"}
+
+## Append to geospatial data
+
+We do not use left_join() since we don't want to sort the sequence. Beisdes using `as.matrix()`, we can also convert it into a data table or tibble format. Note that using variables like **TS.x** is not user-friendly and should be renamed as shown. We will also drop columns not relevant to us, e.g. columns 3 to 4, and 7 to 9.
+
+```{r}
+shan_sf_cluster <- cbind(shan_sf,
+                         as.matrix(groups)) %>%
+  rename('CLUSTER' = 'as.matrix.groups.') %>%
+  select(-c(3:4, 7:9)) %>%
+  rename(TS = TS.x)
+
+```
+
+## The Dendrogram
+
+```{r}
+plot(hclust_ward, cex = 0.6)
+rect.hclust(hclust_ward, k = 6, border = 2:5)
+```
+
+## Cluster Map
+
+In Chapter 2 of Prof Kam's book and our in-class ex 2, we used 1) `qtm()` and 2) call `tm.shape()` and other functions like `tm_fill()`. However, we will use the **`QTM()`** function of the **tmap package** which serves as a fast way of generating the map for us.
+
+Note that the default number of colours the `QTM()` function will classify to is 5 so any dataset with \>5 categories should manually include the colours we need.
+
+```{r}
+qtm(shan_sf_cluster, "CLUSTER")
+```
+:::
+
+## 3. Spatially Constrained Clustering
+
+If the clustering values are close (attribute) and they are goegraphically close in terms of proximity, we form **spatially constrained clustering.** This form of clustering attempts to create more spatial homogeneity by using two methods...
+
+1.  **Skater**: a hard spatial classification method
+2.  **ClustGeo**: a soft spatial classification method
+
+### 3.1 SKATER Algorithm (Spatial 'k'luster Analysis by Tree Edge Removal)
+
+By generating the clustering results, we assign a weight by adding the attribute value to the edges of each node, which aims to refine the clusters through rounds of iterations.
+
+#### 3.1.1 Computing Nearest Neighbours
+
+To build our minimum spanning tree, we first calculate the number of neighbours each node has.
+
+```{r}
+shan.nb <- poly2nb(shan_sf)
+summary(shan.nb)
+```
+
+::: callout-note
+Note that we do not need to convert the data to **sp** since the two previous versions of SPDEP can accept **sf** variables!
+:::
+
+#### 3.1.2 Visualise the Neighbours
+
+Here we plot the nodes and their connecting edges to adjacent neighbours. It is worth noting that not all plots are relevant for us - Prof Kam suggests to think about what your end-users want to see and be selective of what your app should expose :)
+
+```{r}
+coords <- st_coordinates(
+  st_centroid(shan_sf))
+
+plot(st_geometry(shan_sf), 
+     border=grey(.5))
+plot(shan.nb,
+     coords, 
+     col="blue", 
+     add=TRUE)
+```
+
+#### 3.1.3 Computing Minimum Spanning Tree
+
+**1) Calculate edge costs**
+
+```{r}
+lcosts <- nbcosts(shan.nb, shan_ict)
+```
+
+**2) Incorporating these costs into a weights object**
+
+```{r}
+shan.w <- nb2listw(shan.nb,
+                   lcosts,
+                   style = 'B')
+
+summary(shan.w)
+```
+
+**3) Computing MST**
+
+The `mstree()` function is of the **spdep** package which combines the weight matrix and proximity matrix together.
+
+```{r}
+shan.mst <- mstree(shan.w)
+```
+
+After computing the MST, we can check its class and dimension by using the code chunk below. It should return a list-object data format
+
+```{r}
+head(shan.mst)
+```
+
+**4) Visualise the MST**
+
+```{r}
+plot(st_geometry(shan_sf), border=gray(.5))
+plot.mst(shan.mst, 
+         coords,
+         col="blue", 
+         cex.lab=0.7, 
+         cex.circles=0.005, 
+         add=TRUE)
+```
+
+**5) Computing Spatially Constrained Clusters**
+
+Next, we will compute the spatially constrained cluster using [*skater()*](https://r-spatial.github.io/spdep/reference/skater.html) of **spdep** package.
+
+```{r}
+clust6 <- spdep::skater(edges = shan.mst[,1:2], 
+                 data = shan_ict, 
+                 method = "euclidean", 
+                 ncuts = 5)
+```
+
+The result of the *skater()* is an object of class **skater**. We can examine its contents by using the code chunk below. As seen below, this is a list of 8 list items.
+
+```{r}
+str(clust6)
+```
+
+We are also able to check the cluster assignment.
+
+```{r}
+ccs6 <- clust6$groups
+ccs6
+```
+
+::: callout-note
+The most interesting component of this list structure is the groups vector containing the labels of the cluster to which each observation belongs (as before, the label itself is arbitary). This is followed by a detailed summary for each of the clusters in the edges.groups list. Sum of squares measures are given as ssto for the total and ssw to show the effect of each of the cuts on the overall criterion.
+:::
+
+We can use as.factor() to encode our numerical data accordingly. Note that the cluster numbers will be sorted in ascending format by default as 1,2,3...5.
+
+```{r}
+library(sp)
+plot(st_geometry(shan_sf), 
+     border=gray(.5))
+plot(clust6, 
+     coords, 
+     cex.lab=.7,
+     groups.colors=c("red","green","blue", "brown", "pink"),
+     cex.circles=0.005, 
+     add=TRUE)
+```
+
+Lastly, let us plot the map using the `qtm()` function of the **spdep** package.
+
+```{r}
+groups_mat <- as.matrix(clust6$groups)
+shan_sf_spatialcluster <- cbind(shan_sf_cluster, as.factor(groups_mat)) %>%
+  rename(`SP_CLUSTER`=`as.factor.groups_mat.`)
+qtm(shan_sf_spatialcluster, "SP_CLUSTER")
+```
+
+### 3.2 ClustGeo Method
+
+This is a soft classification where the user can manipulate and select specific interactions they desire, e.g. spatial interactions, where the user can choose specify a certain range.
+
+#### 3.2.1 Compute spatial distance matrix
+
+The first step we should take is to utilise the `st_distance()` function of the **sf** package to compute the distance matrix.
+
+```{r}
+dist <- st_distance(shan_sf, shan_sf)
+distmat <- as.dist(dist)
+```
+
+::: callout-note
+The fieldnames will be the destination while the row numbers are numbers. Hence, we keep the distance matri. Notice that `as.dist()` is used to convert the data frame into matrix.
+:::
+
+#### 3.2.2 Plotting Cluster Graphs
+
+Next, `choicealpha()` will be used to determine a suitable value for the mixing parameter alpha as shown in the code chunk below. The 0.1 breaks interval will output a graph that will create intervals of 0.1
+
+```{r}
+cr <- choicealpha(proxmat, distmat, 
+                  range.alpha = seq(0, 1, 0.1), 
+                  K=6, graph = TRUE)
+```
+
+#### 3.2.3 Saving ClustGeo Output
+
+You will want to save the output and await for user to click a button on the app before the app exposes the updated charts.
+
+```{r}
+clustG <- hclustgeo(proxmat, distmat, alpha = 0.3)
+groups <- as.factor(cutree(clustG, k=6))
+shan_sf_Gcluster <- cbind(shan_sf, as.matrix(groups)) %>%
+  rename(`CLUSTER` = `as.matrix.groups.`)
+```
+
+```{r}
+qtm(shan_sf_Gcluster, "CLUSTER")
+```
+
+#### 3.2.4 Multivariate Visualisation
+
+ggarray() is an extension of ggplot(). By using a ssimilar y-axis and facet-ing these plots in a row, we can easily visualise how each cluster might differ by ICT variables.
+
+```{r}
+shan_sf_ngeo_cluster <- cbind(shan_sf, as.matrix(groups)) %>%
+  rename(`CLUSTER` = `as.matrix.groups.`)
+
+ggparcoord(data = shan_sf_ngeo_cluster, 
+           columns = c(17:21), 
+           scale = "globalminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE, 
+           title = "Multiple Parallel Coordinates Plots of ICT Variables by Cluster") +
+  facet_grid(~ CLUSTER) + 
+  theme(axis.text.x = element_text(angle = 30))
+```
+
+::: callout-note
+I made a realisation that we should use a `set.seed()` function to ensure that the cluster numbers do not change since it will inherently be generated differently for each run of the codes. E.g. cluster 1 can become cluster 2's patterns the next time we run the codes.
+:::
