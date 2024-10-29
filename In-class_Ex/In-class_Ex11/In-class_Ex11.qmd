@@ -1,0 +1,16 @@
+---
+title: "In-class Exercise 11"
+subtitle: "Building Hedonic Models using Condo Resale Prices"
+author: "Foo Jia Yi Samantha"
+date-modified: 10/28/2024
+date: 10/28/2024
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{=html}
+<button>Hands-on Exercise</button> <button>R</button> <button>GWmodel</button> <button>gtsummary</button> <button>GWR</button>
+```
+In this in-class exercise, we explore new R packages to
