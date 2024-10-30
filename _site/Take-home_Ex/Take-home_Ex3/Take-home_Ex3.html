@@ -393,8 +393,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><a href="https://cran.r-project.org/web/packages/ggplot2/"><code>ggplot2</code></a> : for creating advanced visualisations, graphics and maps using the Grammar of Graphics.</p></li>
 <li><p><a href="https://patchwork.data-imaginist.com/"><code>patchwork</code></a> and <a href="https://cran.r-project.org/web/packages/gridExtra/index.html">gridExtra</a>: for arranging multiple ggplot2 maps beside each other</p></li>
 <li><p><a href="https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html"><code>ggalluvial</code></a>: allows for building flow diagrams between origin and destination locations, similar to a sankey diagram.</p></li>
-<li><p>sf:</p></li>
-<li><p>fmsb</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/sf/index.html"><code>sf</code></a>: for spatial data handling</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/fmsb/index.html"><code>fmsb</code></a>: for plotting radarcharts in R</p></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, ggplot2, patchwork, ggalluvial, gridExtra, sf, fmsb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -432,36 +432,39 @@ dbl (1): population_2019
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(trips)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 55,995
-Columns: 29
-$ trj_id                 &lt;chr&gt; "1", "10000", "10002", "10003", "10006", "10007…
-$ driving_mode           &lt;chr&gt; "car", "motorcycle", "motorcycle", "car", "moto…
-$ origin_time            &lt;dttm&gt; 2019-04-11 14:17:35, 2019-04-16 00:51:24, 2019…
-$ destination_time       &lt;dttm&gt; 2019-04-11 14:36:24, 2019-04-16 01:00:51, 2019…
-$ total_duration_minutes &lt;dbl&gt; 18.816667, 9.450000, 21.300000, 32.166667, 8.96…
-$ total_distance_km      &lt;dbl&gt; 5.943848, 2.809531, 8.040161, 16.848662, 2.8580…
-$ average_speed_kmh      &lt;dbl&gt; 18.952926, 17.838289, 22.648340, 31.427557, 19.…
-$ origin_rawlat          &lt;dbl&gt; -6.197622, -6.248311, -6.249766, -6.174716, -6.…
-$ origin_rawlng          &lt;dbl&gt; 106.7690, 106.9304, 106.9682, 106.8978, 106.644…
-$ destination_rawlat     &lt;dbl&gt; -6.239817, -6.229177, -6.235125, -6.318963, -6.…
-$ destination_rawlng     &lt;dbl&gt; 106.8019, 106.9470, 106.8970, 106.8517, 106.654…
-$ origin_lat             &lt;dbl&gt; -2939149, -2993318, -3001902, -2956625, -290569…
-$ origin_lng             &lt;dbl&gt; 13499453, 13554146, 13569122, 13556387, 1345319…
-$ destination_lat        &lt;dbl&gt; -2962961, -2989069, -2980935, -3005195, -289817…
-$ destination_lng        &lt;dbl&gt; 13504006, 13564901, 13543389, 13507514, 1346196…
-$ origin_province        &lt;chr&gt; "Jakarta", "Jakarta", "Outside of Jakarta", "Ja…
-$ origin_city            &lt;chr&gt; "Kota Jakarta Barat", "Kota Jakarta Timur", "Ou…
-$ origin_district        &lt;chr&gt; "Kebon Jeruk", "Duren Sawit", "Outside of Jakar…
-$ origin_township        &lt;chr&gt; "Kebon Jeruk", "Pondok Kelapa", "Outside of Jak…
-$ destination_province   &lt;chr&gt; "Jakarta", "Outside of Jakarta", "Jakarta", "Ja…
-$ destination_city       &lt;chr&gt; "Kota Jakarta Selatan", "Outside of Jakarta", "…
-$ destination_district   &lt;chr&gt; "Kebayoran Baru", "Outside of Jakarta", "Duren …
-$ destination_township   &lt;chr&gt; "Selong", "Outside of Jakarta", "Pondok Bambu",…
-$ origin_datetime        &lt;dttm&gt; 2019-04-11 14:17:35, 2019-04-16 00:51:24, 2019…
-$ destination_datetime   &lt;dttm&gt; 2019-04-11 14:36:24, 2019-04-16 01:00:51, 2019…
-$ origin_day             &lt;chr&gt; "Thursday", "Tuesday", "Monday", "Friday", "Sun…
-$ origin_hour            &lt;dbl&gt; 14, 0, 5, 10, 23, 7, 4, 4, 2, 10, 15, 10, 11, 0…
-$ destination_day        &lt;chr&gt; "Thursday", "Tuesday", "Monday", "Friday", "Sun…
-$ destination_hour       &lt;dbl&gt; 14, 1, 6, 11, 23, 7, 4, 4, 4, 10, 16, 10, 11, 0…</code></pre>
+Columns: 32
+$ trj_id                              &lt;chr&gt; "1", "10000", "10002", "10003", "1…
+$ driving_mode                        &lt;chr&gt; "car", "motorcycle", "motorcycle",…
+$ origin_time                         &lt;dttm&gt; 2019-04-11 14:17:35, 2019-04-16 0…
+$ destination_time                    &lt;dttm&gt; 2019-04-11 14:36:24, 2019-04-16 0…
+$ total_duration_minutes              &lt;dbl&gt; 18.816667, 9.450000, 21.300000, 32…
+$ total_distance_km                   &lt;dbl&gt; 5.943848, 2.809531, 8.040161, 16.8…
+$ average_speed_kmh                   &lt;dbl&gt; 18.952926, 17.838289, 22.648340, 3…
+$ origin_rawlat                       &lt;dbl&gt; -6.197622, -6.248311, -6.249766, -…
+$ origin_rawlng                       &lt;dbl&gt; 106.7690, 106.9304, 106.9682, 106.…
+$ destination_rawlat                  &lt;dbl&gt; -6.239817, -6.229177, -6.235125, -…
+$ destination_rawlng                  &lt;dbl&gt; 106.8019, 106.9470, 106.8970, 106.…
+$ origin_lat                          &lt;dbl&gt; -2939149, -2993318, -3001902, -295…
+$ origin_lng                          &lt;dbl&gt; 13499453, 13554146, 13569122, 1355…
+$ destination_lat                     &lt;dbl&gt; -2962961, -2989069, -2980935, -300…
+$ destination_lng                     &lt;dbl&gt; 13504006, 13564901, 13543389, 1350…
+$ origin_province                     &lt;chr&gt; "jakarta", "jakarta", "outside of …
+$ origin_city                         &lt;chr&gt; "kota jakarta barat", "kota jakart…
+$ origin_district                     &lt;chr&gt; "kebon jeruk", "duren sawit", "out…
+$ destination_province                &lt;chr&gt; "jakarta", "outside of jakarta", "…
+$ destination_city                    &lt;chr&gt; "kota jakarta selatan", "outside o…
+$ destination_district                &lt;chr&gt; "kebayoran baru", "outside of jaka…
+$ origin_datetime                     &lt;dttm&gt; 2019-04-11 14:17:35, 2019-04-16 0…
+$ destination_datetime                &lt;dttm&gt; 2019-04-11 14:36:24, 2019-04-16 0…
+$ origin_day                          &lt;chr&gt; "thursday", "tuesday", "monday", "…
+$ origin_hour                         &lt;dbl&gt; 14, 0, 5, 10, 23, 7, 4, 4, 2, 10, …
+$ destination_day                     &lt;chr&gt; "thursday", "tuesday", "monday", "…
+$ destination_hour                    &lt;dbl&gt; 14, 1, 6, 11, 23, 7, 4, 4, 4, 10, …
+$ origin_time_cluster                 &lt;chr&gt; "afternoon lull", "midnight peak",…
+$ destination_time_cluster            &lt;chr&gt; "afternoon lull", "midnight peak",…
+$ origin_date                         &lt;date&gt; 2019-04-11, 2019-04-16, 2019-04-0…
+$ origin_weather_description          &lt;chr&gt; "broken clouds", "scattered clouds…
+$ origin_weather_description_category &lt;chr&gt; "not_rain", "not_rain", "Outside o…</code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -594,13 +597,13 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <p>I noticed that we have records where destination districts are found outside of Jakarta’s boundary. For the purpose of analysing Grab trends within Jakarta, I will filter these trip records out.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>trips <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(destination_district <span class="sc">!=</span> <span class="st">"Outside of Jakarta"</span> <span class="sc">|</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>         origin_district <span class="sc">!=</span> <span class="st">"Outside of Jakarta"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(destination_district <span class="sc">!=</span> <span class="st">"outside of jakarta"</span> <span class="sc">|</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>         origin_district <span class="sc">!=</span> <span class="st">"outside of jakarta"</span>)</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect</span></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trips)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 29
+<pre><code># A tibble: 6 × 32
   trj_id driving_mode origin_time         destination_time   
   &lt;chr&gt;  &lt;chr&gt;        &lt;dttm&gt;              &lt;dttm&gt;             
 1 1      car          2019-04-11 14:17:35 2019-04-11 14:36:24
@@ -609,13 +612,13 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 4 10003  car          2019-04-19 10:52:34 2019-04-19 11:24:44
 5 10007  car          2019-04-11 07:05:00 2019-04-11 07:28:56
 6 10012  car          2019-04-20 02:38:54 2019-04-20 04:05:16
-# ℹ 25 more variables: total_duration_minutes &lt;dbl&gt;, total_distance_km &lt;dbl&gt;,
+# ℹ 28 more variables: total_duration_minutes &lt;dbl&gt;, total_distance_km &lt;dbl&gt;,
 #   average_speed_kmh &lt;dbl&gt;, origin_rawlat &lt;dbl&gt;, origin_rawlng &lt;dbl&gt;,
 #   destination_rawlat &lt;dbl&gt;, destination_rawlng &lt;dbl&gt;, origin_lat &lt;dbl&gt;,
 #   origin_lng &lt;dbl&gt;, destination_lat &lt;dbl&gt;, destination_lng &lt;dbl&gt;,
 #   origin_province &lt;chr&gt;, origin_city &lt;chr&gt;, origin_district &lt;chr&gt;,
-#   origin_township &lt;chr&gt;, destination_province &lt;chr&gt;, destination_city &lt;chr&gt;,
-#   destination_district &lt;chr&gt;, destination_township &lt;chr&gt;, …</code></pre>
+#   destination_province &lt;chr&gt;, destination_city &lt;chr&gt;,
+#   destination_district &lt;chr&gt;, origin_datetime &lt;dttm&gt;, …</code></pre>
 </div>
 </div>
 <p>Next, I will leverage the <code>trips</code> tibble dataframe to group all trips by <code>destination_district</code> and summarise them by number of trips, average duration (minutes) and average distance travelled (km).</p>
@@ -754,28 +757,30 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 </div>
 </div>
 <p>We can also inspect how the population size of each district influences the number of trips taken to and from each district. Generally, districts with a <strong>high number of trips per capita</strong> from <strong>origin</strong> also displayed <strong>more frequent</strong> trips taken into the district.</p>
-<p>Interestingly, we see some districts with the <strong>highest trips per capita</strong> but in reality, they do NOT correspond to <strong>high number of trips</strong> (previous chart). For instance, Danau Sunter DII and Danau Sunter are districts with the lowest number of trips but since they also have a population of 0, it results in a <strong>seemingly high</strong> number of trips per capita.</p>
+<p>Initially, there are districts with the <strong>highest trips per capita</strong> but in reality, they do NOT correspond to <strong>high number of trips</strong> (previous chart). For instance, Danau Sunter DII and Danau Sunter are districts with the lowest number of trips but since they also have a population of 0, resulting in a <strong>seemingly high</strong> number of trips per capita. Hence, we remove trip data from these two districts since it is not possible to divide a value by 0!</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Prepare data</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>destination_data <span class="ot">&lt;-</span> district_dest <span class="sc">%&gt;%</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(district, population_count, num_of_trips) <span class="sc">%&gt;%</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trips_per_capita_dest =</span> num_of_trips <span class="sc">/</span> population_count) <span class="sc">%&gt;%</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">district =</span> district)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>origin_data <span class="ot">&lt;-</span> district_origin <span class="sc">%&gt;%</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(district, population_count, num_of_trips) <span class="sc">%&gt;%</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trips_per_capita_origin =</span> num_of_trips <span class="sc">/</span> population_count) <span class="sc">%&gt;%</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">district =</span> district)</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>combined_data <span class="ot">&lt;-</span> destination_data <span class="sc">%&gt;%</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(district, <span class="at">trips_per_capita =</span> trips_per_capita_dest) <span class="sc">%&gt;%</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trip_type =</span> <span class="st">"Destination"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    origin_data <span class="sc">%&gt;%</span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">select</span>(district, <span class="at">trips_per_capita =</span> trips_per_capita_origin) <span class="sc">%&gt;%</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">trip_type =</span> <span class="st">"Origin"</span>)</span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(district <span class="sc">!=</span> <span class="st">"Danau Sunter Dll"</span> <span class="sc">&amp;</span> district <span class="sc">!=</span> <span class="st">"Danau Sunter"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trips_per_capita_dest =</span> num_of_trips <span class="sc">/</span> population_count) <span class="sc">%&gt;%</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">district =</span> district)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>origin_data <span class="ot">&lt;-</span> district_origin <span class="sc">%&gt;%</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(district, population_count, num_of_trips) <span class="sc">%&gt;%</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(district <span class="sc">!=</span> <span class="st">"Danau Sunter Dll"</span> <span class="sc">&amp;</span> district <span class="sc">!=</span> <span class="st">"Danau Sunter"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trips_per_capita_origin =</span> num_of_trips <span class="sc">/</span> population_count) <span class="sc">%&gt;%</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">district =</span> district)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>combined_data <span class="ot">&lt;-</span> destination_data <span class="sc">%&gt;%</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(district, <span class="at">trips_per_capita =</span> trips_per_capita_dest) <span class="sc">%&gt;%</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">trip_type =</span> <span class="st">"Destination"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    origin_data <span class="sc">%&gt;%</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">select</span>(district, <span class="at">trips_per_capita =</span> trips_per_capita_origin) <span class="sc">%&gt;%</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">trip_type =</span> <span class="st">"Origin"</span>)</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -1204,10 +1209,10 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>weekly_trips <span class="ot">&lt;-</span> trips <span class="sc">%&gt;%</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(origin_day, driving_mode) <span class="sc">%&gt;%</span></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_trips =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">match</span>(origin_day, <span class="fu">c</span>(<span class="st">"Monday"</span>, <span class="st">"Tuesday"</span>, <span class="st">"Wednesday"</span>, <span class="st">"Thursday"</span>, <span class="st">"Friday"</span>, <span class="st">"Saturday"</span>, <span class="st">"Sunday"</span>)))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">match</span>(origin_day, <span class="fu">c</span>(<span class="st">"monday"</span>, <span class="st">"tuesday"</span>, <span class="st">"wednesday"</span>, <span class="st">"thursday"</span>, <span class="st">"friday"</span>, <span class="st">"saturday"</span>, <span class="st">"sunday"</span>)))</span>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>weekly_trips<span class="sc">$</span>origin_day <span class="ot">&lt;-</span> <span class="fu">factor</span>(weekly_trips<span class="sc">$</span>origin_day, </span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Monday"</span>, <span class="st">"Tuesday"</span>, <span class="st">"Wednesday"</span>, <span class="st">"Thursday"</span>, <span class="st">"Friday"</span>, <span class="st">"Saturday"</span>, <span class="st">"Sunday"</span>))</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"monday"</span>, <span class="st">"tuesday"</span>, <span class="st">"wednesday"</span>, <span class="st">"thursday"</span>, <span class="st">"friday"</span>, <span class="st">"saturday"</span>, <span class="st">"sunday"</span>))</span>
 <span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(weekly_trips, <span class="fu">aes</span>(<span class="at">x =</span> origin_day, <span class="at">y =</span> total_trips, <span class="at">fill =</span> driving_mode)) <span class="sc">+</span></span>
 <span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">position =</span> <span class="st">"stack"</span>) <span class="sc">+</span>  <span class="co"># Stacked bar chart</span></span>
@@ -1386,7 +1391,7 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder origin_day as a factor with levels from Monday to Sunday</span></span>
 <span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>sampled_trips<span class="sc">$</span>origin_day <span class="ot">&lt;-</span> <span class="fu">factor</span>(sampled_trips<span class="sc">$</span>origin_day, </span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Monday"</span>, <span class="st">"Tuesday"</span>, <span class="st">"Wednesday"</span>, <span class="st">"Thursday"</span>, <span class="st">"Friday"</span>, <span class="st">"Saturday"</span>, <span class="st">"Sunday"</span>))</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"monday"</span>, <span class="st">"tuesday"</span>, <span class="st">"wednesday"</span>, <span class="st">"thursday"</span>, <span class="st">"friday"</span>, <span class="st">"saturday"</span>, <span class="st">"sunday"</span>))</span>
 <span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot</span></span>
 <span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sampled_trips, <span class="fu">aes</span>(<span class="at">x =</span> origin_day, <span class="at">y =</span> total_duration_minutes, <span class="at">fill =</span> origin_day)) <span class="sc">+</span></span>
@@ -1421,7 +1426,7 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder origin_day as a factor with levels from Monday to Sunday</span></span>
 <span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>filtered_trips<span class="sc">$</span>origin_day <span class="ot">&lt;-</span> <span class="fu">factor</span>(filtered_trips<span class="sc">$</span>origin_day, </span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Monday"</span>, <span class="st">"Tuesday"</span>, <span class="st">"Wednesday"</span>, <span class="st">"Thursday"</span>, <span class="st">"Friday"</span>, <span class="st">"Saturday"</span>, <span class="st">"Sunday"</span>))</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"monday"</span>, <span class="st">"tuesday"</span>, <span class="st">"wednesday"</span>, <span class="st">"thursday"</span>, <span class="st">"friday"</span>, <span class="st">"saturday"</span>, <span class="st">"sunday"</span>))</span>
 <span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot without outliers</span></span>
 <span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(filtered_trips, <span class="fu">aes</span>(<span class="at">x =</span> origin_day, <span class="at">y =</span> total_duration_minutes, <span class="at">fill =</span> origin_day)) <span class="sc">+</span></span>
@@ -1524,7 +1529,7 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder origin_day as a factor with levels from Monday to Sunday</span></span>
 <span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>sampled_trips<span class="sc">$</span>origin_day <span class="ot">&lt;-</span> <span class="fu">factor</span>(sampled_trips<span class="sc">$</span>origin_day, </span>
-<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Monday"</span>, <span class="st">"Tuesday"</span>, <span class="st">"Wednesday"</span>, <span class="st">"Thursday"</span>, <span class="st">"Friday"</span>, <span class="st">"Saturday"</span>, <span class="st">"Sunday"</span>))</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"monday"</span>, <span class="st">"tuesday"</span>, <span class="st">"wednesday"</span>, <span class="st">"thursday"</span>, <span class="st">"friday"</span>, <span class="st">"saturday"</span>, <span class="st">"sunday"</span>))</span>
 <span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the violin plot</span></span>
 <span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sampled_trips, <span class="fu">aes</span>(<span class="at">x =</span> origin_day, <span class="at">y =</span> total_distance_km, <span class="at">fill =</span> origin_day)) <span class="sc">+</span></span>
@@ -1562,8 +1567,8 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert origin_day to a factor with specific order</span></span>
 <span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>heatmap_data<span class="sc">$</span>origin_day <span class="ot">&lt;-</span> <span class="fu">factor</span>(heatmap_data<span class="sc">$</span>origin_day, </span>
-<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Monday"</span>, <span class="st">"Tuesday"</span>, <span class="st">"Wednesday"</span>, <span class="st">"Thursday"</span>, </span>
-<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">"Friday"</span>, <span class="st">"Saturday"</span>, <span class="st">"Sunday"</span>))  <span class="co"># Specify the order</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"monday"</span>, <span class="st">"tuesday"</span>, <span class="st">"wednesday"</span>, <span class="st">"thursday"</span>,</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>                                              <span class="st">"friday"</span>, <span class="st">"saturday"</span>, <span class="st">"sunday"</span>))</span>
 <span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert hour_category to a factor for better ordering</span></span>
 <span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>heatmap_data<span class="sc">$</span>hour_category <span class="ot">&lt;-</span> <span class="fu">factor</span>(heatmap_data<span class="sc">$</span>hour_category, </span>
@@ -1646,8 +1651,8 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">num_of_pois =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">'drop'</span>)</span>
 <span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>heatmap_plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pois_num_cat, <span class="fu">aes</span>(<span class="at">x =</span> category, <span class="at">y =</span> district, <span class="at">fill =</span> num_of_pois)) <span class="sc">+</span></span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span> <span class="co"># Create tiles with white borders</span></span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"lightblue"</span>, <span class="at">high =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span> <span class="co"># Color gradient</span></span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"lightblue"</span>, <span class="at">high =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
 <span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Heatmap of Points of Interest by District and Category"</span>,</span>
 <span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"POI Category"</span>,</span>
@@ -1656,8 +1661,8 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="co"># Clean theme</span></span>
 <span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>), <span class="co"># Rotate x-axis labels</span></span>
-<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">16</span>, <span class="at">face =</span> <span class="st">"bold"</span>) <span class="co"># Center the title</span></span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>),</span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">16</span>, <span class="at">face =</span> <span class="st">"bold"</span>) </span>
 <span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(heatmap_plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1880,11 +1885,11 @@ $ population_2019 &lt;dbl&gt; 4921, 1545, 3774, 2762, 2667, 1724, 2938, 3774, 98
 <span id="cb59-20"><a href="#cb59-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Relationship between Number of Trips and Number of POIs by Average Distance"</span>,</span>
 <span id="cb59-21"><a href="#cb59-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of Trips"</span>,</span>
 <span id="cb59-22"><a href="#cb59-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of POIs"</span>,</span>
-<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="st">"Average Distance Category (km)"</span>,  <span class="co"># Legend label for distance category as size</span></span>
-<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Average Distance Category (km)"</span>  <span class="co"># Legend label for distance categories</span></span>
+<span id="cb59-23"><a href="#cb59-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="st">"Average Distance Category (km)"</span>,  </span>
+<span id="cb59-24"><a href="#cb59-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Average Distance Category (km)"</span>  </span>
 <span id="cb59-25"><a href="#cb59-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb59-26"><a href="#cb59-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)) <span class="sc">+</span>  <span class="co"># Set specific sizes for each distance category level</span></span>
-<span id="cb59-27"><a href="#cb59-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> distance_color_palette) <span class="sc">+</span>  <span class="co"># Apply custom color palette</span></span>
+<span id="cb59-26"><a href="#cb59-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)) <span class="sc">+</span>  </span>
+<span id="cb59-27"><a href="#cb59-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> distance_color_palette) <span class="sc">+</span> </span>
 <span id="cb59-28"><a href="#cb59-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_gray</span>() <span class="sc">+</span></span>
 <span id="cb59-29"><a href="#cb59-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
 <span id="cb59-30"><a href="#cb59-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>

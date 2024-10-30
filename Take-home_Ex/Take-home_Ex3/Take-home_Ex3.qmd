@@ -35,9 +35,9 @@ Firstly, let us begin by loading these requiring libraries into our R environmen
 
 -   [`ggalluvial`](https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html): allows for building flow diagrams between origin and destination locations, similar to a sankey diagram.
 
--   sf:
+-   [`sf`](https://cran.r-project.org/web/packages/sf/index.html): for spatial data handling
 
--   fmsb
+-   [`fmsb`](https://cran.r-project.org/web/packages/fmsb/index.html): for plotting radarcharts in R
 
 ```{r}
 pacman::p_load(tidyverse, ggplot2, patchwork, ggalluvial, gridExtra, sf, fmsb)
@@ -139,14 +139,14 @@ pois_num <- pois %>%
 pois_num
 ```
 
-## 3.4 Preprare the Augmented *Trips* Dataset
+## 3.4 Prepare the Augmented *Trips* Dataset
 
 I noticed that we have records where destination districts are found outside of Jakarta's boundary. For the purpose of analysing Grab trends within Jakarta, I will filter these trip records out.
 
 ```{r}
 trips <- trips %>%
-  filter(destination_district != "Outside of Jakarta" |
-         origin_district != "Outside of Jakarta")
+  filter(destination_district != "outside of jakarta" |
+         origin_district != "outside of jakarta")
 
 # Inspect
 head(trips)
@@ -170,7 +170,7 @@ trips_origin <- trips %>%
   summarise(
     num_of_trips = n(), 
     avg_duration_minutes = mean(total_duration_minutes, na.rm = TRUE), 
-    avg_distance_km = mean(total_distance_km, na.rm = TRUE)  
+    avg_distance_km = mean(total_distance_km, na.rm = TRUE)
   ) %>%
   rename(district = origin_district) %>%
   mutate(district = tolower(district))
@@ -203,6 +203,53 @@ district_origin <- trips_origin_pois %>%
   left_join(population %>% mutate(district = tolower(district)), 
             by = "district")
 
+district_origin
+```
+
+## 3.5 Prepare the Dataframe for Weather by Origin District
+
+For a more aggregated analysis of the weather conditions influencing commuters to pay for Grab services, I will do a count of all number of trips based on each **weather description** (e.g. fog, haze, heavy rain) and based on each **weather** **category** (e.g. rain or no rain). Take note that I will remove all values returned as "outside of jakarta" since we do not have weather data for trip origins found outside of Jakarta.
+
+```{r}
+trips_origin_weather <- trips %>%
+  filter(origin_weather_description %in% weather_descriptions) %>%
+  group_by(origin_district, origin_weather_description) %>%
+  summarise(num_of_trips = n(), .groups = 'drop') %>%
+  pivot_wider(
+    names_from = origin_weather_description,
+    values_from = num_of_trips,
+    values_fill = list(num_of_trips = 0)
+  ) %>%
+  rename(district = origin_district) %>%
+  mutate(district = tolower(district))
+
+category_counts <- trips %>%
+  group_by(origin_district, origin_weather_description_category) %>%
+  summarise(total_category_count = n(), .groups = 'drop') %>%
+  pivot_wider(
+    names_from = origin_weather_description_category,
+    values_from = total_category_count,
+    values_fill = list(total_category_count = 0)
+  ) %>%
+  rename(district = origin_district) %>%
+  mutate(district = tolower(district))
+
+trips_origin_weather <- trips_origin_weather %>%
+  left_join(category_counts, by = "district")
+
+trips_origin_weather <- trips_origin_weather %>%
+  select(-c('Outside of Jakarta.x','Outside of Jakarta.y'))
+
+trips_origin_weather
+```
+
+Let's do an `inner_join()` to combine the weather data with our `district_origin` dataframe.
+
+```{r}
+district_origin <- district_origin %>%
+  left_join(trips_origin_weather, by = "district")
+
+# Inspect
 district_origin
 ```
 
@@ -256,18 +303,20 @@ p1 / p2
 
 We can also inspect how the population size of each district influences the number of trips taken to and from each district. Generally, districts with a **high number of trips per capita** from **origin** also displayed **more frequent** trips taken into the district.
 
-Interestingly, we see some districts with the **highest trips per capita** but in reality, they do NOT correspond to **high number of trips** (previous chart). For instance, Danau Sunter DII and Danau Sunter are districts with the lowest number of trips but since they also have a population of 0, it results in a **seemingly high** number of trips per capita.
+Initially, there are districts with the **highest trips per capita** but in reality, they do NOT correspond to **high number of trips** (previous chart). For instance, Danau Sunter DII and Danau Sunter are districts with the lowest number of trips but since they also have a population of 0, resulting in a **seemingly high** number of trips per capita. Hence, we remove trip data from these two districts since it is not possible to divide a value by 0!
 
 ```{r}
 #| code-fold: true
 #| code-summary: Prepare data
 destination_data <- district_dest %>%
   select(district, population_count, num_of_trips) %>%
+  filter(district != "Danau Sunter Dll" & district != "Danau Sunter") %>%
   mutate(trips_per_capita_dest = num_of_trips / population_count) %>%
   rename(district = district)
 
 origin_data <- district_origin %>%
   select(district, population_count, num_of_trips) %>%
+  filter(district != "Danau Sunter Dll" & district != "Danau Sunter") %>%
   mutate(trips_per_capita_origin = num_of_trips / population_count) %>%
   rename(district = district)
 
@@ -664,10 +713,10 @@ We plot the `geom_bar()` from `ggplot2` package here. We can see that **weekends
 weekly_trips <- trips %>%
   group_by(origin_day, driving_mode) %>%
   summarise(total_trips = n(), .groups = 'drop') %>%
-  arrange(match(origin_day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")))
+  arrange(match(origin_day, c("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")))
 
 weekly_trips$origin_day <- factor(weekly_trips$origin_day, 
-                                   levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+                                   levels = c("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"))
 
 ggplot(weekly_trips, aes(x = origin_day, y = total_trips, fill = driving_mode)) +
   geom_bar(stat = "identity", position = "stack") +  # Stacked bar chart
@@ -826,7 +875,7 @@ sampled_trips <- trips %>%
 
 # Reorder origin_day as a factor with levels from Monday to Sunday
 sampled_trips$origin_day <- factor(sampled_trips$origin_day, 
-                                    levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+                                    levels = c("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"))
 
 # Create the violin plot
 ggplot(sampled_trips, aes(x = origin_day, y = total_duration_minutes, fill = origin_day)) +
@@ -856,7 +905,7 @@ filtered_trips <- trips %>%
 
 # Reorder origin_day as a factor with levels from Monday to Sunday
 filtered_trips$origin_day <- factor(filtered_trips$origin_day, 
-                                    levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+                                    levels = c("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"))
 
 # Create the violin plot without outliers
 ggplot(filtered_trips, aes(x = origin_day, y = total_duration_minutes, fill = origin_day)) +
@@ -941,7 +990,7 @@ sampled_trips <- trips %>%
 
 # Reorder origin_day as a factor with levels from Monday to Sunday
 sampled_trips$origin_day <- factor(sampled_trips$origin_day, 
-                                    levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+                                    levels = c("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"))
 
 # Create the violin plot
 ggplot(sampled_trips, aes(x = origin_day, y = total_distance_km, fill = origin_day)) +
@@ -974,8 +1023,8 @@ heatmap_data <- trips %>%
 
 # Convert origin_day to a factor with specific order
 heatmap_data$origin_day <- factor(heatmap_data$origin_day, 
-                                   levels = c("Monday", "Tuesday", "Wednesday", "Thursday", 
-                                              "Friday", "Saturday", "Sunday"))  # Specify the order
+                                   levels = c("monday", "tuesday", "wednesday", "thursday",
+                                              "friday", "saturday", "sunday"))
 
 # Convert hour_category to a factor for better ordering
 heatmap_data$hour_category <- factor(heatmap_data$hour_category, 
@@ -1007,11 +1056,65 @@ ggplot(heatmap_data, aes(x = hour_category, y = origin_day)) +
 
 -   **Analysis/Conclusion: Understand how adverse weather affects overall trip volume. This can reveal if people use ride-hailing more or less in different weather conditions.**
 
+```{r fig.width=10, fig.height=6}
+district_origin_long <- district_origin %>%
+  select(district, not_rain, rain) %>%
+  pivot_longer(cols = c(not_rain, rain), names_to = "weather_type", values_to = "trip_count")
+
+# Plot the data
+ggplot(district_origin_long, aes(x = district, y = trip_count, fill = weather_type)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Trip Counts by District and Weather Type",
+    x = "District",
+    y = "Number of Trips",
+    fill = "Weather Type"
+  ) +
+  theme_gray() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 90, hjust = 1) 
+  ) +
+  scale_fill_manual(values = c("not_rain" = "skyblue", "rain" = "steelblue"))
+```
+
+```{r fig.width=10, fig.height=6}
+# Summing trip counts by weather condition
+weather_summary <- district_origin %>%
+  summarise(across(starts_with("broken clouds"):starts_with("heavy rain"), sum)) %>%
+  pivot_longer(cols = everything(), names_to = "weather_condition", values_to = "trip_count")
+
+# Bar chart
+ggplot(weather_summary, aes(x = reorder(weather_condition, -trip_count), y = trip_count)) +
+  geom_bar(stat = "identity", fill = "lightblue") +
+  geom_text(aes(label = trip_count), vjust = -0.5, size = 4) +
+  labs(
+    title = "Number of Trips by Weather Condition",
+    x = "Weather Condition",
+    y = "Number of Trips"
+  ) +
+  theme_gray() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1) 
+  )
+```
+
+For longer trips, does weather influence more demand?
+
+```{r}
+district_origin$
+```
+
 ### **4.3.2 Do weather conditions affect trip demand differently for motorbikes vs. cars?**
 
 -   **Plot/Graph: Side-by-side boxplots for cars and motorbikes**
 
 -   **Analysis/Conclusion: Analyze how weather influences the use of motorbikes versus cars. Motorbike demand may drop significantly during rain.**
+
+```{r}
+
+```
 
 ## 4.4 Point of Interest (POI) Analysis
 
@@ -1043,8 +1146,8 @@ pois_num_cat <- pois %>%
   summarise(num_of_pois = n(), .groups = 'drop')
 
 heatmap_plot <- ggplot(pois_num_cat, aes(x = category, y = district, fill = num_of_pois)) +
-  geom_tile(color = "white") + # Create tiles with white borders
-  scale_fill_gradient(low = "lightblue", high = "darkblue") + # Color gradient
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
   labs(
     title = "Heatmap of Points of Interest by District and Category",
     x = "POI Category",
@@ -1053,8 +1156,8 @@ heatmap_plot <- ggplot(pois_num_cat, aes(x = category, y = district, fill = num_
   ) +
   theme_minimal() + # Clean theme
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1), # Rotate x-axis labels
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold") # Center the title
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold") 
   )
 
 print(heatmap_plot)
@@ -1241,11 +1344,11 @@ ggplot(district_dist_6, aes(x = num_of_trips, y = num_of_pois)) +
     title = "Relationship between Number of Trips and Number of POIs by Average Distance",
     x = "Number of Trips",
     y = "Number of POIs",
-    size = "Average Distance Category (km)",  # Legend label for distance category as size
-    color = "Average Distance Category (km)"  # Legend label for distance categories
+    size = "Average Distance Category (km)",  
+    color = "Average Distance Category (km)"  
   ) +
-  scale_size_manual(values = c(1, 2, 3, 4, 5, 6)) +  # Set specific sizes for each distance category level
-  scale_color_manual(values = distance_color_palette) +  # Apply custom color palette
+  scale_size_manual(values = c(1, 2, 3, 4, 5, 6)) +  
+  scale_color_manual(values = distance_color_palette) + 
   theme_gray() +
   theme(
     plot.title = element_text(size = 16, hjust = 0.5, face = "bold"),
@@ -1489,7 +1592,7 @@ ggplot(flow_data, aes(axis1 = origin_district, axis2 = destination_district, y =
         axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-##  **What are the major spatial flow patterns (origin to destination) across different districts in Jakarta?**
+## **What are the major spatial flow patterns (origin to destination) across different districts in Jakarta?**
 
 -   **Plot/Graph: Flow map or desire line map**
 

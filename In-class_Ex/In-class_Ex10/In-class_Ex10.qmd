@@ -1,0 +1,380 @@
+---
+title: "In-class Exercise 11"
+subtitle: "Building Hedonic Models using Condo Resale Prices"
+author: "Foo Jia Yi Samantha"
+date-modified: 10/28/2024
+date: 10/28/2024
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+```{=html}
+<button>Hands-on Exercise</button> <button>R</button> <button>GWmodel</button> <button>gtsummary</button> <button>GWR</button>
+```
+## 1. Overview
+
+In this in-class exercise, we explore new R packages to carry out the calibration of **hedonic pricing model** for private highrise property using ***MLR models.***
+
+The dependent variable is the resale prices of condominium in 2015. The independent variables are divided into either structural and locational.
+
+### 1.1 Install Required Packages
+
+The R packages needed for this exercise are as follows:
+
+-   R package for building OLS and performing diagnostics tests
+
+    -   [**olsrr**](https://olsrr.rsquaredacademy.com/)
+
+-   R package for graphics with details from statistical tests included in the information-rich plots themselves
+
+    -   **ggstatplot**
+
+-   Spatial data handling
+
+    -   **sf. sfdep**
+
+-   Attribute data handling
+
+    -   **tidyverse**, especially **readr**, **ggplot2** and **dplyr**
+
+-   Choropleth mapping
+
+    -   **tmap**
+
+```{r}
+pacman::p_load(olsrr, ggstatsplot, sf, 
+               tmap, tidyverse, gtsummary,
+               performance, see, sfdep)
+```
+
+### 1.2 Importing the Data
+
+#### 1.2.1 Aspatial Data
+
+The *condo_resale_2015* is in csv file format. The codes chunk below uses `read_csv()` function of **readr** package to import *condo_resale_2015* into R as a tibble data frame called *condo_resale*.
+
+```{r}
+condo_resale = read_csv("data/aspatial/Condo_resale_2015.csv")
+```
+
+After importing the data file into R, it is important for us to examine if the data file has been imported correctly. By using `glimpse()`, we can observe that it returns **1,436 rows** and **23 columns**.
+
+```{r}
+glimpse(condo_resale)
+```
+
+Next, `summary()` of base R is used to display the summary statistics of *cond_resale* tibble data frame.
+
+```{r}
+summary(condo_resale)
+```
+
+#### 1.2.2 Geospatial Data
+
+The geospatial data used in this hands-on exercise is MP14_SUBZONE_WEB_PL. It is in ESRI shapefile format consisting of URA Master Plan 2014’s planning subzone boundaries.
+
+The code chunk below is used to import *MP_SUBZONE_WEB_PL* shapefile by using `st_read()` of **sf** packages.
+
+```{r}
+mpsz = st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_WEB_PL")
+```
+
+::: {.callout-tip title="Observations"}
+The geometry data in this shapefile consists of polygon features which are used to represent these geographic boundaries. We can also see that the GIS data is in the svy21 projected coordinates system.
+:::
+
+### 1.3 Data Wrangling
+
+#### 1.3.1 Aspatial Data
+
+We first need to convert the condo_resale dibble data frame into a sf object. We will also need to convert the projection from WSG84 into SVY21, which is the projection used in Singapore.
+
+```{r}
+condo_resale_sf <- st_as_sf(condo_resale,
+                            coords = c("LONGITUDE", "LATITUDE"),
+                            crs=4326) %>%
+  st_transform(crs=3414)
+```
+
+Next, `head()` is used to list the content of *condo_resale.sf* object.
+
+```{r}
+head(condo_resale_sf)
+```
+
+## 2. Correlation Analysis - ggstatsplot methods
+
+Correlation matrix is an effective graphical method for checking if there are pair independent variables with high correlation. In the code chunk below, [`ggcorrmat()`](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcorrmat.html) of [**ggstatsplot**](https://indrajeetpatil.github.io/ggstatsplot/index.html) is used to plot the correlation matrix.
+
+```{r}
+ggcorrmat(condo_resale[, 5:23])
+```
+
+## 3. Building a Hedonic Pricing Model by using Multiple Linear Regression Method
+
+### 3.1 Building the MLR regression model
+
+Instead of using **GWR models** like we did in Hands-on Exercise 10, let us use the `lm()` function to produce our **MLR model**.
+
+```{r}
+condo_mlr <- lm(formula = SELLING_PRICE ~ AREA_SQM + 
+                  AGE   + PROX_CBD + PROX_CHILDCARE + 
+                  PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + 
+                  PROX_HAWKER_MARKET    + PROX_KINDERGARTEN + 
+                  PROX_MRT  + PROX_PARK + PROX_PRIMARY_SCH + 
+                  PROX_TOP_PRIMARY_SCH + PROX_SHOPPING_MALL + 
+                  PROX_SUPERMARKET + PROX_BUS_STOP + 
+                  NO_Of_UNITS + FAMILY_FRIENDLY + 
+                  FREEHOLD + LEASEHOLD_99YR, 
+                data=condo_resale_sf)
+summary(condo_mlr)
+```
+
+### 3.2 Generating a linear regression report
+
+We can utilise the [**olsrr**](https://olsrr.rsquaredacademy.com/) package to generate a **tidy linear regression report**.
+
+```{r}
+ols_regress(condo_mlr)
+```
+
+::: callout-note
+[**olsrr**](https://olsrr.rsquaredacademy.com/)is a collection of very useful methods for building better multiple linear regression models:
+
+-   **comprehensive regression output**
+
+-   residual diagnostics
+
+-   measures of influence
+
+-   heteroskedasticity tests
+
+-   model fit assessment
+
+-   variable contribution assessment
+
+-   **variable selection procedures**
+:::
+
+### 3.3 Conducting Variable Selection
+
+Stepwise regression is the step-by-step iterative construction of a regression model that involves the selection of independent variables to be used in a final model. It involves adding or removing potential explanatory variables in succession and testing for statistical significance after each iteration.
+
+-   [`ols_step_forward_p`](https://olsrr.rsquaredacademy.com/reference/ols_step_forward_p)
+
+-   [`ols_step_backward_p`](https://olsrr.rsquaredacademy.com/reference/ols_step_backward_p)
+
+-   [`ols_step_both_p`](https://olsrr.rsquaredacademy.com/reference/ols_step_both_p)
+
+**1) Step Forward**
+
+```{r}
+condo_fw_mlr <- ols_step_forward_p(
+  condo_mlr,
+  p_val = 0.05,
+  details = FALSE)
+condo_fw_mlr
+```
+
+Let's plot the results out too
+
+```{r}
+plot(condo_fw_mlr)
+```
+
+**2) Step Backward**
+
+```{r}
+condo_bw_mlr <- ols_step_backward_p(
+  condo_mlr,
+  p_val = 0.05,
+  details = FALSE)
+condo_bw_mlr
+```
+
+```{r}
+plot(condo_bw_mlr)
+```
+
+**3) Step Forward & Backward**
+
+```{r}
+condo_sb_mlr <- ols_step_both_p(
+  condo_mlr,
+  p_val = 0.05,
+  details = FALSE)
+condo_sb_mlr
+```
+
+```{r}
+plot(condo_sb_mlr)
+```
+
+### 3.4 Model Selection
+
+In the code chunk below, [`compare_performance()`](https://easystats.github.io/performance/reference/compare_performance.html) of **performance** package is used to compare the performance of the models.
+
+```{r}
+metric <- compare_performance(condo_mlr, 
+                    condo_fw_mlr$model,
+                    condo_bw_mlr$model,
+                    condo_sb_mlr$model)
+```
+
+In the code chunk below, `gsub()` is used to tidy the test value in *Name* field.
+
+```{r}
+metric$Name <- gsub(".*\\\\([a-zA-Z0-9_]+)\\\\, \\\\model\\\\.*", "\\1", metric$Name)
+```
+
+In the code chunk below, `plot()` of see package is used to plot a radar chart to compare the performance measures of the models.
+
+```{r}
+plot(metric)
+```
+
+We can also visualise model paramters here.
+
+```{r}
+ggcoefstats(condo_sb_mlr$model,
+            sort = "ascending")
+```
+
+### 3.5 Visualise Results
+
+#### 3.5.1 Multicollinearity Test
+
+We might want to further check for multicollinearity
+
+> -   **Multicollinearity** is a statistical concept where two or more independent variables in a regression model are correlated.
+>
+> -   A statistical technique called the **variance inflation factor (VIF)** can detect and measure the amount of collinearity in a multiple regression model.
+>
+> -   VIF measures how much the variance of the estimated regression coefficients is inflated as compared to when the predictor variables are not linearly related.
+>
+> -   Interpretation of VIF
+>
+>     -   \< 5: low multicollinearity
+>
+>     -   5-10: moderate multicollinearity
+>
+>     -   \> 10: strong multicollineariy
+
+```{r}
+check_collinearity(condo_sb_mlr$model)
+```
+
+```{r}
+plot(check_collinearity(condo_sb_mlr$model)) +
+  theme(axis.text.x = element_text(
+    angle = 45, hjust = 1))
+```
+
+#### 3.5.2 Linearity Assumption Test
+
+In multiple linear regression, it is important for us to test the assumption that linearity and additivity of the relationship between dependent and independent variables.
+
+In the code chunk below, the [`check_model()`](https://easystats.github.io/performance/reference/check_model.html) of **performance** package is used to perform linearity assumption test.
+
+```{r}
+out <- plot(check_model(condo_sb_mlr$model, 
+                        panel = FALSE))
+out[[2]]
+```
+
+![Figure above reveals that most of the data points are scattered around the 0 line, hence we can safely conclude that the relationships between the dependent variable and independent variables are linear](images/clipboard-3438333201.png)
+
+#### 3.5.3 Normality Assumption Test
+
+Multiple Linear Regression analysis assumes that **the residuals (the differences between observed and predicted values) are normally distributed**. This assumption can be assessed by using statistical graphics, or through statistical tests such as the Kolmogorov-Smirnov test.
+
+Code chunk below uses [`check_normality`](https://easystats.github.io/performance/reference/check_normality.html) of *performance* package to perform normality assumption test.
+
+```{r}
+plot(check_normality(condo_sb_mlr$model))
+```
+
+Figure above reveals that the residual of the multiple linear regression model (i.e. condo.mlr1) is resemble normal distribution.
+
+#### 3.5.4 Checking for Outliers
+
+```{r}
+outliers <- check_outliers(condo_sb_mlr$model,
+                           method = "cook")
+outliers
+```
+
+```{r}
+plot(check_outliers(condo_sb_mlr$model,
+                           method = "cook"))
+```
+
+#### 3.5.5 Spatial Non-stationary Assumption
+
+The hedonic model we try to build are using geographically referenced attributes, hence it is also important for us to visual the residual of the hedonic pricing model.
+
+-   Ho: The residuals are randomly distributed (also known as spatial stationary)
+
+-   H1: The residuals are spatially non-stationary
+
+First, we will export the residual of the hedonic pricing model and save it as a data frame.
+
+```{r}
+mlr_output <- as.data.frame(condo_fw_mlr$model$residuals) %>%
+  rename(`FW_MLR_RES` = `condo_fw_mlr$model$residuals`)
+```
+
+Next, we will join the newly created data frame with *condo_resale_sf* object.
+
+```{r}
+condo_resale_sf <- cbind(condo_resale_sf, 
+                        mlr_output$FW_MLR_RES) %>%
+  rename(`MLR_RES` = `mlr_output.FW_MLR_RES`)
+```
+
+Next, we will use **tmap** package to display the distribution of the residuals on an interactive map. The code churn below will turn on the interactive mode of tmap.
+
+```{r}
+tmap_mode("view")
+tm_shape(mpsz)+
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons(alpha = 0.4) +
+tm_shape(condo_resale_sf) +  
+  tm_dots(col = "MLR_RES",
+          alpha = 0.6,
+          style="quantile") 
+tmap_mode("plot")
+```
+
+#### 3.5.6 Spatial stationary test
+
+To proof that our observation is indeed true, the Moran’s I test will be performed
+
+First, we will compute the distance-based weight matrix by using [`dnearneigh()`](https://r-spatial.github.io/spdep/reference/dnearneigh.html) function of **spdep**.
+
+```{r}
+condo_resale_sf <- condo_resale_sf %>%
+  mutate(nb = st_knn(geometry, k=6,
+                     longlat = FALSE),
+         wt = st_weights(nb,
+                         style = "W"),
+         .before = 1)
+```
+
+Next, [`global_moran_perm()`](https://sfdep.josiahparry.com/reference/global_moran_perm) of sfdep is used to perform global Moran permutation test.
+
+```{r}
+global_moran_perm(condo_resale_sf$MLR_RES, 
+                  condo_resale_sf$nb, 
+                  condo_resale_sf$wt, 
+                  alternative = "two.sided", 
+                  nsim = 99)
+```
+
+::: callout-note
+The Global Moran’s I test for residual spatial autocorrelation shows that **it’s p-value is less than the alpha value of 0.05**. Hence, we **reject the null hypothesis** that the residuals are randomly distributed.
+
+Since the Observed Global Moran I = 0.25586 which is greater than 0, we can **infer** that the residuals resemble **cluster distribution**.
+:::
