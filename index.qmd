@@ -39,7 +39,7 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                   |                                                   |
 | </p>                |                                                                                                                   |                                                   |
 +---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**Take Home Exercise 3**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex3/take-home_ex3)     | ![](images/clipboard-393807001.png){width="200"}  |
+| <p id="contents">   | ## [**Take Home Exercise 3**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex3/take-home_ex3)     | ![](images/clipboard-393807001.png){width="240"}  |
 |                     |                                                                                                                   |                                                   |
 | Nov 3, 2024         | Navigating Jakarta’s Traffic Network Using Grab Posisi Data                                                       |                                                   |
 |                     |                                                                                                                   |                                                   |
