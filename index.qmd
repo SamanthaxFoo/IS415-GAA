@@ -39,6 +39,14 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                   |                                                   |
 | </p>                |                                                                                                                   |                                                   |
 +---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**Take Home Exercise 3**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex3/take-home_ex3)     | ![](images/clipboard-393807001.png){width="200"}  |
+|                     |                                                                                                                   |                                                   |
+| Nov 3, 2024         | Navigating Jakarta’s Traffic Network Using Grab Posisi Data                                                       |                                                   |
+|                     |                                                                                                                   |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                   |                                                   |
+|                     |                                                                                                                   |                                                   |
+| </p>                |                                                                                                                   |                                                   |
++---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
 | <p id="contents">   | ## [**Hands-on Exercise 1**](https://is415-samanthafoo.netlify.app/hands-on_ex/hands-on_ex1/hands-on_ex1)         | \                                                 |
 |                     |                                                                                                                   |                                                   |
 | Aug 16, 2024        | Geospatial Wrangling with R                                                                                       | ![](images/clipboard-195378010.png){width="200"}  |
@@ -183,7 +191,7 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                   |                                                   |
 | </p>                |                                                                                                                   |                                                   |
 +---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**In-class Exercise 10**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex10/In-class_Ex10.html) | ![](images/clipboard-4006592340.png){width="234"} |
+| <p id="contents">   | ## [**In-class Exercise 10**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex10/In-class_Ex10.html) | ![](images/clipboard-4006592340.png){width="240"} |
 |                     |                                                                                                                   |                                                   |
 | Oct 30, 2024        | Calibrating Hedonic Pricing Model for Private Highrise Property with MLR methods                                  |                                                   |
 |                     |                                                                                                                   |                                                   |
