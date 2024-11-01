@@ -1,6 +1,6 @@
 ---
 title: "In-class Exercise 7"
-subtitle: "Building Interacitve Shiny Applications"
+subtitle: "Building Interactive Shiny Applications"
 author: "Foo Jia Yi Samantha"
 date-modified: "September 30, 2024"
 date: "September 30, 2024"
