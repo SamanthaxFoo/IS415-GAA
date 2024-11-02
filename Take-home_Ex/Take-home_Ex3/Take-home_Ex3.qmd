@@ -39,10 +39,12 @@ Firstly, let us begin by loading these requiring libraries into our R environmen
 
 -   [`fmsb`](https://cran.r-project.org/web/packages/fmsb/index.html): for plotting radarcharts in R
 
--   [tmap](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html): for **creating thematic maps** with spatial data, providing custom styles, colors, legends, and interactivity
+-   [tmap](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html): for creating thematic maps with spatial data, providing custom styles, colors, legends, and interactivity
+
+-   [`knitr`](https://cran.r-project.org/package=knitr): for dynamic report generation
 
 ```{r}
-pacman::p_load(tidyverse, ggplot2, patchwork, ggalluvial, gridExtra, sf, sfdep, fmsb, tmap)
+pacman::p_load(tidyverse, ggplot2, patchwork, ggalluvial, gridExtra, sf, sfdep, fmsb, tmap, knitr)
 ```
 
 ## 2.2 Importing Datasets
@@ -127,7 +129,7 @@ jakarta_district <- jakarta_district %>%
 
 # Step 6: Ensure the CRS is EPSG:4326 (WGS84)
 jakarta_district <- jakarta_district %>%
-  st_transform(crs = 5580)  # Transform to WGS84
+  st_transform(crs = 6384)  # Transform to WGS84
 
 jakarta_district <- jakarta_district %>%
   mutate(across(where(is.character), tolower))
@@ -373,6 +375,7 @@ In this EDA process, I will leverage the datasets we've imported and wrangled to
 In terms of trip origins, districts such as Setia Budi, Grogol Petamburan, and Kebayoran Baru have the **highest traffic volumes** moving out of the district, indicating areas of high trip demand. In terms of trip destinations, districts such as Tanah A bang and Setia Budi are most popular for Grab trips. In contrast, districts like Johar Baru, Dananu Sunter DII, and Danau Sunter experience the **lowest traffic volumes**, suggesting potential areas of **under-service** or potentially **low demand for Grab services**.
 
 ```{r fig.width=10, fig.height=8}
+#| code-fold: true
 # Count trips for origin districts
 origin_counts <- trips %>%
   count(origin_district) %>%
@@ -419,13 +422,13 @@ Initially, there are districts with the **highest trips per capita** but in real
 #| code-summary: Prepare data
 destination_data <- district_dest %>%
   select(district, population_count, num_of_trips) %>%
-  filter(district != "Danau Sunter Dll" & district != "Danau Sunter") %>%
+  filter(district != "danau sunter dll" & district != "danau sunter") %>%
   mutate(trips_per_capita_dest = num_of_trips / population_count) %>%
   rename(district = district)
 
 origin_data <- district_origin %>%
   select(district, population_count, num_of_trips) %>%
-  filter(district != "Danau Sunter Dll" & district != "Danau Sunter") %>%
+  filter(district != "danau sunter dll" & district != "danau sunter") %>%
   mutate(trips_per_capita_origin = num_of_trips / population_count) %>%
   rename(district = district)
 
@@ -440,9 +443,10 @@ combined_data <- destination_data %>%
 ```
 
 ```{r fig.width=10, fig.height=6}
+#| code-fold: true
 # Create the line plot for trips per capita with specified colors and theme
 ggplot(combined_data, aes(x = district, y = trips_per_capita, color = trip_type, group = trip_type)) +
-  geom_line(size = 1.2) +
+  geom_line(linewidth = 1.2) +
   geom_point(size = 2) +
   labs(
     title = "Number of Trips Per Capita by District",
@@ -480,10 +484,11 @@ district_data <- district_data %>%
   arrange(desc(population_count))
 ```
 
-```{r fig.width=10, fig.height=6}
+```{r fig.width=10, fig.height=7}
+#| code-fold: true
 ggplot(district_data) +
-  geom_line(aes(x = reorder(district, population_count), y = total_trips, group = 1, color = "Average Trips Taken"), size = 1.2) +  # Updated label
-  geom_line(aes(x = reorder(district, population_count), y = population_count * max(total_trips) / max(population_count), group = 2, color = "Population Count"), size = 1.2) +
+  geom_line(aes(x = reorder(district, population_count), y = total_trips, group = 1, color = "Average Trips Taken"), linewidth = 1.2) +  # Updated label
+  geom_line(aes(x = reorder(district, population_count), y = population_count * max(total_trips) / max(population_count), group = 2, color = "Population Count"), linewidth = 1.2) +
   geom_point(aes(x = reorder(district, population_count), y = total_trips, color = "Average Trips Taken"), size = 3) +  # Updated label
   geom_point(aes(x = reorder(district, population_count), y = population_count * max(total_trips) / max(population_count), color = "Population Count"), size = 3) +
   labs(
@@ -509,6 +514,8 @@ ggplot(district_data) +
 Next, we will prepare the top 5 districts with the most number of Grab trips based on trip origin and trip destinations.
 
 ```{r}
+#| code-fold: true
+#| code-summary: Prepare data
 # Calculate top 5 districts for origin_district
 top_5_origin_districts <- trips %>%
   count(origin_district) %>%
@@ -557,21 +564,23 @@ We can also gather origin and destination districts with the least trips by arra
 ```{r}
 #| code-fold: true
 #| code-summary: Prepare data
+
+# Calculate counts for origin districts
 orig_count <- trips %>%
   count(origin_district) %>%
   rename(trips = n) %>%
-  arrange(trips)
+  arrange(desc(trips))
 
 dest_count <- trips %>%
   count(destination_district) %>%
   rename(trips = n) %>%
-  arrange(trips)
+  arrange(desc(trips))
 
 bottom_5_orig <- orig_count %>%
-  slice_head(n = 5)
+  slice_tail(n = 5)
 
 bottom_5_dest <- dest_count %>%
-  slice_head(n = 5)
+  slice_tail(n = 5)
 
 bottom_5_orig$origin_district <- factor(bottom_5_orig$origin_district, 
                                         levels = bottom_5_orig$origin_district)
@@ -582,6 +591,7 @@ bottom_5_dest$destination_district <- factor(bottom_5_dest$destination_district,
 Here I plot the `geom_bar()` of the ggplot2 package. The results aligns with what we mentioned earlier, where the same origin districts with the least out-flow of Grab trips also happen to be districts with the least in-flow of Grab trips.
 
 ```{r fig.width=10, fig.height=5}
+#| code-fold: true
 p1 <- ggplot(bottom_5_orig, aes(y = origin_district, x = trips)) +
   geom_bar(stat = "identity", fill = "lightblue") +
   labs(title = "Least Popular Origin Districts", y = "District", x = "Trips") +
@@ -604,6 +614,7 @@ When using the `geom_density()` function to create density plots, we can see a s
 For **longer distances traveled**, cars are slightly more preferredthan motorcycles, while for **shorter** trip distances, both driving modes are **equally demanded**.Thus, we only see **some instances** where **cars are preferred** for when journeys are longer.
 
 ```{r}
+#| code-fold: true
 ggplot(trips, aes(x = total_distance_km, fill = driving_mode)) +
   geom_density(alpha = 0.8) +
   labs(title = "Trip Distance (km) by Driving Mode (All Trips)",
@@ -617,6 +628,7 @@ ggplot(trips, aes(x = total_distance_km, fill = driving_mode)) +
 This is the adjusted plot when we completely remove all trips with origins and destinations outside of Jakarta. The distance of Grab journeys significantly decrease from 80km to \~20km, and observations of popularity of the driving mode remains the same.
 
 ```{r}
+#| code-fold: true
 trips_inside_jakarta <- trips %>%
   filter(origin_district != 'Outside of Jakarta', destination_district != 'Outside of Jakarta')
 
@@ -635,7 +647,7 @@ We can further break this down into popular origins and destinations for **car**
 **1) For Car Drivers**
 
 ```{r fig.width=10, fig.height=10}
-#| code-true: true
+#| code-fold: true
 # Filter trips for cars only
 car_trips <- trips %>%
   filter(driving_mode == 'car')
@@ -663,9 +675,9 @@ bottom_5_origin_districts$origin_district <- factor(bottom_5_origin_districts$or
 
 # Plot for Top 5 Origin Districts in descending order
 p1 <- ggplot(top_5_origin_districts, aes(y = reorder(origin_district, total_trips), x = total_trips)) +
-  geom_bar(stat = "identity", fill = "green3") +
+  geom_bar(stat = "identity", fill = "lightgreen") +
   theme_gray() +
-  labs(title = "Top 5 Popular Origin Districts (Cars)", y = "District", x = "Number of Trips") +
+  labs(title = "Top 5 Popular Origin (Cars)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -674,7 +686,7 @@ p1 <- ggplot(top_5_origin_districts, aes(y = reorder(origin_district, total_trip
 p2 <- ggplot(bottom_5_origin_districts, aes(y = origin_district, x = total_trips)) +
   geom_bar(stat = "identity", fill = "lightcoral") +
   theme_gray() +
-  labs(title = "Least 5 Popular Origin Districts (Cars)", y = "District", x = "Number of Trips") +
+  labs(title = "Least 5 Popular Origin (Cars)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -704,7 +716,7 @@ bottom_5_destination_districts$destination_district <- factor(bottom_5_destinati
 p3 <- ggplot(top_5_destination_districts, aes(y = reorder(destination_district, total_trips), x = total_trips)) +
   geom_bar(stat = "identity", fill = "lightblue") +
   theme_gray() +
-  labs(title = "Top 5 Popular Destination Districts (Cars)", y = "District", x = "Number of Trips") +
+  labs(title = "Top 5 Popular Destination (Cars)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -713,7 +725,7 @@ p3 <- ggplot(top_5_destination_districts, aes(y = reorder(destination_district, 
 p4 <- ggplot(bottom_5_destination_districts, aes(y = destination_district, x = total_trips)) +
   geom_bar(stat = "identity", fill = "pink2") +
   theme_gray() +
-  labs(title = "Least 5 Popular Destination Districts (Cars)", y = "District", x = "Number of Trips") +
+  labs(title = "Least 5 Popular Destination (Cars)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -752,9 +764,9 @@ bottom_5_origin_districts$origin_district <- factor(bottom_5_origin_districts$or
 
 # Plot for Top 5 Origin Districts in descending order
 p1 <- ggplot(top_5_origin_districts, aes(y = reorder(origin_district, total_trips), x = total_trips)) +
-  geom_bar(stat = "identity", fill = "green3") +
+  geom_bar(stat = "identity", fill = "lightgreen") +
   theme_gray() +
-  labs(title = "Top 5 Popular Origin Districts (Motorcycles)", y = "District", x = "Number of Trips") +
+  labs(title = "Top 5 Popular Origin (Motorcycles)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -763,7 +775,7 @@ p1 <- ggplot(top_5_origin_districts, aes(y = reorder(origin_district, total_trip
 p2 <- ggplot(bottom_5_origin_districts, aes(y = origin_district, x = total_trips)) +
   geom_bar(stat = "identity", fill = "lightcoral") +
   theme_gray() +
-  labs(title = "Least 5 Popular Origin Districts (Motorcycles)", y = "District", x = "Number of Trips") +
+  labs(title = "Least 5 Popular Origin (Motorcycles)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -793,7 +805,7 @@ bottom_5_destination_districts$destination_district <- factor(bottom_5_destinati
 p3 <- ggplot(top_5_destination_districts, aes(y = reorder(destination_district, total_trips), x = total_trips)) +
   geom_bar(stat = "identity", fill = "lightblue") +
   theme_gray() +
-  labs(title = "Top 5 Popular Destination Districts (Motorcycles)", y = "District", x = "Number of Trips") +
+  labs(title = "Top 5 Popular Destination (Motorcycles)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -802,7 +814,7 @@ p3 <- ggplot(top_5_destination_districts, aes(y = reorder(destination_district, 
 p4 <- ggplot(bottom_5_destination_districts, aes(y = destination_district, x = total_trips)) +
   geom_bar(stat = "identity", fill = "pink2") +
   theme_gray() +
-  labs(title = "Least 5 Popular Destination Districts (Motorcycles)", y = "District", x = "Number of Trips") +
+  labs(title = "Least 5 Popular Destination (Motorcycles)", y = "District", x = "Number of Trips") +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
   )
@@ -818,7 +830,8 @@ It will also be interesting to investigate how the demand for Grab trips changes
 
 We plot the `geom_bar()` from `ggplot2` package here. We can see that **weekends** have **slightly fewer** number of trips taken than during the **weekdays**. Additionally, the choice between motorcycle or car is almost equal, with a **marginally higher number of motorcycle trips** taken across all days. Out of all days of the week, Thursdays have the highest number of trips taken which coincides with a school and work day, while Sunday which coincides with a rest day showed the least number of trips.
 
-```{r}
+```{r fig.width=8, fig.height=8}
+#| code-fold: true
 weekly_trips <- trips %>%
   group_by(origin_day, driving_mode) %>%
   summarise(total_trips = n(), .groups = 'drop') %>%
@@ -834,7 +847,11 @@ ggplot(weekly_trips, aes(x = origin_day, y = total_trips, fill = driving_mode)) 
        y = "Number of Trips") +
   scale_fill_manual(values = c("car" = "lightblue", "motorcycle" = "pink2")) +  # Custom colors
   theme_gray() +
-  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold")) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    axis.text.x = element_text(angle = 0, hjust = 1),
+    legend.position = "top"
+  ) +
   geom_text(aes(label = total_trips), 
             position = position_stack(vjust = 0.5), 
             color = "black", 
@@ -849,6 +866,7 @@ ggplot(weekly_trips, aes(x = origin_day, y = total_trips, fill = driving_mode)) 
 By using the `geom_bar` function, we can plot the count of Grab trips taken for each hour of a day. The peak traffic time appears to be at **10am** while the quietest period is at **7pm** in the evening. We cna also see the the demand for traffic rising from 12am onward which then declines in number of Grab trips past 10am.
 
 ```{r}
+#| code-fold: true
 hourly_trips <- trips %>%
   group_by(origin_hour) %>%
   summarise(number_of_trips = n(), .groups = 'drop') %>%
@@ -877,6 +895,8 @@ ggplot(hourly_trips, aes(x = origin_hour, y = number_of_trips, group = 1)) +  # 
 Additionally, we can also aggregate the `hour_category` column into morning, afternoon, evening and midnight, including whether they are peak or lull periods, as such. This allows for easier interpretability of the data charts.
 
 ```{r}
+#| code-fold: true
+#| code-summary: Prepare data
 trips <- trips %>%
   mutate(hour_category = case_when(
     origin_hour %in% 1:3 ~ "midnight_peak",
@@ -898,6 +918,7 @@ trips <- trips %>%
 As shown, the **morning peak** hours of 6am to 9am have the **highest number of Grab trips** while the **evening peak** periods of 6pm to 9pm have the least number of trips taken.
 
 ```{r}
+#| code-fold: true
 hourly_trips <- trips %>% 
   group_by(hour_category) %>% 
   summarise(number_of_trips = n(), .groups = 'drop')
@@ -929,6 +950,7 @@ Similar to the distribution of trip distance, by using `geom_violin()` from ggpl
 Across each hour category, the total duration spent on Grab journeys tend to be **similar** in their median values. Perhaps, we see the most outliers in trip distances for trips taken during the **morning lull** and **evening lull** where extremely long trip distances are observed.
 
 ```{r}
+#| code-fold: true
 sampled_trips <- trips %>%
   sample_n(2000)
 
@@ -950,6 +972,7 @@ ggplot(sampled_trips, aes(x = hour_category, y = total_duration_minutes, fill = 
 When I remove outliers in `total_duration_minutes` that fall below Q1 - 1.5 \* IQR or above Q3 + 1.5 \* IQR, we can once again observe that the median duration taken is the same across all time of day.
 
 ```{r}
+#| code-fold: true
 # Calculate IQR and filter outliers in total_duration_minutes
 filtered_trips <- trips %>%
   filter(between(total_duration_minutes, 
@@ -978,6 +1001,7 @@ ggplot(filtered_trips, aes(x = hour_category, y = total_duration_minutes, fill =
 In terms of day of the week, **Mondays, Tuesdays** and **Wednesdays** tend to have a slightly shorter trip duration than the rest of the days of the week.
 
 ```{r}
+#| code-fold: true
 # Sample 2000 trips
 sampled_trips <- trips %>%
   sample_n(2000)
@@ -1005,6 +1029,7 @@ ggplot(sampled_trips, aes(x = origin_day, y = total_duration_minutes, fill = ori
 We have a clearer view of the spread of trip duration when we remove all outliers. We can see that trips taken on **Wednesday** tend to be shorter journeys than other days of the week.
 
 ```{r}
+#| code-fold: true
 # Remove outliers based on IQR and then sample 2000 trips
 filtered_trips <- trips %>%
   filter(between(total_duration_minutes, 
@@ -1037,6 +1062,7 @@ ggplot(filtered_trips, aes(x = origin_day, y = total_duration_minutes, fill = or
 We can also use the `driving_mode` column of the **trips** data to plot the distribution of trip duration. We can see that **motorcycles** are slighty more preferred for **shorter trip duration** than cars,though cars are almost equally as demanded. In terms of longer journeys which involve more minutes, taking the **car** is more preferred as a mode of driving.
 
 ```{r}
+#| code-fold: true
 ggplot(trips, aes(x = total_duration_minutes, fill = driving_mode)) +
   geom_density(alpha = 0.8) +
   labs(title = "Trip Duration (minutes) by Driving Mode (All Trips)",
@@ -1050,6 +1076,7 @@ ggplot(trips, aes(x = total_duration_minutes, fill = driving_mode)) +
 We can also observe the distribution of trip duration **within Jakarta only**, meaning we filter out all origin and destinations that are discovered to be outside of Jakarta. Likewise, **cars** are slightly more preferred than **motorcycles** for longer trip duration.
 
 ```{r}
+#| code-fold: true
 ggplot(trips_inside_jakarta, aes(x = total_duration_minutes, fill = driving_mode)) +
   geom_density(alpha = 0.8) +
   labs(title = "Trip Duration (minutes) by Driving Mode (Within Jakarta)",
@@ -1067,6 +1094,7 @@ ggplot(trips_inside_jakarta, aes(x = total_duration_minutes, fill = driving_mode
 Again, we randomly sample 2000 trip data to plot the violin plot of `total_distance_km` against hour categories. We can observe that longer distances are traveled during the **afternoon lull** and **evening peak** periods on average which could be attributed to high traffic volumes or jams on the road.
 
 ```{r}
+#| code-fold: true
 sampled_trips <- trips %>%
   sample_n(2000)
 
@@ -1090,6 +1118,7 @@ ggplot(sampled_trips, aes(x = hour_category, y = total_distance_km, fill = hour_
 The chart suggests that trips taken on **Saturday** and **Sunday** have the highest average distance travelled, meaning that people are more willing to travel to destinations further away from where they stay on these days.
 
 ```{r}
+#| code-fold: true
 library(ggplot2)
 library(dplyr)
 
@@ -1124,6 +1153,7 @@ Now, let's generate a **heatmap** displaying the distribution of trips across di
 We can observe the **highest number of trips** taken during both morning peak and lull periods on Thursdays, as well as, Saturday midnight lull periods. On the other hand, Monday and Tuesday evening peaks have the **lowest number of trips**.
 
 ```{r fig.width=10, fig.height=8}
+#| code-fold: true
 # Create a new summary data frame using hour_category
 heatmap_data <- trips %>%
   group_by(origin_day, hour_category) %>%
@@ -1163,7 +1193,8 @@ ggplot(heatmap_data, aes(x = hour_category, y = origin_day)) +
 
 We can visualise that the number of trips taken when there is no rain **outweights** the number of trips for **rainy weather** conditins rather significantly across all districts. This is good news for Grab since their ride-hailing services are still as **demanded** for not just during trip origins where rain might be seen as an inconvenience, but also during regular weather conditions where there is **no rain.**
 
-```{r fig.width=10, fig.height=6}
+```{r fig.width=6, fig.height=10}
+#| code-fold: true
 district_origin_long <- district_origin %>%
   select(district, not_rain, rain) %>%
   pivot_longer(cols = c(not_rain, rain), names_to = "weather_type", values_to = "trip_count")
@@ -1180,9 +1211,12 @@ ggplot(district_origin_long, aes(x = district, y = trip_count, fill = weather_ty
   theme_gray() +
   theme(
     plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-    axis.text.x = element_text(angle = 90, hjust = 1) 
+    axis.text.x = element_text(angle = 0, hjust = 1),
+    legend.position = "top" 
   ) +
-  scale_fill_manual(values = c("not_rain" = "skyblue", "rain" = "steelblue"))
+  scale_fill_manual(values = c("not_rain" = "skyblue", "rain" = "steelblue")) +
+  coord_flip()
+
 ```
 
 ### **4.3.2 Volume of Trips based on Specific Weather Sub-Categories**
@@ -1190,6 +1224,7 @@ ggplot(district_origin_long, aes(x = district, y = trip_count, fill = weather_ty
 The most number of trips were taken when the weather condition for the origin was **'broken clouds', 'scattered clouds'** and **'overcast clouds'** which is Jakarta's most common weather condition throughout the year, with occasional wet weathers. This indicates that Grab services are as demanded even when there is no rain. In fact, we can notice that origin trips with **light rain** has more demand than trips found having **heavy rain**.
 
 ```{r fig.width=10, fig.height=7}
+#| code-fold: true
 # Summing trip counts by weather condition
 weather_summary <- district_origin %>%
   summarise(across(starts_with("broken clouds"):starts_with("heavy rain"), sum)) %>%
@@ -1218,6 +1253,7 @@ The analysis reveals that trips with **shorter durations** (measured in minutes)
 This pattern suggests that weather conditions—whether rainy or no rain—**do not significantly impact commuter behavio**r in relation to **trip length.** In other words, commuters are inclined to travel shorter distances more frequently, **regardless of weather**, while longer trips are less frequent under **all weather conditions.**
 
 ```{r fig.width=10, fig.height=6}
+#| code-fold: true
 district_long <- district_origin %>%
   pivot_longer(
     cols = c("rain","not_rain"),
@@ -1239,7 +1275,8 @@ ggplot(district_long, aes(x = avg_duration_minutes, y = trip_count, color = weat
   theme(
     plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
     legend.position = "none",  
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(size = 14)
   )
 ```
 
@@ -1248,6 +1285,7 @@ ggplot(district_long, aes(x = avg_duration_minutes, y = trip_count, color = weat
 Next, I will further drill down the `rain` and `not_rain` weather categories by its sub-categories. Interestingly, trip origins that are under **heavy rain** conditions tend to somewhat accumulate more trips especially for journeys that are **longer in duration (minutes).** This means that commuters likely expect for the heavy rain to last for a long time and would hence, result in a **greater** **demand** for Grab services when there is heavy rain. In contrast, start of trips with **light rain** shows the reverse trend where less trips are demanded for when duration of trip is longer.
 
 ```{r fig.width=10, fig.height=8}
+#| code-fold: true
 district_long <- district_origin %>%
   pivot_longer(
     cols = c("broken clouds", "scattered clouds", "light rain", "overcast clouds", 
@@ -1326,7 +1364,8 @@ head(plot_data)
 
 The **demand for** **cars** seem to be **higher** than motorcycles during trip origins with **light rain** and **overcast clouds.** This could be attributed to safety concerns of using motorcycles on slippery roads. Ironically, the trips taken during periods of **heavy rain** seem to be **dominated by motorcycles** than cars. Therefore, we cannot make much conclusions of how the weather impacts the mode of driving, but we can see that weather does **minimal impact** on **commuter's decision of their preferred vehicle.**
 
-```{r fig.width=10, fig.height=6}
+```{r fig.width=9, fig.height=6}
+#| code-fold: true
 ggplot(plot_data, aes(x = weather, y = total_trips, fill = driving_mode)) +
   geom_bar(stat = "identity", position = "dodge") +
   geom_text(
@@ -1344,7 +1383,7 @@ ggplot(plot_data, aes(x = weather, y = total_trips, fill = driving_mode)) +
   theme_gray() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
     legend.position = "top"
   )
 ```
@@ -1356,6 +1395,7 @@ ggplot(plot_data, aes(x = weather, y = total_trips, fill = driving_mode)) +
 We can visualise the distribution of POIs across each district using the `district_dest` augmented dataframe we created previously. With that said, we can observe that the top three highest number POIs are found in the districts Kebayoran Baru, Setia Budi and Grogol Petamburan.
 
 ```{r}
+#| code-fold: true
 # Plot the distribution of POIs across districts
 ggplot(district_dest, aes(x = reorder(district, num_of_pois), y = num_of_pois)) +
   geom_bar(stat = "identity", fill = "lightblue3") +
@@ -1372,6 +1412,7 @@ ggplot(district_dest, aes(x = reorder(district, num_of_pois), y = num_of_pois)) 
 Next, let us use the `pois_num` dataframe created earlier. I will plot a heatmap plot using the `geom_tile()` function of the **ggplot2** package to understand how the number of trips demanded vary by district and POI category. We can evidently see that districts like ***Danau Sunter*** have **low to no POIs**, with only **essentials** (e.g. clinics, veteranarians) found in the district. However, in districts that may be more populated or urbanised, we see a higher number of POIs for the **office businesses, restaurants and food, and shops** as marked by the darker shades of blue below.
 
 ```{r fig.width=10, fig.height=10}
+#| code-fold: true
 # Count the number of POIs by district
 pois_num_cat <- pois %>%
   st_drop_geometry() %>%
@@ -1401,6 +1442,7 @@ print(heatmap_plot)
 To prepare the dataset for the analysis involving POIs, I will augment the `jakarta_pois.rds` dataset by aggregating the trips data from the `trips` simple dataframe. Restaurants, office businesses and shops seem to dominate the POIs available in Jakarta, while cultural attractions and recreation entertainment suggests to be less available.
 
 ```{r fig.width=10, fig.height=8}
+#| code-fold: true
 category_counts <- pois %>%
   group_by(category) %>%
   summarise(num_of_pois = n()) %>%
@@ -1464,6 +1506,7 @@ title("Distribution of POIs Across Jakarta", cex.main = 1.4)
 Next, I will go deeper into finding out how many Grab trips were taken to these destinations at the district level. It can be observed that a l**arger number of POIs** **(pink)** within a district lead to similarly **higher number of Grab trips taken (blue)** to the district.
 
 ```{r fig.width=10, fig.height=6}
+#| code-fold: true
 # Reshape the data for plotting
 district_long <- district_dest %>%
   pivot_longer(cols = c(num_of_trips, num_of_pois), 
@@ -1484,7 +1527,8 @@ ggplot(district_long, aes(x = district, y = count, group = metric, color = metri
   theme_gray() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.title = element_text(size = 16, hjust = 0.5, face = "bold")
+    plot.title = element_text(size = 16, hjust = 0.5, face = "bold"),
+    legend.position = "top"
   )
 ```
 
@@ -1493,6 +1537,7 @@ The scatterplot below indicates that **more Grab trips** are taken for **smaller
 In addition, we can also observe that destinations with a **higher number of POI** **(darker shades of blue)** tend to result in **more Grab trips** taken. This means that passengers are more likely to take a trip to districts in Jakarta that offer **more POIs.**
 
 ```{r fig.width=10, fig.height=6}
+#| code-fold: true
 district_pois_5 <- district_dest %>%
   mutate(pois_category = cut(num_of_pois, 
                               breaks = 5, 
@@ -1528,10 +1573,7 @@ ggplot(district_pois_5, aes(x = num_of_trips, y = avg_distance_km, size = num_of
 We can observe a **positive correlation** between the number of trips taken to a destination and the availability of POIs in the destination district based on the linear regression model below. This means that more trips are demanded to the destination when there are more POIs available, typically these districts might be within the city with more amenities for people to eat, shop and work.
 
 ```{r fig.width=10, fig.height=6}
-# Load required libraries
-library(dplyr)
-library(ggplot2)
-
+#| code-fold: true
 # Calculate the correlation coefficient
 correlation_result <- cor(district_dest$num_of_trips, district_dest$num_of_pois)
 
@@ -1556,6 +1598,7 @@ print(paste("Correlation between Number of Trips and Number of POIs:", round(cor
 By including the average distance traveled, we can see that **fewer passengers** tend to take ride-hailing services like Grab for when the **average distance of trips are shorter.** For district destinations with higher number of POIs available, trip distances tend to be **shorter** too, which could mean that passengers likely **reside near to these POIs**.
 
 ```{r fig.width=10, fig.height=6}
+#| code-fold: true
 district_dist_6 <- district_dest %>%
   mutate(distance_category = cut(avg_distance_km, 
                                   breaks = 6, 
@@ -1585,13 +1628,13 @@ ggplot(district_dist_6, aes(x = num_of_trips, y = num_of_pois)) +
   scale_color_manual(values = distance_color_palette) + 
   theme_gray() +
   theme(
-    plot.title = element_text(size = 16, hjust = 0.5, face = "bold"),
+    plot.title = element_text(size = 14, hjust = 0.5, face = "bold"),
     axis.title = element_text(size = 12),
-    legend.position = "right"
+    legend.position = "top"
   )
 ```
 
-### **4.4.3 Traffic Volumes By Time of Day and POI Type**
+### **4.4.4 Traffic Volumes By Time of Day and POI Type**
 
 Next, i will want to understand traffic volumes by Hour Category and POI Category. Before that, I will create a new dataframe `district_hour_pois` to aggregate the 8 hour categories into 4 instead, namely morning, afternoon, evening and midnight.
 
@@ -1641,6 +1684,7 @@ Across all POI types, districts offering **restaurants** and **shops** tend to g
 -   When it comes to **evening** time, the number of trips taken to **restaurants** are seen to rise likely since commuters are done with the day and are headed for dinner. It is also surprising that Grab transport are also **highly active during midnight (12am - 6pm)**, namely where destinations are facilities services, shops and restaurants. This could be due to commuters ending work late or heading out for work in the early morning.
 
 ```{r fig.width=10, fig.height=8}
+#| code-fold: true
 aggregated_pois <- district_hour_pois %>%
   group_by(category, time_of_day) %>%
   summarise(num_of_trips = sum(num_of_trips, na.rm = TRUE), .groups = "drop")  
@@ -1659,9 +1703,35 @@ ggplot(aggregated_pois, aes(x = category, y = num_of_trips, fill = time_of_day))
   theme_gray() +
   theme(
     plot.title = element_text(hjust = 0.5, size = 16, face = "bold"), 
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
   ) + 
   scale_fill_brewer(palette = "Blues")
+```
+
+### 4.4.5 Number of Trips per POI
+
+Finally, I can derive the total number of trips per POI found in a district by augmenting the `district_data` dataset. We can observe that the districts, **Cakung, Johar Bahru** and **Danau Suntar Dll** showed the most demand for Grab services for every POI available. However, Danau Suntar Dll is a lake with only **3 POIs** unlike other districts with 100s of POIs which will skew the results.
+
+```{r fig.width=7, fig.height=10}
+#| code-fold: true
+trips_poi_all <- district_data %>%
+  left_join(pois_num, by = 'district') %>%
+  mutate(trips_per_poi = total_trips / num_of_pois) %>%
+  select(district, trips_per_poi)
+
+ggplot(trips_poi_all, aes(x = reorder(district, -trips_per_poi), y = trips_per_poi)) +
+  geom_bar(stat = "identity", fill = "skyblue2") + 
+  labs(
+    title = "Total Number of Grab Trips per POI Across Districts",
+    x = "Number of Trips per POI",
+    y = "District"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold"), 
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  coord_flip()
 ```
 
 ## **4.5 Origin-Destination Spatial Flows**
@@ -1673,6 +1743,7 @@ Next, we can also delve into the spatial flows between origin and destination di
 We can see how complex the spread of origin districts are, where a thicker line connecting the origin and destination resembles a higher demand for Grab. In this case, trips taken **outside of Jakarta** and moving into the district of **Kebayoran Lama** are the highest. The reverse is also true; Grab trips moving from **Kebayoran Lama** to **outside of Jakarta** are the highest.
 
 ```{r fig.width=10, fig.height=10}
+#| code-fold: true
 #| warning: false
 # Identify the top 5 destination districts
 top_5_destinations <- trips %>%
@@ -1703,6 +1774,7 @@ ggplot(flow_data, aes(axis1 = origin_district, axis2 = destination_district, y =
 As for the trips moving out from the **top 5 origin** districts, we see that most trips come from outside of Jakarta, meaning that a substantial flow of Grab traffic comes from **outbound** of Jakarta. As compared to the previous flow chart, the destinations of these 5 origins seem to **spread evenly across all districts** of Jakarta. Perhaps, the most popular destination spots for Grab trips are found in **Kebayoran Lama, Setia Budi** and **Tanah Abang**.
 
 ```{r fig.width=10, fig.height=10}
+#| code-fold: true
 #| warning: false
 # Identify the top 5 origin districts based on the number of trips
 top_5_origins <- trips %>%
@@ -1734,6 +1806,7 @@ ggplot(flow_data, aes(axis1 = origin_district, axis2 = destination_district, y =
 I believe we can make the most meaningful analysis when just looking at the **top 5 originating** and **top** **5 destination** districts where these districts had the highest number of Grab trips taken. We can observe that Setia Budi is a popular origin and destination for Grab services, in fact, many of the trips are found **within the district** itself.
 
 ```{r fig.width=10, fig.height=10}
+#| code-fold: true
 #| warning: false
 # Step 1: Identify the top 5 origin districts
 top_5_origins <- trips %>%
@@ -1770,6 +1843,16 @@ ggplot(flow_data, aes(axis1 = origin_district, axis2 = destination_district, y =
         axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+## 4.6 Piecing It Together
+
+![EDA - Overall Trips Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20Overall-01.png){width="1000"}
+
+![EDA Prototype -By Point of Interest, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20POI.png){width="1000"}
+
+![EDA - Demand Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20Demand%20Analysis.png){width="1000"}
+
+![EDA - Impact of Weather Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20-%20Weather.png){width="1000"}
+
 # 5. Exploratory Spatial Data Analysis - Using Local Indicators of Spatial Association (LISA)
 
 Now, I would also like to perform local spatial autocorrelation to identify specific areas of clustering of number of Grab trips **at a local district level** using LISA methods (Anselin, 1995).
@@ -1796,7 +1879,8 @@ Firstly, let's create a `district_geom` simple feature dataframe containing the 
 
 ```{r}
 district_geom <- jakarta_district %>%
-  select(district, geometry)
+  select(district, geometry) %>% 
+  st_transform(crs = 4326)
 
 # Inspect
 district_geom
@@ -2025,7 +2109,7 @@ tm_shape(lisa_queen_origin) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "District-Level Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Spatial Autocorrelation of Trip Origins in Jakarta (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2071,7 +2155,7 @@ tm_shape(lisa_queen_dest) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "District-Level Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Spatial Autocorrelation of Trip Destinations in Jakarta (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2117,7 +2201,7 @@ tm_shape(lisa_rook_origin) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "District-Level Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Spatial Autocorrelation of Trip Origins in Jakarta (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2163,7 +2247,7 @@ tm_shape(lisa_rook_dest) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "District-Level Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Spatial Autocorrelation of Trip Destinations in Jakarta (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2215,7 +2299,7 @@ tm_shape(lisa_queen_origin) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Origins (p-value)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2261,7 +2345,7 @@ tm_shape(lisa_queen_dest) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Destinations (p-value)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2307,7 +2391,7 @@ tm_shape(lisa_rook_origin) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Origins (p-value)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2353,7 +2437,7 @@ tm_shape(lisa_rook_dest) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Destinations (p-value)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2412,7 +2496,7 @@ tm_shape(lisa_queen_origin_sig) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Origins (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2469,7 +2553,7 @@ tm_shape(lisa_queen_dest_sig) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Destinations (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2526,7 +2610,7 @@ tm_shape(lisa_queen_origin_sig) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Origins (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2583,7 +2667,7 @@ tm_shape(lisa_rook_dest_sig) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.2) +
   tm_borders(col = "black", alpha = 0.5) +
-  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Grab Trip Destinations in Jakarta",
+  tm_layout(main.title = "Statistically Significant Spatial Autocorrelation of Trip Destinations (Local Moran's I)",
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
@@ -2635,6 +2719,8 @@ A LISA (Local Indicators of Spatial Association) map is a visualisation tool sui
 > -   **High-Low (HL)**: Areas with high no. of Grab trips surrounded by low values (outliers).
 >
 > -   **Low-High (LH)**: Areas with low no. of Grab trips surrounded by high values (outliers).
+>
+> **\*I will only be plotting statistically significant (p-value \< 0.05) LISA results for this exercise.**
 
 ### **5.7.1 Visualising *Overall* LISA of Number of Trips in Jakarta Study Area**
 
@@ -2643,28 +2729,40 @@ A LISA (Local Indicators of Spatial Association) map is a visualisation tool sui
 
 ```{r}
 # Let's inspect the 'mean' column
-summary(lisa_queen_origin$mean)
+summary_table <- summary(lisa_queen_origin$mean) %>% as.data.frame()
+
+# Display the summary table
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
 ```
 
 #### Queen - dest
 
 ```{r}
 # Let's inspect the 'mean' column
-summary(lisa_queen_dest$mean)
+summary_table <- summary(lisa_queen_dest$mean) %>% as.data.frame()
+
+# Display the summary table
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
 ```
 
 #### Rook - origin
 
 ```{r}
 # Let's inspect the 'mean' column
-summary(lisa_rook_origin$mean)
+summary_table <- summary(lisa_rook_origin$mean) %>% as.data.frame()
+
+# Display the summary table
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
 ```
 
 #### Rook - dest
 
 ```{r}
 # Let's inspect the 'mean' column
-summary(lisa_rook_dest$mean)
+summary_table <- summary(lisa_rook_dest$mean) %>% as.data.frame()
+
+# Display the summary table
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
 ```
 :::
 
@@ -2673,7 +2771,7 @@ To plot our LISA classifications across districts in Jakarta, we’ll leverage t
 ::: panel-tabset
 #### Overall LISA - Queen
 
-```{r fig.width=10, fig.height=10}
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_origin <- tm_shape(lisa_queen_origin) +
@@ -2686,20 +2784,24 @@ lisa_cat_origin <- tm_shape(lisa_queen_origin) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta - Queen",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin, asp=1.2)
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest <- tm_shape(lisa_queen_dest) +
   tm_polygons("mean", 
           # blue, orange, green, red
@@ -2710,26 +2812,24 @@ lisa_cat_dest <- tm_shape(lisa_queen_dest) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Grab Trip Destinations in Jakarta - Queen",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin, lisa_cat_dest, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest, asp=1.2)
 ```
 
 #### Overall LISA - Rook
 
-```{r fig.width=10, fig.height=10}
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_origin <- tm_shape(lisa_rook_origin) +
@@ -2741,20 +2841,24 @@ lisa_cat_origin <- tm_shape(lisa_rook_origin) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta - Rook",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin, asp=1.2)
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest <- tm_shape(lisa_rook_dest) +
   tm_polygons("mean", 
           palette = c("lightblue1", "#ec9a64","green3", "#d21b1c"),
@@ -2764,21 +2868,19 @@ lisa_cat_dest <- tm_shape(lisa_rook_dest) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Grab Trip Destinations in Jakarta - Rook",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin, lisa_cat_dest, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest, asp=1.2)
 ```
 :::
 
@@ -2789,7 +2891,7 @@ We can see that the `queen` method leads to **fewer high-high** categories and *
 ::: panel-tabset
 #### Statistically Significant LISA - Queen
 
-```{r fig.width=10, fig.height=10}
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 
@@ -2807,21 +2909,26 @@ lisa_cat_origin_sig <- tm_shape(lisa_queen_origin)+
           legend.hist = TRUE, 
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
-  tm_layout(main.title = "Statistically Significant LISA Map of Grab Trip Origins in Jakarta - Queen",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+  tm_layout(
+    main.title = "Statistically Significant LISA Map of Grab Trip Origins in Jakarta - Queen",
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_sig, asp=1.2)
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_queen_dest_sig <- lisa_queen_dest %>%
   filter(p_ii_sim < 0.05)
 
@@ -2837,29 +2944,26 @@ lisa_cat_dest_sig <- tm_shape(lisa_queen_dest)+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Grab Trip Destinations in Jakarta - Queen",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_sig, lisa_cat_dest_sig, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_sig, asp=1.2)
 ```
 
 #### Statistically Significant LISA - Rook
 
-```{r fig.width=10, fig.height=10}
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
-
 lisa_rook_origin_sig <- lisa_rook_origin %>%
   filter(p_ii_sim < 0.05)
 
@@ -2875,20 +2979,24 @@ lisa_cat_origin_sig <- tm_shape(lisa_rook_origin) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Grab Trip Origins in Jakarta - Rook",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_sig, asp=1.2)
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_rook_dest_sig <- lisa_rook_dest %>%
   filter(p_ii_sim < 0.05)
 
@@ -2904,21 +3012,19 @@ lisa_cat_dest_sig <- tm_shape(lisa_rook_dest) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Grab Trip Destinations in Jakarta - Rook",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_sig, lisa_cat_dest_sig, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_sig, asp=1.2)
 ```
 :::
 
@@ -2946,7 +3052,7 @@ lisa_cat <- tm_shape(lisa_queen_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_queen_origin_sig <- lisa_queen_origin_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -2983,7 +3089,7 @@ lisa_cat <- tm_shape(lisa_queen_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_queen_dest_sig <- lisa_queen_dest_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -3020,7 +3126,7 @@ lisa_cat <- tm_shape(lisa_rook_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_rook_origin_sig <- lisa_rook_origin_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -3057,7 +3163,7 @@ lisa_cat <- tm_shape(lisa_rook_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_rook_dest_sig <- lisa_rook_dest_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -3299,15 +3405,18 @@ Now, we can visualise how spatial clusterings of Grab trips form based on drivin
 ::: panel-tabset
 #### Queen: Origin Car vs Origin Motorcycle
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_queen_origin_car_sig <- lisa_queen_origin_car %>%
   filter(p_ii_sim < 0.05)
 
-lisa_queen_origin_motorcycle_sig <- lisa_queen_origin_motorcycle %>%
-  filter(p_ii_sim < 0.05)
+summary_table <- summary(lisa_queen_origin_car_sig$mean) %>% as.data.frame()
 
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_car <- tm_shape(lisa_queen_origin_car) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3321,20 +3430,33 @@ lisa_cat_origin_car <- tm_shape(lisa_queen_origin_car) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta by Car",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_car, asp=1.2)
+```
+
+```{r}
+lisa_queen_origin_motorcycle_sig <- lisa_queen_origin_motorcycle %>%
+  filter(p_ii_sim < 0.05)
+
+summary_table <- summary(lisa_queen_origin_motorcycle_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_motorcycle <- tm_shape(lisa_queen_origin_motorcycle) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3348,34 +3470,35 @@ lisa_cat_origin_motorcycle <- tm_shape(lisa_queen_origin_motorcycle) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta by Motorcycle",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_car, lisa_cat_origin_motorcycle, asp=1, nrow=2)
+tmap_arrange(lisa_cat_origin_motorcycle, asp=1.2)
 ```
 
 #### Queen: Dest Car vs Dest Motorcycle
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_queen_dest_car_sig <- lisa_queen_dest_car %>%
   filter(p_ii_sim < 0.05)
 
-lisa_queen_dest_motorcycle_sig <- lisa_queen_dest_motorcycle %>%
-  filter(p_ii_sim < 0.05)
+summary_table <- summary(lisa_queen_dest_car_sig$mean) %>% as.data.frame()
 
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_car <- tm_shape(lisa_queen_dest_car) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3392,17 +3515,31 @@ lisa_cat_dest_car <- tm_shape(lisa_queen_dest_car) +
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+            legend.title.size = 0.7,
+            legend.text.size = 0.7,
+            legend.hist.size = 0.7,
+            legend.position = c("right", "bottom"),
+            legend.width = 0.15,  
+            frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+
+tmap_arrange(lisa_cat_dest_car, asp=1.2)
+```
+
+```{r}
+lisa_queen_dest_motorcycle_sig <- lisa_queen_dest_motorcycle %>%
+  filter(p_ii_sim < 0.05)
+
+summary_table <- summary(lisa_queen_dest_motorcycle_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_motorcycle <- tm_shape(lisa_queen_dest_motorcycle) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3419,31 +3556,32 @@ lisa_cat_dest_motorcycle <- tm_shape(lisa_queen_dest_motorcycle) +
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+            legend.title.size = 0.7,
+            legend.text.size = 0.7,
+            legend.hist.size = 0.7,
+            legend.position = c("right", "bottom"),
+            legend.width = 0.15,  
+            frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_dest_car, lisa_cat_dest_motorcycle, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_motorcycle, asp=1.2)
 ```
 
 #### Rook: Origin Car vs Origin Motorcycle
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_rook_origin_car_sig <- lisa_rook_origin_car %>%
   filter(p_ii_sim < 0.05)
 
-lisa_rook_origin_motorcycle_sig <- lisa_rook_origin_motorcycle %>%
-  filter(p_ii_sim < 0.05)
+summary_table <- summary(lisa_rook_origin_car_sig$mean) %>% as.data.frame()
 
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_car <- tm_shape(lisa_rook_origin_car) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3457,20 +3595,33 @@ lisa_cat_origin_car <- tm_shape(lisa_rook_origin_car) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta by Car",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_car, asp=1.2)
+```
+
+```{r}
+lisa_rook_origin_motorcycle_sig <- lisa_rook_origin_motorcycle %>%
+  filter(p_ii_sim < 0.05)
+
+summary_table <- summary(lisa_rook_origin_motorcycle_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_motorcycle <- tm_shape(lisa_rook_origin_motorcycle) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3484,34 +3635,35 @@ lisa_cat_origin_motorcycle <- tm_shape(lisa_rook_origin_motorcycle) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta by Motorcycle",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_car, lisa_cat_origin_motorcycle, asp=1, nrow=2)
+tmap_arrange(lisa_cat_origin_motorcycle, asp=1.2)
 ```
 
 #### Rook: Dest Car vs Dest Motorcycle
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_rook_dest_car_sig <- lisa_rook_dest_car %>%
   filter(p_ii_sim < 0.05)
 
-lisa_rook_dest_motorcycle_sig <- lisa_rook_dest_motorcycle %>%
-  filter(p_ii_sim < 0.05)
+summary_table <- summary(lisa_rook_dest_car_sig$mean) %>% as.data.frame()
 
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_car <- tm_shape(lisa_rook_dest_car) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3525,20 +3677,33 @@ lisa_cat_dest_car <- tm_shape(lisa_rook_dest_car) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Destinations in Jakarta by Car",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_dest_car, asp=1.2)
+```
+
+```{r}
+lisa_rook_dest_motorcycle_sig <- lisa_rook_dest_motorcycle %>%
+  filter(p_ii_sim < 0.05)
+
+summary_table <- summary(lisa_rook_dest_motorcycle_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_motorcycle <- tm_shape(lisa_rook_dest_motorcycle) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3552,21 +3717,179 @@ lisa_cat_dest_motorcycle <- tm_shape(lisa_rook_dest_motorcycle) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Destinations in Jakarta by Motorcycle",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_dest_car, lisa_cat_dest_motorcycle, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_motorcycle, asp=1.2)
+```
+:::
+
+Here's the **interactive** version of the static plots above for more readability using `tmap_mode('view')`. Each district, when hovered above, shows the district name and LISA category, unless it is not statistically significant then it will just show the district name.
+
+::: panel-tabset
+#### Queen: Origin Car vs Origin Motorcycle
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+#| code-fold: true
+#| warning: false
+# First map: Overall LISA Spatial Autocorrelation
+lisa_queen_origin_car_sig <- lisa_queen_origin_car %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_car <- tm_shape(lisa_queen_origin_car) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_queen_origin_car_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Car",
+          id = "label")
+
+# Second map: LISAal Significant LISA Map
+lisa_queen_origin_motorcycle_sig <- lisa_queen_origin_motorcycle %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_motorcycle <- tm_shape(lisa_queen_origin_motorcycle) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_queen_origin_motorcycle_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Motorcycle",
+          id = "label")
+tmap_arrange(lisa_cat_sig_car, lisa_cat_sig_motorcycle, asp = 1, ncol = 2)
+tmap_mode("plot")
+```
+
+#### Queen: Dest Car vs Dest Motorcycle
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+# First map: Overall LISA Spatial Autocorrelation
+lisa_queen_dest_car_sig <- lisa_queen_dest_car %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_car <- tm_shape(lisa_queen_dest_car) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_queen_dest_car_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Car",
+          id = "label")
+
+# Second map: LISAal Significant LISA Map
+lisa_queen_dest_motorcycle_sig <- lisa_queen_dest_motorcycle %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_motorcycle <- tm_shape(lisa_queen_dest_motorcycle) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_queen_dest_motorcycle_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Motorcycle",
+          id = "label")
+tmap_arrange(lisa_cat_sig_car, lisa_cat_sig_motorcycle, asp = 1, ncol = 2)
+tmap_mode("plot")
+```
+
+#### Rook: Origin Car vs Origin Motorcycle
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+# First map: Overall LISA Spatial Autocorrelation
+lisa_rook_origin_car_sig <- lisa_rook_origin_car %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_car <- tm_shape(lisa_rook_origin_car) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_rook_origin_car_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Car",
+          id = "label")
+
+# Second map: Significant LISA Map
+lisa_rook_origin_motorcycle_sig <- lisa_rook_origin_motorcycle %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_motorcycle <- tm_shape(lisa_rook_origin_motorcycle) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_rook_origin_motorcycle_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Motorcycle",
+          id = "label")
+
+tmap_arrange(lisa_cat_sig_car, lisa_cat_sig_motorcycle, asp = 1, ncol = 2)
+tmap_mode("plot")
+```
+
+#### Rook: Dest Car vs Dest Motorcycle
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+# First map: Overall LISA Spatial Autocorrelation
+lisa_rook_dest_car_sig <- lisa_rook_dest_car %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_car <- tm_shape(lisa_rook_dest_car) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_rook_dest_car_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Car",
+          id = "label")
+
+# Second map: Significant LISA Map
+lisa_rook_dest_motorcycle_sig <- lisa_rook_dest_motorcycle %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_motorcycle <- tm_shape(lisa_rook_dest_motorcycle) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_rook_dest_motorcycle_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Motorcycle",
+          id = "label")
+
+tmap_arrange(lisa_cat_sig_car, lisa_cat_sig_motorcycle, asp = 1, ncol = 2)
+tmap_mode("plot")
 ```
 :::
 
@@ -3693,15 +4016,18 @@ Now, let's visualise how spatial clustering of Grab trips form based on weather 
 ::: panel-tabset
 #### Queen: Origin Rain vs Origin No Rain
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_queen_rain_sig <- lisa_queen_rain %>%
   filter(p_ii_sim < 0.05)
 
-lisa_queen_no_rain_sig <- lisa_queen_no_rain %>%
-  filter(p_ii_sim < 0.05)
+summary_table <- summary(lisa_queen_rain_sig$mean) %>% as.data.frame()
 
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_queen_rain <- tm_shape(lisa_queen_rain) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3715,20 +4041,33 @@ lisa_cat_queen_rain <- tm_shape(lisa_queen_rain) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta (Rain)",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_queen_rain, asp=1.2)
+```
+
+```{r}
+lisa_queen_no_rain_sig <- lisa_queen_no_rain %>%
+  filter(p_ii_sim < 0.05)
+
+summary_table <- summary(lisa_queen_no_rain_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_queen_no_rain <- tm_shape(lisa_queen_no_rain) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3742,34 +4081,35 @@ lisa_cat_queen_no_rain <- tm_shape(lisa_queen_no_rain) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta (No Rain)",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_queen_rain, lisa_cat_queen_no_rain, asp=1, nrow=2)
+tmap_arrange(lisa_cat_queen_no_rain, asp=1.2)
 ```
 
 #### Rook: Origin Rain vs Origin No Rain
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_rook_rain_sig <- lisa_rook_rain %>%
   filter(p_ii_sim < 0.05)
 
-lisa_rook_no_rain_sig <- lisa_rook_no_rain %>%
-  filter(p_ii_sim < 0.05)
+summary_table <- summary(lisa_rook_rain_sig$mean) %>% as.data.frame()
 
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_rook_rain <- tm_shape(lisa_rook_rain) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6) +
@@ -3782,20 +4122,33 @@ lisa_cat_rook_rain <- tm_shape(lisa_rook_rain) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta (Rain)",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_rook_rain, asp = 1.2)
+```
+
+```{r}
+lisa_rook_no_rain_sig <- lisa_rook_no_rain %>%
+  filter(p_ii_sim < 0.05)
+
+summary_table <- summary(lisa_rook_no_rain_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_rook_no_rain <- tm_shape(lisa_rook_no_rain) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6) +
@@ -3808,21 +4161,102 @@ lisa_cat_rook_no_rain <- tm_shape(lisa_rook_no_rain) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "LISA Spatial Autocorrelation of Grab Trip Origins in Jakarta (No Rain)",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_rook_rain, lisa_cat_rook_no_rain, asp = 1, nrow = 2)
+
+tmap_arrange(lisa_cat_rook_no_rain, asp = 1.2)
+```
+:::
+
+Here's the **interactive** version of the static plots above for more readability using `tmap_mode('view')`. Each district, when hovered above, shows the district name and LISA category, unless it is not statistically significant then it will just show the district name.
+
+::: panel-tabset
+#### Queen: Origin Rain vs Origin No Rain
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+# First map: Overall LISA Spatial Autocorrelation
+lisa_queen_origin_rain_sig <- lisa_queen_rain %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_rain <- tm_shape(lisa_queen_rain) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_queen_origin_rain_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Rain",
+          id = "label")
+
+# Second map: LISAal Significant LISA Map
+lisa_queen_origin_no_rain_sig <- lisa_queen_no_rain %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_no_rain <- tm_shape(lisa_queen_no_rain) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_queen_origin_no_rain_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - No Rain",
+          id = "label")
+tmap_arrange(lisa_cat_sig_rain, lisa_cat_sig_no_rain, asp = 1, ncol = 2)
+tmap_mode("plot")
+```
+
+#### Rook: Origin Rain vs Origin No Rain
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+# First map: Overall LISA Spatial Autocorrelation
+lisa_rook_origin_rain_sig <- lisa_rook_rain %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_rain <- tm_shape(lisa_rook_rain) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_rook_origin_rain_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - Rain",
+          id = "label")
+
+# Second map: Significant LISA Map
+lisa_rook_origin_no_rain_sig <- lisa_rook_no_rain %>%
+  filter(p_ii_sim < 0.05) %>%
+  mutate(label = paste("District:", district, "| ", mean))
+
+lisa_cat_sig_no_rain <- tm_shape(lisa_rook_no_rain) +
+  tm_polygons(id = "") +  
+  tm_borders(col = "black", alpha = 0.6) +
+  tm_shape(lisa_rook_origin_no_rain_sig) +
+  tm_polygons("mean", 
+          palette = c("lightblue1", "#ec9a64", "green3", "#d21b1c"),
+          title = "Significant LISA - No Rain",
+          id = "label")
+
+tmap_arrange(lisa_cat_sig_rain, lisa_cat_sig_no_rain, asp = 1, ncol = 2)
+tmap_mode("plot")
+
 ```
 :::
 
@@ -3893,7 +4327,13 @@ Next, we can visualise the LISA categories associated to each district via plott
 ::: panel-tabset
 #### Overall LISA - Queen
 
-```{r fig.width=7, fig.height=4}
+```{r}
+summary_table <- summary(lisa_queen_pois$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_queen_pois <- tm_shape(lisa_queen_pois)+
@@ -3906,26 +4346,30 @@ lisa_cat_queen_pois <- tm_shape(lisa_queen_pois)+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Map of Points of Interests in Jakarta",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_queen_pois, asp=1)
+tmap_arrange(lisa_cat_queen_pois, asp=1.2)
 ```
 
 #### Overall LISA - Rook
 
-```{r fig.width=7, fig.height=4}
+```{r}
+summary_table <- summary(lisa_rook_pois$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_rook_pois <- tm_shape(lisa_rook_pois) +
@@ -3938,21 +4382,19 @@ lisa_cat_rook_pois <- tm_shape(lisa_rook_pois) +
               legend.is.portrait = TRUE,
               legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Map of Points of Interests in Jakarta",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+              main.title.position = "center",
+              main.title.size = 1,
+              main.title.fontface = "bold",
+              legend.title.size = 0.7,
+              legend.text.size = 0.7,
+              legend.hist.size = 0.7,
+              legend.position = c("right", "bottom"),
+              legend.width = 0.15,  
+              frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_rook_pois, asp = 1)
+tmap_arrange(lisa_cat_rook_pois, asp = 1.2)
 ```
 :::
 
@@ -3961,12 +4403,18 @@ We can filter the **statistically significant** LISA observations (p-value \> 0.
 ::: panel-tabset
 #### Statistically Significant LISA - Queen
 
-```{r fig.width=7, fig.height=4}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_queen_pois_sig <- lisa_queen_pois %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_queen_pois_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_queen_pois_sig <- tm_shape(lisa_queen_pois)+
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -3979,31 +4427,35 @@ lisa_cat_queen_pois_sig <- tm_shape(lisa_queen_pois)+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Points of Interests in Jakarta",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_queen_pois_sig, asp=1)
+tmap_arrange(lisa_cat_queen_pois_sig, asp=1.2)
 ```
 
 #### Statistically Significant LISA - Rook
 
-```{r fig.width=7, fig.height=4}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_rook_pois_sig <- lisa_rook_pois %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_rook_pois_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_rook_pois_sig <- tm_shape(lisa_rook_pois) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6) +
@@ -4019,18 +4471,16 @@ lisa_cat_rook_pois_sig <- tm_shape(lisa_rook_pois) +
             main.title.position = "center",
             main.title.size = 1,
             main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+            legend.title.size = 0.7,
+            legend.text.size = 0.7,
+            legend.hist.size = 0.7,
+            legend.position = c("right", "bottom"),
+            legend.width = 0.15,  
+            frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_rook_pois_sig, asp = 1)
+tmap_arrange(lisa_cat_rook_pois_sig, asp = 1.2)
 ```
 :::
 
@@ -4056,7 +4506,7 @@ lisa_cat <- tm_shape(lisa_queen_pois) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_queen_pois_sig <- lisa_queen_pois_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -4091,7 +4541,7 @@ lisa_cat <- tm_shape(lisa_rook_pois) +
               title = "Overall LISA Classification",
               id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_rook_pois_sig <- lisa_rook_pois_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -4234,10 +4684,20 @@ lisa_rook_dest_trips_poi <- trips_poi_dest_wm_rook %>%
          .before = 1) %>%
   unnest(local_moran)
 ```
+:::
 
+Next, we can visualise the LISA categories associated to each district via plotting it on a choropleth map below.
+
+::: panel-tabset
 #### Overall LISA - Queen
 
-```{r fig.width=10, fig.height=10}
+```{r}
+summary_table <- summary(lisa_queen_origin_trips_poi$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_origin <- tm_shape(lisa_queen_origin_trips_poi) +
@@ -4250,20 +4710,30 @@ lisa_cat_origin <- tm_shape(lisa_queen_origin_trips_poi) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Number of Trips Per POI for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin, asp=1.2)
+```
+
+```{r}
+summary_table <- summary(lisa_queen_dest_trips_poi$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest <- tm_shape(lisa_queen_dest_trips_poi) +
   tm_polygons("mean", 
           # blue, orange, green, red
@@ -4274,26 +4744,30 @@ lisa_cat_dest <- tm_shape(lisa_queen_dest_trips_poi) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Number of Trips Per POI for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin, lisa_cat_dest, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest, asp=1.2)
 ```
 
 #### Overall LISA - Rook
 
-```{r fig.width=10, fig.height=10}
+```{r}
+summary_table <- summary(lisa_rook_origin_trips_poi$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_origin <- tm_shape(lisa_rook_origin_trips_poi) +
@@ -4304,21 +4778,31 @@ lisa_cat_origin <- tm_shape(lisa_rook_origin_trips_poi) +
           legend.hist = TRUE, 
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
-  tm_layout(main.title = "Overall LISA Spatial Autocorrelation Number of Trips Per POI for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Overall LISA Spatial Autocorrelation Number of Trips Per POI for Trip Destinations",
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin, asp=1.2)
+```
+
+```{r}
+summary_table <- summary(lisa_rook_dest_trips_poi$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest <- tm_shape(lisa_rook_dest_trips_poi) +
   tm_polygons("mean", 
           palette = c("lightblue1", "#ec9a64","green3", "#d21b1c"),
@@ -4328,21 +4812,19 @@ lisa_cat_dest <- tm_shape(lisa_rook_dest_trips_poi) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation Number of Trips Per POI for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin, lisa_cat_dest, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest, asp=1.2)
 ```
 :::
 
@@ -4351,12 +4833,18 @@ We can also visualise all **statistically significant** LISA categories where p-
 ::: panel-tabset
 #### Statistically Significant LISA - Queen
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_queen_origin_sig <- lisa_queen_origin_trips_poi %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_queen_origin_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_sig <- tm_shape(lisa_queen_origin_trips_poi)+
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -4369,23 +4857,33 @@ lisa_cat_origin_sig <- tm_shape(lisa_queen_origin_trips_poi)+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Number of Trips Per POI for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_sig, asp=1.2)
+```
+
+```{r}
 lisa_queen_dest_sig <- lisa_queen_dest_trips_poi %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_queen_dest_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_sig <- tm_shape(lisa_queen_dest_trips_poi)+
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -4398,31 +4896,35 @@ lisa_cat_dest_sig <- tm_shape(lisa_queen_dest_trips_poi)+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Number of Trips Per POI for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_sig, lisa_cat_dest_sig, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_sig, asp=1.2)
 ```
 
 #### Statistically Significant LISA - Rook
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_rook_origin_sig <- lisa_rook_origin_trips_poi %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_rook_origin_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_sig <- tm_shape(lisa_rook_origin_trips_poi) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6) +
@@ -4435,23 +4937,33 @@ lisa_cat_origin_sig <- tm_shape(lisa_rook_origin_trips_poi) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Number of Trips Per POI for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_sig, asp=1.2)
+```
+
+```{r}
 lisa_rook_dest_sig <- lisa_rook_dest_trips_poi %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_rook_dest_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_sig <- tm_shape(lisa_rook_dest_trips_poi) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6) +
@@ -4464,21 +4976,19 @@ lisa_cat_dest_sig <- tm_shape(lisa_rook_dest_trips_poi) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Number of Trips Per POI for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_sig, lisa_cat_dest_sig, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_sig, asp=1.2)
 ```
 :::
 
@@ -4504,7 +5014,7 @@ lisa_cat <- tm_shape(lisa_queen_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_queen_origin_sig <- lisa_queen_origin_trips_poi %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -4540,7 +5050,7 @@ lisa_cat <- tm_shape(lisa_queen_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_queen_dest_sig <- lisa_queen_dest_trips_poi %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -4576,7 +5086,7 @@ lisa_cat <- tm_shape(lisa_rook_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_rook_origin_sig <- lisa_rook_origin_trips_poi %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -4612,7 +5122,7 @@ lisa_cat <- tm_shape(lisa_rook_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_rook_dest_sig <- lisa_rook_dest_sig %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -4760,10 +5270,20 @@ lisa_rook_dest_trips_capita <- trips_capita_dest_wm_rook %>%
          .before = 1) %>%
   unnest(local_moran)
 ```
+:::
 
+Next, we can visualise the LISA categories associated to each district via plotting it on a choropleth map below.
+
+::: panel-tabset
 #### Overall LISA - Queen
 
-```{r fig.width=10, fig.height=10}
+```{r}
+summary_table <- summary(lisa_queen_origin_trips_capita$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_origin <- tm_shape(lisa_queen_origin_trips_capita) +
@@ -4776,20 +5296,30 @@ lisa_cat_origin <- tm_shape(lisa_queen_origin_trips_capita) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Number of Trips Per Capita for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin, asp=1.2)
+```
+
+```{r}
+summary_table <- summary(lisa_queen_dest_trips_capita$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest <- tm_shape(lisa_queen_dest_trips_capita) +
   tm_polygons("mean", 
           # blue, orange, green, red
@@ -4800,26 +5330,30 @@ lisa_cat_dest <- tm_shape(lisa_queen_dest_trips_capita) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation of Number of Trips Per Capita for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin, lisa_cat_dest, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest, asp=1.2)
 ```
 
 #### Overall LISA - Rook
 
-```{r fig.width=10, fig.height=10}
+```{r}
+summary_table <- summary(lisa_rook_origin_trips_capita$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
 #| code-fold: true
 #| warning: false
 lisa_cat_origin <- tm_shape(lisa_rook_origin_trips_capita) +
@@ -4831,20 +5365,30 @@ lisa_cat_origin <- tm_shape(lisa_rook_origin_trips_capita) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation Number of Trips Per Capita for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin, asp=1.2)
+```
+
+```{r}
+summary_table <- summary(lisa_rook_dest_trips_capita$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest <- tm_shape(lisa_rook_dest_trips_capita) +
   tm_polygons("mean", 
           palette = c("lightblue1", "#ec9a64","green3", "#d21b1c"),
@@ -4854,21 +5398,19 @@ lisa_cat_dest <- tm_shape(lisa_rook_dest_trips_capita) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Overall LISA Spatial Autocorrelation Number of Trips Per Capita for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin, lisa_cat_dest, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest, asp=1.2)
 ```
 :::
 
@@ -4877,12 +5419,18 @@ We can also visualise all **statistically significant** LISA categories where p-
 ::: panel-tabset
 #### Statistically Significant LISA - Queen
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_queen_origin_sig <- lisa_queen_origin_trips_capita %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_queen_origin_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_sig <- tm_shape(lisa_queen_origin_trips_capita)+
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -4895,23 +5443,33 @@ lisa_cat_origin_sig <- tm_shape(lisa_queen_origin_trips_capita)+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Signifcant LISA Map of Number of Trips Per Capita for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_sig, asp=1.2)
+```
+
+```{r}
 lisa_queen_dest_sig <- lisa_queen_dest_trips_poi %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_queen_dest_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_sig <- tm_shape(lisa_queen_dest_trips_capita)+
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6)+
@@ -4924,31 +5482,35 @@ lisa_cat_dest_sig <- tm_shape(lisa_queen_dest_trips_capita)+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Signifcant LISA Map of Number of Trips Per Capita for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_sig, lisa_cat_dest_sig, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_sig, asp=1.2)
 ```
 
 #### Statistically Significant LISA - Rook
 
-```{r fig.width=10, fig.height=10}
-#| code-fold: true
-#| warning: false
+```{r}
 lisa_rook_origin_sig <- lisa_rook_origin_trips_capita %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_rook_origin_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_origin_sig <- tm_shape(lisa_rook_origin_trips_capita) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6) +
@@ -4961,23 +5523,33 @@ lisa_cat_origin_sig <- tm_shape(lisa_rook_origin_trips_capita) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Number of Trips Per Capita for Trip Origins",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
+tmap_arrange(lisa_cat_origin_sig, asp=1.2)
+```
+
+```{r}
 lisa_rook_dest_sig <- lisa_rook_dest_trips_capita %>%
   filter(p_ii_sim < 0.05)
 
+summary_table <- summary(lisa_rook_dest_sig$mean) %>% as.data.frame()
+
+kable(summary_table, col.names = c("LISA", "Count"), caption = "Summary of LISA Categories Using Local Moran's I")
+```
+
+```{r fig.width=7, fig.height=6}
+#| code-fold: true
+#| warning: false
 lisa_cat_dest_sig <- tm_shape(lisa_rook_dest_trips_capita) +
   tm_polygons() +
   tm_borders(col = "black", alpha = 0.6) +
@@ -4990,27 +5562,23 @@ lisa_cat_dest_sig <- tm_shape(lisa_rook_dest_trips_capita) +
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(main.title = "Statistically Significant LISA Map of Number of Trips Per Capita for Trip Destinations",
-            main.title.position = "center",
-            main.title.size = 1,
-            main.title.fontface = "bold",
-            legend.title.size = 0.8,
-            legend.text.size = 0.8,
-            legend.hist.size = 0.8,
-            legend.outside = TRUE,
-            legend.outside.position = "right",
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+          main.title.position = "center",
+          main.title.size = 1,
+          main.title.fontface = "bold",
+          legend.title.size = 0.7,
+          legend.text.size = 0.7,
+          legend.hist.size = 0.7,
+          legend.position = c("right", "bottom"),
+          legend.width = 0.15,  
+          frame = FALSE) +
   tm_compass(type = "8star", text.size = 1, size = 2, position = c("RIGHT", "TOP")) +
-  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.5) +
-  tm_grid(alpha = 0.1)
+  tm_scale_bar(position = c("LEFT", "BOTTOM"), text.size = 0.7)
 
-tmap_arrange(lisa_cat_origin_sig, lisa_cat_dest_sig, asp=1, nrow=2)
+tmap_arrange(lisa_cat_dest_sig, asp=1.2)
 ```
 :::
 
 Here's the **interactive** version of the static plots above for more readability using `tmap_mode('view')`. Each district, when hovered above, shows the district name and LISA category, unless it is not statistically significant then it will just show the district name.
-
-#\| warning: false
 
 ::: panel-tabset
 #### Queen - origin
@@ -5032,7 +5600,7 @@ lisa_cat <- tm_shape(lisa_queen_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_queen_origin_sig <- lisa_queen_origin_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5068,7 +5636,7 @@ lisa_cat <- tm_shape(lisa_queen_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_queen_dest_sig <- lisa_queen_dest_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5104,7 +5672,7 @@ lisa_cat <- tm_shape(lisa_rook_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_rook_origin_sig <- lisa_rook_origin_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5140,7 +5708,7 @@ lisa_cat <- tm_shape(lisa_rook_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: Statistical Significant LISA Map
+# Second map: LISAal Significant LISA Map
 lisa_rook_dest_sig <- lisa_rook_dest_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5157,3 +5725,17 @@ tmap_arrange(lisa_cat, lisa_cat_sig, asp = 1, ncol = 2)
 tmap_mode("plot")
 ```
 :::
+
+## 5.8 Piecing It Together
+
+![ESDA Prototype - Destination, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA%201.png){width="1000"}
+
+![ESDA Prototype - Origin, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA%201.png){width="1000"}
+
+![ESDA Prototype - Origin, Car, All Weather, Queen Method, Statistically Significant](images/LISA%203-01.png){width="1000"}
+
+# 6. Conclusions
+
+This marks the end of Take-home Exercise 3 where I explored an in-depth **exploratory data analysis** of the demand distribution and travel patterns of Grab commuters in Jakarta at the district level. Additionally, I have also conducted exploratory spatial data analysis by leveraging **LISA spatial autocorrelation** for various combinatinos of origin/destination, car/motocycle, rain/no rain and queen/rook contiguity methods.
+
+Now, we are ready to head towards building the ShinyApp dashboard for the final group project! 🙌 Feel free to find my group's project Netlify site here <https://is415-projectgrab-g2.netlify.app/>.
