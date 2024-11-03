@@ -5728,11 +5728,11 @@ tmap_mode("plot")
 
 ## 5.8 Piecing It Together
 
-![ESDA Prototype - Destination, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA%201.png){width="1000"}
-
 ![ESDA Prototype - Origin, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA%201.png){width="1000"}
 
-![ESDA Prototype - Origin, Car, All Weather, Queen Method, Statistically Significant](images/LISA%203-01.png){width="1000"}
+![ESDA Prototype - Destination, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA 2-02.png){width="1000"}
+
+![ESDA Prototype - Origin, Car, All Weather, Queen Method, Statistically Significant](images/LISA 3-02.png){width="1000"}
 
 # 6. Conclusions
 
