@@ -1,0 +1,147 @@
+---
+title: "In-class Exercise 11"
+subtitle: "Calibrating Hedonic Pricing Model for Private Highrise Property: gwr methods"
+author: "Foo Jia Yi Samantha"
+date-modified: 11/04/2024
+date: 11/04/2024
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+## 1. Load Required R Packages
+
+-   Spatial data handling
+
+    -   **sf**
+
+-   Attribute data handling
+
+    -   **tidyverse**, especially **readr**, **ggplot2** and **dplyr**
+
+-   Choropleth mapping
+
+    -   **tmap**
+
+-   Making HTTP requests in R to simplify process of working with web APIs
+
+    -   **httr**
+
+-   Assess the performance and fit of statistical models in R
+
+    -   **performance**
+
+```{r}
+pacman::p_load(tidyverse, sf, tmap, httr, performance)
+```
+
+## 2. Importing the Data
+
+The code chunk below imports multiple csv files in a specified folder and append them into a single tibble data frame.
+
+-   Postal code consisting of 6 digits should be in string since the downtown region starts with 0
+
+-   Sale date should not be treated as a character
+
+```{r}
+folder_path <- "data/aspatial"
+file_list <- list.files(path = folder_path, 
+                        pattern = "^realis.*\\.csv$", 
+                        full.names = TRUE)
+
+realis_data <- file_list %>%
+  map_dfr(read_csv)
+
+glimpse(realis_data)
+```
+
+## 3. Data Wrangling
+
+### 3.1 Adjusting Data Types
+
+Hence, we will want to convert values in ***Sale Date*** field from character to numerical date format, and extract ***resale*** and ***condominium*** transaction records.
+
+```{r}
+condo_resale <- realis_data %>%
+  mutate(`Sale Date` = dmy(`Sale Date`)) %>%
+  filter(`Type of Sale` == "Resale" &
+           `Property Type` == "Condominium")
+```
+
+### 3.2 Performing Geocoding
+
+-   We can conduct reverse geocoding by getting the location based on the postal codes
+
+-   A request is being made to SLA to configure the geocoding. Note that this requires an internet connection.
+
+```{r}
+# Prepare the Data
+postcode <- unique(condo_resale$`Postal Code`)
+```
+
+```{r}
+# Geocoding
+url <- "https://onemap.gov.sg/api/common/elastic/search"
+found <- data.frame()
+not_found <- data.frame()
+
+for (postcode in postcode){
+  query <- list('searchVal'=postcode, 'returnGeom'='Y', 
+                'getAddrDetails'='Y', 'pageNum'='1')
+  res <- GET(url, query=query)
+  if ((content(res)$found)!=0){
+    found <- rbind(found, data.frame(content(res))[4:13])
+  } else {not_found = data.frame(postcode)
+  }
+}
+```
+
+### 3.3 Tidying Field Names
+
+```{r}
+found <- found %>%
+  select(c(6:8)) %>%
+  rename(POSTAL = `results.POSTAL`,
+         XCOORD = `results.X`,
+         YCOORD = `results.Y`)
+```
+
+### 3.4 Converting to Point Feature Data Frame
+
+Now let us perform these two tasks
+
+-   Write a code chunk to join *condo_resale* and *found*. Name the output *condo_resale_geocoded*.
+
+```{r}
+# Join tables
+condo_resale_geocoded = left_join(
+  condo_resale, found, 
+  by = c('Postal Code' = 'POSTAL'))
+```
+
+-   Write a code chunk to convert *condo_resale_geocoded* from tibble data frame to sf point feature data frame.
+
+```{r}
+# Convert to sf
+condo_resale_sf <- st_as_sf(condo_resale_geocoded, 
+                            coords = c("XCOORD",
+                                       "YCOORD"),
+                            crs=3414)
+```
+
+### 3.5 Cleaning Spatial Data
+
+Next, let's check of any overlapping point features. The code chunk below is used to check if there are overlapping point features.
+
+```{r}
+overlapping_points <- condo_resale_sf %>%
+  mutate(overlap = lengths(st_equals(., .)) > 1)
+```
+
+Next, in the code code chunk below, `st_jitter()` of sf package is used to move the point features by 5m to avoid overlapping point features.
+
+```{r}
+condo_resale_sf <- condo_resale_sf %>%
+  st_jitter(amount = 2)
+```

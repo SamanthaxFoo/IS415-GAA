@@ -191,9 +191,17 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                   |                                                   |
 | </p>                |                                                                                                                   |                                                   |
 +---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**In-class Exercise 10**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex10/In-class_Ex10.html) | ![](images/clipboard-4006592340.png){width="240"} |
+| <p id="contents">   | ## [**In-class Exercise 10**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex10/In-class_Ex10.html) | ![](images/clipboard-1729438404.png){width="240"} |
 |                     |                                                                                                                   |                                                   |
 | Oct 30, 2024        | Calibrating Hedonic Pricing Model for Private Highrise Property with MLR methods                                  |                                                   |
+|                     |                                                                                                                   |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                   |                                                   |
+|                     |                                                                                                                   |                                                   |
+| </p>                |                                                                                                                   |                                                   |
++---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 11**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex11/In-class_Ex11.html) | ![](images/clipboard-666342851.png){width="220"}  |
+|                     |                                                                                                                   |                                                   |
+| Nov 4 2024          | Calibrating Hedonic Pricing Model for Private Highrise Property with GWR methods                                  |                                                   |
 |                     |                                                                                                                   |                                                   |
 | Foo Jia Yi Samantha |                                                                                                                   |                                                   |
 |                     |                                                                                                                   |                                                   |

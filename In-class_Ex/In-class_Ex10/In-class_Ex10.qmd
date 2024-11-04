@@ -1,5 +1,5 @@
 ---
-title: "In-class Exercise 11"
+title: "In-class Exercise 10"
 subtitle: "Building Hedonic Models using Condo Resale Prices"
 author: "Foo Jia Yi Samantha"
 date-modified: 10/28/2024
@@ -108,7 +108,7 @@ head(condo_resale_sf)
 
 Correlation matrix is an effective graphical method for checking if there are pair independent variables with high correlation. In the code chunk below, [`ggcorrmat()`](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcorrmat.html) of [**ggstatsplot**](https://indrajeetpatil.github.io/ggstatsplot/index.html) is used to plot the correlation matrix.
 
-```{r}
+```{r fig.width=10, fig.height=10}
 ggcorrmat(condo_resale[, 5:23])
 ```
 

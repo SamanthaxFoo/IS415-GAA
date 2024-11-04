@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Foo Jia Yi Samantha">
-<meta name="dcterms.date" content="2024-10-28">
+<meta name="dcterms.date" content="2024-11-04">
 
 <title>IS415-GAA - In-class Exercise 11</title>
 <style>
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -127,6 +161,14 @@ ul.task-list li input[type="checkbox"] {
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex9/In-class_Ex9.html">
  <span class="dropdown-text">In-class Exercise 9</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex10/In-class_Ex10.html">
+ <span class="dropdown-text">In-class Exercise 10</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex11/In-class_Ex11.html">
+ <span class="dropdown-text">In-class Exercise 11</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -165,6 +207,10 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex10/Hands-on_Ex10.html">
  <span class="dropdown-text">Hands-on Exercise 10</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex10/Hands-on_Ex11.html">
+ <span class="dropdown-text">Hands-on Exercise 11</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex11/Hands-on_Ex12.html">
@@ -221,7 +267,22 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#load-required-r-packages" id="toc-load-required-r-packages" class="nav-link active" data-scroll-target="#load-required-r-packages">1. Load Required R Packages</a></li>
+  <li><a href="#importing-the-data" id="toc-importing-the-data" class="nav-link" data-scroll-target="#importing-the-data">2. Importing the Data</a></li>
+  <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">3. Data Wrangling</a>
+  <ul class="collapse">
+  <li><a href="#adjusting-data-types" id="toc-adjusting-data-types" class="nav-link" data-scroll-target="#adjusting-data-types">3.1 Adjusting Data Types</a></li>
+  <li><a href="#performing-geocoding" id="toc-performing-geocoding" class="nav-link" data-scroll-target="#performing-geocoding">3.2 Performing Geocoding</a></li>
+  <li><a href="#tidying-field-names" id="toc-tidying-field-names" class="nav-link" data-scroll-target="#tidying-field-names">3.3 Tidying Field Names</a></li>
+  <li><a href="#converting-to-point-feature-data-frame" id="toc-converting-to-point-feature-data-frame" class="nav-link" data-scroll-target="#converting-to-point-feature-data-frame">3.4 Converting to Point Feature Data Frame</a></li>
+  <li><a href="#cleaning-spatial-data" id="toc-cleaning-spatial-data" class="nav-link" data-scroll-target="#cleaning-spatial-data">3.5 Cleaning Spatial Data</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -229,7 +290,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">In-class Exercise 11</h1>
-<p class="subtitle lead">Building Hedonic Models using Condo Resale Prices</p>
+<p class="subtitle lead">Calibrating Hedonic Pricing Model for Private Highrise Property: gwr methods</p>
 </div>
 
 
@@ -246,14 +307,14 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 28, 2024</p>
+      <p class="date">November 4, 2024</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">October 28, 2024</p>
+      <p class="date-modified">November 4, 2024</p>
     </div>
   </div>
     
@@ -264,10 +325,191 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<button>Hands-on Exercise</button> <button>R</button> <button>GWmodel</button> <button>gtsummary</button> <button>GWR</button>
-<p>In this in-class exercise, we explore new R packages to</p>
+<section id="load-required-r-packages" class="level2">
+<h2 class="anchored" data-anchor-id="load-required-r-packages">1. Load Required R Packages</h2>
+<ul>
+<li><p>Spatial data handling</p>
+<ul>
+<li><strong>sf</strong></li>
+</ul></li>
+<li><p>Attribute data handling</p>
+<ul>
+<li><strong>tidyverse</strong>, especially <strong>readr</strong>, <strong>ggplot2</strong> and <strong>dplyr</strong></li>
+</ul></li>
+<li><p>Choropleth mapping</p>
+<ul>
+<li><strong>tmap</strong></li>
+</ul></li>
+<li><p>Making HTTP requests in R to simplify process of working with web APIs</p>
+<ul>
+<li><strong>httr</strong></li>
+</ul></li>
+<li><p>Assess the performance and fit of statistical models in R</p>
+<ul>
+<li><strong>performance</strong></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, sf, tmap, httr, performance)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="importing-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-the-data">2. Importing the Data</h2>
+<p>The code chunk below imports multiple csv files in a specified folder and append them into a single tibble data frame.</p>
+<ul>
+<li><p>Postal code consisting of 6 digits should be in string since the downtown region starts with 0</p></li>
+<li><p>Sale date should not be treated as a character</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>folder_path <span class="ot">&lt;-</span> <span class="st">"data/aspatial"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>file_list <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">path =</span> folder_path, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">pattern =</span> <span class="st">"^realis.*</span><span class="sc">\\</span><span class="st">.csv$"</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>realis_data <span class="ot">&lt;-</span> file_list <span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_dfr</span>(read_csv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat &lt;- vroom(...)
+  problems(dat)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 10000 Columns: 21
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (15): Project Name, Sale Date, Address, Type of Sale, Type of Area, Nett...
+dbl  (2): Area (SQM), Number of Units
+num  (4): Transacted Price ($), Area (SQFT), Unit Price ($ PSF), Unit Price ...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+Rows: 6643 Columns: 21
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (15): Project Name, Sale Date, Address, Type of Sale, Type of Area, Nett...
+dbl  (1): Number of Units
+num  (5): Transacted Price ($), Area (SQFT), Unit Price ($ PSF), Area (SQM),...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(realis_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 16,643
+Columns: 21
+$ `Project Name`                &lt;chr&gt; "THE LANDMARK", "POLLEN COLLECTION", "SK…
+$ `Transacted Price ($)`        &lt;dbl&gt; 2726888, 3850000, 2346000, 2190000, 1954…
+$ `Area (SQFT)`                 &lt;dbl&gt; 1076.40, 1808.35, 1087.16, 807.30, 796.5…
+$ `Unit Price ($ PSF)`          &lt;dbl&gt; 2533, 2129, 2158, 2713, 2453, 2577, 1097…
+$ `Sale Date`                   &lt;chr&gt; "01 Jan 2024", "01 Jan 2024", "01 Jan 20…
+$ Address                       &lt;chr&gt; "173 CHIN SWEE ROAD #22-11", "34 POLLEN …
+$ `Type of Sale`                &lt;chr&gt; "New Sale", "New Sale", "New Sale", "New…
+$ `Type of Area`                &lt;chr&gt; "Strata", "Land", "Strata", "Strata", "S…
+$ `Area (SQM)`                  &lt;dbl&gt; 100.0, 168.0, 101.0, 75.0, 74.0, 123.0, …
+$ `Unit Price ($ PSM)`          &lt;dbl&gt; 27269, 22917, 23228, 29200, 26405, 27741…
+$ `Nett Price($)`               &lt;chr&gt; "-", "-", "-", "-", "-", "-", "-", "-", …
+$ `Property Type`               &lt;chr&gt; "Condominium", "Terrace House", "Apartme…
+$ `Number of Units`             &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+$ Tenure                        &lt;chr&gt; "99 yrs from 28/08/2020", "99 yrs from 0…
+$ `Completion Date`             &lt;chr&gt; "Uncompleted", "Uncompleted", "Uncomplet…
+$ `Purchaser Address Indicator` &lt;chr&gt; "Private", "N.A", "HDB", "N.A", "Private…
+$ `Postal Code`                 &lt;chr&gt; "169878", "807233", "469657", "118992", …
+$ `Postal District`             &lt;chr&gt; "03", "28", "16", "05", "21", "21", "19"…
+$ `Postal Sector`               &lt;chr&gt; "16", "80", "46", "11", "59", "58", "53"…
+$ `Planning Region`             &lt;chr&gt; "Central Region", "North East Region", "…
+$ `Planning Area`               &lt;chr&gt; "Outram", "Serangoon", "Bedok", "Queenst…</code></pre>
+</div>
+</div>
+</section>
+<section id="data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="data-wrangling">3. Data Wrangling</h2>
+<section id="adjusting-data-types" class="level3">
+<h3 class="anchored" data-anchor-id="adjusting-data-types">3.1 Adjusting Data Types</h3>
+<p>Hence, we will want to convert values in&nbsp;<strong><em>Sale Date</em></strong>&nbsp;field from character to numerical date format, and extract <strong><em>resale</em></strong> and <strong><em>condominium</em></strong> transaction records.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>condo_resale <span class="ot">&lt;-</span> realis_data <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Sale Date</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">dmy</span>(<span class="st">`</span><span class="at">Sale Date</span><span class="st">`</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">Type of Sale</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Resale"</span> <span class="sc">&amp;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">`</span><span class="at">Property Type</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"Condominium"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="performing-geocoding" class="level3">
+<h3 class="anchored" data-anchor-id="performing-geocoding">3.2 Performing Geocoding</h3>
+<ul>
+<li><p>We can conduct reverse geocoding by getting the location based on the postal codes</p></li>
+<li><p>A request is being made to SLA to configure the geocoding. Note that this requires an internet connection.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare the Data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>postcode <span class="ot">&lt;-</span> <span class="fu">unique</span>(condo_resale<span class="sc">$</span><span class="st">`</span><span class="at">Postal Code</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Geocoding</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://onemap.gov.sg/api/common/elastic/search"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>found <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>not_found <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (postcode <span class="cf">in</span> postcode){</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  query <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">'searchVal'</span><span class="ot">=</span>postcode, <span class="st">'returnGeom'</span><span class="ot">=</span><span class="st">'Y'</span>, </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                <span class="st">'getAddrDetails'</span><span class="ot">=</span><span class="st">'Y'</span>, <span class="st">'pageNum'</span><span class="ot">=</span><span class="st">'1'</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">GET</span>(url, <span class="at">query=</span>query)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> ((<span class="fu">content</span>(res)<span class="sc">$</span>found)<span class="sc">!=</span><span class="dv">0</span>){</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    found <span class="ot">&lt;-</span> <span class="fu">rbind</span>(found, <span class="fu">data.frame</span>(<span class="fu">content</span>(res))[<span class="dv">4</span><span class="sc">:</span><span class="dv">13</span>])</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {not_found <span class="ot">=</span> <span class="fu">data.frame</span>(postcode)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="tidying-field-names" class="level3">
+<h3 class="anchored" data-anchor-id="tidying-field-names">3.3 Tidying Field Names</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>found <span class="ot">&lt;-</span> found <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">6</span><span class="sc">:</span><span class="dv">8</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">POSTAL =</span> <span class="st">`</span><span class="at">results.POSTAL</span><span class="st">`</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">XCOORD =</span> <span class="st">`</span><span class="at">results.X</span><span class="st">`</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">YCOORD =</span> <span class="st">`</span><span class="at">results.Y</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="converting-to-point-feature-data-frame" class="level3">
+<h3 class="anchored" data-anchor-id="converting-to-point-feature-data-frame">3.4 Converting to Point Feature Data Frame</h3>
+<p>Now let us perform these two tasks</p>
+<ul>
+<li>Write a code chunk to join <em>condo_resale</em> and <em>found</em>. Name the output <em>condo_resale_geocoded</em>.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Join tables</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>condo_resale_geocoded <span class="ot">=</span> <span class="fu">left_join</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  condo_resale, found, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="fu">c</span>(<span class="st">'Postal Code'</span> <span class="ot">=</span> <span class="st">'POSTAL'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Write a code chunk to convert <em>condo_resale_geocoded</em> from tibble data frame to sf point feature data frame.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert to sf</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>condo_resale_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(condo_resale_geocoded, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"XCOORD"</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">"YCOORD"</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">crs=</span><span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="cleaning-spatial-data" class="level3">
+<h3 class="anchored" data-anchor-id="cleaning-spatial-data">3.5 Cleaning Spatial Data</h3>
+<p>Next, let’s check of any overlapping point features. The code chunk below is used to check if there are overlapping point features.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>overlapping_points <span class="ot">&lt;-</span> condo_resale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">overlap =</span> <span class="fu">lengths</span>(<span class="fu">st_equals</span>(., .)) <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, in the code code chunk below,&nbsp;<code>st_jitter()</code>&nbsp;of sf package is used to move the point features by 5m to avoid overlapping point features.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>condo_resale_sf <span class="ot">&lt;-</span> condo_resale_sf <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_jitter</span>(<span class="at">amount =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

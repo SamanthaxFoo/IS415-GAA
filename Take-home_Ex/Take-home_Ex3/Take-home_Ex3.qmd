@@ -1845,9 +1845,9 @@ ggplot(flow_data, aes(axis1 = origin_district, axis2 = destination_district, y =
 
 ## 4.6 Piecing It Together
 
-![EDA - Overall Trips Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA Overall-04.png){width="1000"}
+![EDA - Overall Trips Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20Overall-04.png){width="1000"}
 
-![EDA Prototype -By Point of Interest, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA POI-01.png){width="1000"}
+![EDA Prototype -By Point of Interest, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20POI-01.png){width="1000"}
 
 ![EDA - Demand Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20Demand%20Analysis.png){width="1000"}
 
