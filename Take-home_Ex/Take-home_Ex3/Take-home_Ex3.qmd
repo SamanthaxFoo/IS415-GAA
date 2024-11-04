@@ -1696,9 +1696,9 @@ ggplot(aggregated_pois, aes(x = category, y = num_of_trips, fill = time_of_day))
             color = "black", 
             size = 3.5) +
   labs(
-    title = "Number of POIs Visited Using Grab by Time of Day",
+    title = "Number of Trips Taken Using Grab by Time of Day",
     x = "POI Category",
-    y = "Number of POIs"
+    y = "Number of Trips"
   ) +
   theme_gray() +
   theme(
@@ -1845,9 +1845,9 @@ ggplot(flow_data, aes(axis1 = origin_district, axis2 = destination_district, y =
 
 ## 4.6 Piecing It Together
 
-![EDA - Overall Trips Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20Overall-01.png){width="1000"}
+![EDA - Overall Trips Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA Overall-04.png){width="1000"}
 
-![EDA Prototype -By Point of Interest, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20POI.png){width="1000"}
+![EDA Prototype -By Point of Interest, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA POI-01.png){width="1000"}
 
 ![EDA - Demand Analysis, All Trip Type, Driving Mode, Weather, Time and Days](images/EDA%20Demand%20Analysis.png){width="1000"}
 
@@ -5730,9 +5730,9 @@ tmap_mode("plot")
 
 ![ESDA Prototype - Origin, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA%201.png){width="1000"}
 
-![ESDA Prototype - Destination, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA 2-02.png){width="1000"}
+![ESDA Prototype - Destination, All Driving Mode, All Weather, Queen Method, Statistically Significant](images/LISA%202-02.png){width="1000"}
 
-![ESDA Prototype - Origin, Car, All Weather, Queen Method, Statistically Significant](images/LISA 3-02.png){width="1000"}
+![ESDA Prototype - Origin, Car, All Weather, Queen Method, Statistically Significant](images/LISA%203-02.png){width="1000"}
 
 # 6. Conclusions
 
