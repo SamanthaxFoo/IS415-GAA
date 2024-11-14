@@ -28,7 +28,7 @@ website:
         - text: "In-class Exercise 11"
           href: "In-class_Ex/In-class_Ex11/In-class_Ex11.html"
         - text: "In-class Exercise 12"
-          href: "In-class_Ex/In-class_Ex11/In-class_Ex12.html"
+          href: "In-class_Ex/In-class_Ex12/In-class_Ex12.html"
     - text: "Hands-on Exercises"
       menu:
         - text: "Hands-on Exercise 1"
