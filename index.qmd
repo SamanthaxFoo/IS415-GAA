@@ -31,7 +31,7 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                   |                                                   |
 | </p>                |                                                                                                                   |                                                   |
 +---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**Take Home Exercise 2**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02)    | ![](images/clipboard-2820920240.png){width="200"} |
+| <p id="contents">   | ## [**Take Home Exercise 2**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex2/take-home_ex02)    | ![](images/clipboard-704459790.png){width="240"}  |
 |                     |                                                                                                                   |                                                   |
 | Oct 13, 2024        | Harnessing Geospatial Methods to Analyse Drug Abuse Patterns in Thailand                                          |                                                   |
 |                     |                                                                                                                   |                                                   |
@@ -39,7 +39,7 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 |                     |                                                                                                                   |                                                   |
 | </p>                |                                                                                                                   |                                                   |
 +---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
-| <p id="contents">   | ## [**Take Home Exercise 3**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex3/take-home_ex3)     | ![](images/clipboard-393807001.png){width="240"}  |
+| <p id="contents">   | ## [**Take Home Exercise 3**](https://is415-samanthafoo.netlify.app/take-home_ex/take-home_ex3/take-home_ex3)     | ![](images/clipboard-613891763.png){width="240"}  |
 |                     |                                                                                                                   |                                                   |
 | Nov 3, 2024         | Navigating Jakarta’s Traffic Network Using Grab Posisi Data                                                       |                                                   |
 |                     |                                                                                                                   |                                                   |
@@ -202,6 +202,14 @@ Join me on this data odyssey as I conquer Geospatial Analytics! 🌱
 | <p id="contents">   | ## [**In-class Exercise 11**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex11/In-class_Ex11.html) | ![](images/clipboard-666342851.png){width="220"}  |
 |                     |                                                                                                                   |                                                   |
 | Nov 4 2024          | Calibrating Hedonic Pricing Model for Private Highrise Property with GWR methods                                  |                                                   |
+|                     |                                                                                                                   |                                                   |
+| Foo Jia Yi Samantha |                                                                                                                   |                                                   |
+|                     |                                                                                                                   |                                                   |
+| </p>                |                                                                                                                   |                                                   |
++---------------------+-------------------------------------------------------------------------------------------------------------------+---------------------------------------------------+
+| <p id="contents">   | ## [**In-class Exercise 12**](https://is415-samanthafoo.netlify.app/In-class_Ex/In-class_Ex12/In-class_Ex12.html) | ![](images/clipboard-1089261480.png){width="240"} |
+|                     |                                                                                                                   |                                                   |
+| Nov 12 2024         | Calibrating Geographically Weighted Predictive Models                                                             |                                                   |
 |                     |                                                                                                                   |                                                   |
 | Foo Jia Yi Samantha |                                                                                                                   |                                                   |
 |                     |                                                                                                                   |                                                   |

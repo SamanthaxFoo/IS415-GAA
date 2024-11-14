@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "IS415: Geospatial Analytics and Application",
     "section": "",
-    "text": "Hey there! 👋 I’m Samantha Foo, a Year 3 SMU student pursuing a Bachelor in Information Systems (Business Analytics) with a 2nd Major in Data Science & Analytics. I’m a huge data enthusiast, a FOOdie and I enjoy exploring new places/cities!\nJoin me on this data odyssey as I conquer Geospatial Analytics! 🌱\n\n\n\n\n\nSep 22, 2024\nFoo Jia Yi Samantha\n\nTake Home Exercise 1\nSpatial & Spatio-Temporal Point Pattern Analysis of Myanmar’s Armed Conflicts\n\n\n\n\nOct 13, 2024\nFoo Jia Yi Samantha\n\nTake Home Exercise 2\nHarnessing Geospatial Methods to Analyse Drug Abuse Patterns in Thailand\n\n\n\n\nNov 3, 2024\nFoo Jia Yi Samantha\n\nTake Home Exercise 3\nNavigating Jakarta’s Traffic Network Using Grab Posisi Data\n\n\n\n\nAug 16, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 1\nGeospatial Wrangling with R\n\n\n\n\n\n\nAug 22, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 2\nChoropleth Mapping and GeoVisualisation with R\n\n\n\n\nAug 27, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 3\n1st and 2nd Order Spatial Point Patterns Analysis Methods\n\n\n\n\nSep 10, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 5\nSpatial Weights and Applications\n\n\n\n\nSep 18, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 6\nGlobal and Local Measures of Spatial Autocorrelation\n\n\n\n\nOct 13, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 8\nGeographical Segmentation with Spatially Constrained Clustering Techniques (Part 1)\n\n\n\n\nOct 18, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 9\nGeographical Segmentation with Spatially Constrained Clustering Techniques (Part 2)\n\n\n\n\nOct 22, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 10\nCalibrating Hedonic Pricing Model for Private Highrise Property with GWR Method\n\n\n\n\nOct 30, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 11\nCalibrating Hedonic Pricing Model for Private Highrise Property with GWR Method\n\n\n\n\nOct 30, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 12\nGeographically Weighted Predictive Models\n\n\n\n\nAug 19, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 1\nSet up RStudio and Create a Quarto Document\n\n\n\n\nAug 26, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 2\nImporting Libraries and Data into R, and Performing Data Wrangling\n\n\n\n\nSep 2, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 3\nCovering Errors in Hands-on Exercise 3 and Importing ACLED Datasets\n\n\n\n\nSep 10, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 4\nExploring Spatio-Temporal Kernel Density Estimation\n\n\n\n\nSep 18, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 5\nExploring Geographically Weighted Models\n\n\n\n\nSep 18, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 6\nGlobal and Local Measures of Spatial Autocorrelation: sfdep methods\n\n\n\n\nSep 30, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 7\nBuilding interactive Shiny Dashboard Applications\n\n\n\n\nOct 21, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 9\nGeographical Segmentation with Spatially Constrained Clustering Techniques\n\n\n\n\nOct 30, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 10\nCalibrating Hedonic Pricing Model for Private Highrise Property with MLR methods\n\n\n\n\nNov 4 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 11\nCalibrating Hedonic Pricing Model for Private Highrise Property with GWR methods"
+    "text": "Hey there! 👋 I’m Samantha Foo, a Year 3 SMU student pursuing a Bachelor in Information Systems (Business Analytics) with a 2nd Major in Data Science & Analytics. I’m a huge data enthusiast, a FOOdie and I enjoy exploring new places/cities!\nJoin me on this data odyssey as I conquer Geospatial Analytics! 🌱\n\n\n\n\n\nSep 22, 2024\nFoo Jia Yi Samantha\n\nTake Home Exercise 1\nSpatial & Spatio-Temporal Point Pattern Analysis of Myanmar’s Armed Conflicts\n\n\n\n\nOct 13, 2024\nFoo Jia Yi Samantha\n\nTake Home Exercise 2\nHarnessing Geospatial Methods to Analyse Drug Abuse Patterns in Thailand\n\n\n\n\nNov 3, 2024\nFoo Jia Yi Samantha\n\nTake Home Exercise 3\nNavigating Jakarta’s Traffic Network Using Grab Posisi Data\n\n\n\n\nAug 16, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 1\nGeospatial Wrangling with R\n\n\n\n\n\n\nAug 22, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 2\nChoropleth Mapping and GeoVisualisation with R\n\n\n\n\nAug 27, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 3\n1st and 2nd Order Spatial Point Patterns Analysis Methods\n\n\n\n\nSep 10, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 5\nSpatial Weights and Applications\n\n\n\n\nSep 18, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 6\nGlobal and Local Measures of Spatial Autocorrelation\n\n\n\n\nOct 13, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 8\nGeographical Segmentation with Spatially Constrained Clustering Techniques (Part 1)\n\n\n\n\nOct 18, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 9\nGeographical Segmentation with Spatially Constrained Clustering Techniques (Part 2)\n\n\n\n\nOct 22, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 10\nCalibrating Hedonic Pricing Model for Private Highrise Property with GWR Method\n\n\n\n\nOct 30, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 11\nCalibrating Hedonic Pricing Model for Private Highrise Property with GWR Method\n\n\n\n\nOct 30, 2024\nFoo Jia Yi Samantha\n\nHands-on Exercise 12\nGeographically Weighted Predictive Models\n\n\n\n\nAug 19, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 1\nSet up RStudio and Create a Quarto Document\n\n\n\n\nAug 26, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 2\nImporting Libraries and Data into R, and Performing Data Wrangling\n\n\n\n\nSep 2, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 3\nCovering Errors in Hands-on Exercise 3 and Importing ACLED Datasets\n\n\n\n\nSep 10, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 4\nExploring Spatio-Temporal Kernel Density Estimation\n\n\n\n\nSep 18, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 5\nExploring Geographically Weighted Models\n\n\n\n\nSep 18, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 6\nGlobal and Local Measures of Spatial Autocorrelation: sfdep methods\n\n\n\n\nSep 30, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 7\nBuilding interactive Shiny Dashboard Applications\n\n\n\n\nOct 21, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 9\nGeographical Segmentation with Spatially Constrained Clustering Techniques\n\n\n\n\nOct 30, 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 10\nCalibrating Hedonic Pricing Model for Private Highrise Property with MLR methods\n\n\n\n\nNov 4 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 11\nCalibrating Hedonic Pricing Model for Private Highrise Property with GWR methods\n\n\n\n\nNov 12 2024\nFoo Jia Yi Samantha\n\nIn-class Exercise 12\nCalibrating Geographically Weighted Predictive Models"
   },
   {
     "objectID": "about.html",
@@ -1937,5 +1937,82 @@
     "title": "In-class Exercise 11",
     "section": "3. Data Wrangling",
     "text": "3. Data Wrangling\n\n3.1 Adjusting Data Types\nHence, we will want to convert values in Sale Date field from character to numerical date format, and extract resale and condominium transaction records.\n\ncondo_resale &lt;- realis_data %&gt;%\n  mutate(`Sale Date` = dmy(`Sale Date`)) %&gt;%\n  filter(`Type of Sale` == \"Resale\" &\n           `Property Type` == \"Condominium\")\n\n\n\n3.2 Performing Geocoding\n\nWe can conduct reverse geocoding by getting the location based on the postal codes\nA request is being made to SLA to configure the geocoding. Note that this requires an internet connection.\n\n\n# Prepare the Data\npostcode &lt;- unique(condo_resale$`Postal Code`)\n\n\n# Geocoding\nurl &lt;- \"https://onemap.gov.sg/api/common/elastic/search\"\nfound &lt;- data.frame()\nnot_found &lt;- data.frame()\n\nfor (postcode in postcode){\n  query &lt;- list('searchVal'=postcode, 'returnGeom'='Y', \n                'getAddrDetails'='Y', 'pageNum'='1')\n  res &lt;- GET(url, query=query)\n  if ((content(res)$found)!=0){\n    found &lt;- rbind(found, data.frame(content(res))[4:13])\n  } else {not_found = data.frame(postcode)\n  }\n}\n\n\n\n3.3 Tidying Field Names\n\nfound &lt;- found %&gt;%\n  select(c(6:8)) %&gt;%\n  rename(POSTAL = `results.POSTAL`,\n         XCOORD = `results.X`,\n         YCOORD = `results.Y`)\n\n\n\n3.4 Converting to Point Feature Data Frame\nNow let us perform these two tasks\n\nWrite a code chunk to join condo_resale and found. Name the output condo_resale_geocoded.\n\n\n# Join tables\ncondo_resale_geocoded = left_join(\n  condo_resale, found, \n  by = c('Postal Code' = 'POSTAL'))\n\n\nWrite a code chunk to convert condo_resale_geocoded from tibble data frame to sf point feature data frame.\n\n\n# Convert to sf\ncondo_resale_sf &lt;- st_as_sf(condo_resale_geocoded, \n                            coords = c(\"XCOORD\",\n                                       \"YCOORD\"),\n                            crs=3414)\n\n\n\n3.5 Cleaning Spatial Data\nNext, let’s check of any overlapping point features. The code chunk below is used to check if there are overlapping point features.\n\noverlapping_points &lt;- condo_resale_sf %&gt;%\n  mutate(overlap = lengths(st_equals(., .)) &gt; 1)\n\nNext, in the code code chunk below, st_jitter() of sf package is used to move the point features by 5m to avoid overlapping point features.\n\ncondo_resale_sf &lt;- condo_resale_sf %&gt;%\n  st_jitter(amount = 2)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html",
+    "title": "In-class Exercise 12",
+    "section": "",
+    "text": "Let’s first install and load the packages needed for this exercise.\n\nsf: Manages and manipulates spatial data using simple feature (sf) objects.\n\n\n\nspdep: Provides spatial dependency tools, including spatial weights and clustering methods.\nGWModel: Facilitates geographically weighted modeling, such as GWR and GWGLM, for spatially varying relationships.\nSpatialML: Implements machine learning methods tailored for spatial data analysis.\ntmap: Creates thematic maps for spatial data visualization, supporting interactive mapping.\nrsample: Aids in data resampling for model validation, such as cross-validation and bootstrap.\nyardstick: Evaluates model performance metrics, particularly for regression and classification tasks.\ntidyverse: A suite of packages for data manipulation, visualization, and analysis in a tidy format.\nknitr: Produces dynamic reports, supporting R code chunks for seamless integration in documents.\nkableExtra: Enhances table formatting in R, allowing for customised and aesthetic tables.\nspatialRF: Specialises in spatial random forests, focusing on spatially dependent data predictions and modeling.\n\n\npacman::p_load(sf, spdep, GWModel, SpatialML, tmap, rsample, yardstick, tidyverse, knitr, kableExtra, spatialRF)\n\nInstalling package into 'C:/Users/Samantha/AppData/Local/R/win-library/4.4'\n(as 'lib' is unspecified)\n\n\nWarning: package 'GWModel' is not available for this version of R\n\nA version of this package for your version of R might be available elsewhere,\nsee the ideas at\nhttps://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages\n\n\nWarning: Perhaps you meant 'GWmodel' ?\n\n\nWarning: unable to access index for repository http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.4:\n  cannot open URL 'http://www.stats.ox.ac.uk/pub/RWin/bin/windows/contrib/4.4/PACKAGES'\n\n\nWarning in p_install(package, character.only = TRUE, ...):\n\n\nWarning in library(package, lib.loc = lib.loc, character.only = TRUE,\nlogical.return = TRUE, : there is no package called 'GWModel'\n\n\nWarning in pacman::p_load(sf, spdep, GWModel, SpatialML, tmap, rsample, : Failed to install/load:\nGWModel"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#data-import",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#data-import",
+    "title": "In-class Exercise 12",
+    "section": "2.1 Data Import",
+    "text": "2.1 Data Import\n\nmdata &lt;- read_rds(\"data/rds/mdata.rds\")"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#data-sampling",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#data-sampling",
+    "title": "In-class Exercise 12",
+    "section": "2.2 Data Sampling",
+    "text": "2.2 Data Sampling\nCalibrating predictive models can be computationally intensive, especially when random forest method is used. For quick prototyping, a 10% sample will be selected at random from the data by using the code chunk below.\n\nset.seed(1234)\nHDB_sample &lt;- mdata %&gt;%\n  sample_n(1500)\n\n\n\n\n\n\n\nNote\n\n\n\nNote that we do not need to use all of the data in predictive modelling, in fact we can choose to sample data from the entire dataset."
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#checking-of-overlapping-points",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#checking-of-overlapping-points",
+    "title": "In-class Exercise 12",
+    "section": "2.3 Checking of Overlapping Points",
+    "text": "2.3 Checking of Overlapping Points\n\noverlapping_points &lt;- HDB_sample %&gt;%\n  mutate(overlap = lengths(st_equals(., .)) &gt; 1)\nsummary(overlapping_points$overlap)\n\n   Mode   FALSE    TRUE \nlogical    1047     453 \n\n\n\n\n\n\n\n\nNote\n\n\n\nWhen using GWmodel to calibrate explanatory or predictive models, it is very important to ensure that there are no overlapping point features"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#spatial-jitter",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#spatial-jitter",
+    "title": "In-class Exercise 12",
+    "section": "2.4 Spatial Jitter",
+    "text": "2.4 Spatial Jitter\nIn the code code chunk below, st_jitter() of sf package is used to move the point features by 5m to avoid overlapping point features.\n\nHDB_sample &lt;- HDB_sample %&gt;%\n  st_jitter(amount = 5)\n\n\n\n\n\n\n\nNote\n\n\n\nOne metre is considered safe enough - no need to use five metres."
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#combine-model-outputs",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#combine-model-outputs",
+    "title": "In-class Exercise 12",
+    "section": "10.1 Combine model outputs",
+    "text": "10.1 Combine model outputs\n\ntest_data_pred &lt;- test_data %&gt;%\n  select(resale_price) %&gt;%\n  cbind(gwr_pred_df) %&gt;%\n  cbind(rf_pred_df) %&gt;%\n  cbind(grf_pred_df)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#transposing-data",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#transposing-data",
+    "title": "In-class Exercise 12",
+    "section": "10.2 Transposing data",
+    "text": "10.2 Transposing data\n\ntest_longer &lt;- test_data_pred %&gt;%\n  st_drop_geometry() %&gt;%\n  pivot_longer(cols = ends_with(\"pred\"), \n               names_to = \"model\", \n               values_to = \"predicted\")"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#renaming-columns",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#renaming-columns",
+    "title": "In-class Exercise 12",
+    "section": "10.3 Renaming columns",
+    "text": "10.3 Renaming columns\n\nmodel_labels &lt;- c(\n  gwr_pred = \"gwr\",\n  rf_pred = \"Random Forest\",\n  grf_pred = \"gwRF\")\n\ntest_longer &lt;- test_longer %&gt;%\n  mutate(model = recode(\n    model, !!!model_labels))"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#computing-rmse",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#computing-rmse",
+    "title": "In-class Exercise 12",
+    "section": "10.4 Computing RMSE",
+    "text": "10.4 Computing RMSE\n\nrmse_results &lt;- test_longer %&gt;%\n  group_by(model) %&gt;%\n  rmse(truth = resale_price, \n       estimate = predicted) %&gt;%\n  rename(rmse = .estimate) %&gt;%\n  select(model, rmse)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#model-comparison-plots",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#model-comparison-plots",
+    "title": "In-class Exercise 12",
+    "section": "10.5 Model Comparison Plots",
+    "text": "10.5 Model Comparison Plots\n\n10.5.1 Bar Charts\n\nggplot(rmse_results, \n       aes(x = reorder(model, rmse), \n           y = rmse, \n           fill = \"skyblue\")) +\n  geom_bar(stat = \"identity\", \n           fill = \"skyblue\", \n           color = \"black\", \n           width = 0.7) +\n  labs(title = \"RMSE Comparison of Models\", \n       y = \"RMSE\", \n       x = \"Model\") +\n  theme_minimal()\n\n\n\n\n10.5.2 Scatter Plots\n\ntest_longer &lt;- test_longer %&gt;%\n  left_join(rmse_results, \n            by = \"model\")\n\nggplot(data = test_longer,\n       aes(x = predicted,\n           y = resale_price)) +\n  facet_wrap(~ model) +\n  geom_point() +\n  geom_text(data = test_longer, \n            aes(x = Inf, y = Inf, \n                label = paste(\"RMSE:\", round(rmse, 2))),\n            hjust = 1.1, vjust = 1.1, \n            color = \"black\", size = 4)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#variable-importance",
+    "href": "In-class_Ex/In-class_Ex12/In-class_Ex12.html#variable-importance",
+    "title": "In-class Exercise 12",
+    "section": "10.6 Variable Importance",
+    "text": "10.6 Variable Importance\n\n# Prepare the output\nvar_imp &lt;- data.frame(\n  Variable = names(grf_ad$Global.Model$variable.importance),\n  Importance = grf_ad$Global.Model$variable.importance\n)\n\n\n# Plot\nggplot(var_imp, aes(x = reorder(Variable, \n                                Importance), \n                    y = Importance)) +\n  geom_bar(stat = \"identity\", \n           fill = \"skyblue\") +\n  coord_flip() +\n  labs(\n    title = \"Variable Importance from Ranger Model\",\n    x = \"Variables\",\n    y = \"Importance\"\n  ) +\n  theme_minimal()"
   }
 ]

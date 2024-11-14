@@ -3052,7 +3052,7 @@ lisa_cat <- tm_shape(lisa_queen_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_origin_sig <- lisa_queen_origin_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -3089,7 +3089,7 @@ lisa_cat <- tm_shape(lisa_queen_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_dest_sig <- lisa_queen_dest_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -3126,7 +3126,7 @@ lisa_cat <- tm_shape(lisa_rook_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_rook_origin_sig <- lisa_rook_origin_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -3163,7 +3163,7 @@ lisa_cat <- tm_shape(lisa_rook_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_rook_dest_sig <- lisa_rook_dest_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -3759,7 +3759,7 @@ lisa_cat_sig_car <- tm_shape(lisa_queen_origin_car) +
           title = "Significant LISA - Car",
           id = "label")
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_origin_motorcycle_sig <- lisa_queen_origin_motorcycle %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -3797,7 +3797,7 @@ lisa_cat_sig_car <- tm_shape(lisa_queen_dest_car) +
           title = "Significant LISA - Car",
           id = "label")
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_dest_motorcycle_sig <- lisa_queen_dest_motorcycle %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -4202,7 +4202,7 @@ lisa_cat_sig_rain <- tm_shape(lisa_queen_rain) +
           title = "Significant LISA - Rain",
           id = "label")
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_origin_no_rain_sig <- lisa_queen_no_rain %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -4506,7 +4506,7 @@ lisa_cat <- tm_shape(lisa_queen_pois) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_pois_sig <- lisa_queen_pois_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -4541,7 +4541,7 @@ lisa_cat <- tm_shape(lisa_rook_pois) +
               title = "Overall LISA Classification",
               id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_rook_pois_sig <- lisa_rook_pois_sig %>%
   mutate(label = paste("District:", district, "| ", mean))
 
@@ -5014,7 +5014,7 @@ lisa_cat <- tm_shape(lisa_queen_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_origin_sig <- lisa_queen_origin_trips_poi %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5050,7 +5050,7 @@ lisa_cat <- tm_shape(lisa_queen_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_dest_sig <- lisa_queen_dest_trips_poi %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5086,7 +5086,7 @@ lisa_cat <- tm_shape(lisa_rook_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_rook_origin_sig <- lisa_rook_origin_trips_poi %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5122,7 +5122,7 @@ lisa_cat <- tm_shape(lisa_rook_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_rook_dest_sig <- lisa_rook_dest_sig %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5600,7 +5600,7 @@ lisa_cat <- tm_shape(lisa_queen_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_origin_sig <- lisa_queen_origin_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5636,7 +5636,7 @@ lisa_cat <- tm_shape(lisa_queen_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_queen_dest_sig <- lisa_queen_dest_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5672,7 +5672,7 @@ lisa_cat <- tm_shape(lisa_rook_origin) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_rook_origin_sig <- lisa_rook_origin_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
@@ -5708,7 +5708,7 @@ lisa_cat <- tm_shape(lisa_rook_dest) +
           title = "Overall LISA Classification",
           id = "label") 
 
-# Second map: LISAal Significant LISA Map
+# Second map: Statistically Significant LISA Map
 lisa_rook_dest_sig <- lisa_rook_dest_trips_capita %>%
   filter(p_ii_sim < 0.05) %>%
   mutate(label = paste("District:", district, "| ", mean))
